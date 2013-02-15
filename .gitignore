@@ -1,0 +1,6 @@
+.project
+.pydevproject
+.settings
+*.sublime-project
+*.sublime-workspace
+/logs
