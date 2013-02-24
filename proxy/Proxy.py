@@ -5,10 +5,12 @@ from twisted.web import http
 from proxy.ProxyRequest import ProxyRequest
 
 class Proxy(http.HTTPChannel):
+    #pylint: disable=E0202
     requestFactory = ProxyRequest
     
-    def __init__(self):
+    def __init__(self, cacheStorage):
         self.tunnel = None
+        self.cacheStorage = cacheStorage
         http.HTTPChannel.__init__(self)
         
     def registerTunnel(self, tunnel):

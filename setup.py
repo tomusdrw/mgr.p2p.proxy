@@ -7,3 +7,6 @@ setup(
   version='1.0',
   py_modules=['foo']
   )
+#### Requirements
+# twisted
+# entangled

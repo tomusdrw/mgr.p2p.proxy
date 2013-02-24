@@ -6,12 +6,13 @@ from twisted.web import http
 from twisted.internet import reactor
 from twisted.web.proxy import ProxyClientFactory
 import urlparse
-import re
 import logging
 
 
 log = logging.getLogger(__name__)
+
 class ProxyRequest(http.Request):
+    #pylint: disable=E1103
     """
     Used by Proxy to implement a simple web proxy.
 
@@ -23,7 +24,9 @@ class ProxyRequest(http.Request):
     ports = {'http': 80}
 
     def __init__(self, channel, queued, reactor2=reactor):
+        """ @type cacheStorage: cache.CacheStorage """ 
         http.Request.__init__(self, channel, queued)
+        self.cacheStorage = channel.cacheStorage
         self.reactor = reactor2
         
     def process(self):
@@ -50,18 +53,7 @@ class ProxyRequest(http.Request):
             rest = rest + '/'
         return rest
 
-
-    def replyWithImageFromDisk(self):
-        f = open('foto_4.jpg', 'r')
-        imgContent = f.read()
-        f.close()
-        self.setResponseCode(200, "Found file on disk")
-        self.responseHeaders.addRawHeader("content-type", "image/jpeg")
-        self.write(imgContent)
-        self.finish()
-    
-    
-    def processHttp(self):
+    def requestWebObject(self):
         parsed = urlparse.urlparse(self.uri)
         protocol = parsed[0]
         host, port = self.extractHostAndPort(parsed, protocol)
@@ -73,16 +65,27 @@ class ProxyRequest(http.Request):
         if 'host' not in headers:
             headers['host'] = host
             
-        if re.match(r'.+\.png$', rest):
-            self.replyWithImageFromDisk()
-            log.warning('Replying with image from disk')
+        log.info('Performing request for ' + self.uri)
+        self.content.seek(0, 0)
+        s = self.content.read()
+        clientFactory = class_(self.method, rest, self.clientproto, headers,
+                               s, self)
+        self.reactor.connectTCP(host, port, clientFactory)
+        
+    def returnWebObject(self, webObject):
+        self.setResponseCode(200, "Returned from cache")
+        self.write(webObject)
+        self.finish()
+        
+    def processCacheResult(self, result):
+        if result['success']:
+            self.returnWebObject(result['result'])
         else:
-            log.info('Performing request for ' + self.uri)
-            self.content.seek(0, 0)
-            s = self.content.read()
-            clientFactory = class_(self.method, rest, self.clientproto, headers,
-                                   s, self)
-            self.reactor.connectTCP(host, port, clientFactory)
+            self.requestWebObject()
+        
+    def processHttp(self):
+        cacheItem = self.cacheStorage.get(self.uri)
+        cacheItem.addCallback(self.processCacheResult)
 
     def processConnect(self):
         try:
