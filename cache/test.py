@@ -1,9 +1,11 @@
 from cache import CacheStorage, CacheObject
 from twisted.internet import reactor
 from twisted.internet.defer import Deferred
+from twisted.web.http_headers import Headers
 import StringIO
 import gzip
 import re
+import logging
 
 # pylint: disable=E1101
 
@@ -15,17 +17,14 @@ def respond(deferred, success=False, result=None):
     
 
 class EmptyCacheStorage(CacheStorage):
-    def get(self, key, headers=None):
+    def get(self, key, headers=Headers()):
         d = Deferred()
         respond(d)
         return d
 
-    def store(self, key, value):
-        pass
-
 class ImageReplaceStorage(CacheStorage):
     
-    def get(self, key, requestHeaders=None):
+    def get(self, key, requestHeaders=Headers()):
         d = Deferred()
         if not re.match(r'.+\.(png|jpg|jpeg|gif)$', key):        
             respond(d)
@@ -33,7 +32,7 @@ class ImageReplaceStorage(CacheStorage):
             f = open('foto_4.jpg', 'r')
             content = f.read()
             headers = {
-              'content-type' : 'image/jpg'
+              'content-type' : ['image/jpg']
             }
             accept = requestHeaders.getRawHeaders('accept-encoding', default=[])
             if len(accept) and re.match(r'gzip', accept[0]):
@@ -43,10 +42,33 @@ class ImageReplaceStorage(CacheStorage):
                 gzipFile.write(content)
                 gzipFile.close()
                 content = strObj.getvalue()
-                headers['content-encoding'] = 'gzip'
+                strObj.close()
+                headers['content-encoding'] = ['gzip']
                                             
             respond(d, success=True, result=CacheObject(content, headers))
             f.close()
         return d
+    
+class StoreEverytingStorage(CacheStorage):
+    storage = {}
+    
+    def get(self, key, headers=Headers()):
+        d = Deferred()
+        if key in self.storage:
+            logging.info('Cache hit for ' + key)
+            cacheObject = self.storage[key]
+            cacheObject.hit()
+            respond(d, success=True, result=cacheObject)
+        else:
+            respond(d)
+        return d
+        
+    def store(self, key, headers, value):
+        logging.info('Storing to cache: ' + key)
+        headersDict = dict(headers.getAllRawHeaders())
+        cacheObject = CacheObject(value, headersDict)
+        
+        self.storage[key] = cacheObject
+    
         
     

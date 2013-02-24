@@ -1,12 +1,12 @@
 '''
 @author: tomusdrw
 '''
+from proxy.ProxyClient import ProxyClientFactory
 from proxy.TunnelProtocolFactory import TunnelProtocolFactory
-from twisted.web import http
 from twisted.internet import reactor
-from twisted.web.proxy import ProxyClientFactory
-import urlparse
+from twisted.web import http
 import logging
+import urlparse
 
 
 log = logging.getLogger(__name__)
