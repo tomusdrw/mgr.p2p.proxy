@@ -6,7 +6,7 @@ from twisted.python import log
 import argparse
 import logging
 import sys
-from cache.test import EmptyCacheStorage
+from cache.test import ImageReplaceStorage
 
 PROG_NAME = 'p2p.proxy'
 PROG_VERSION = '0.0.1'
@@ -58,7 +58,7 @@ if __name__ == '__main__':
     logging.info("Starting proxy at :{}".format(args.proxy_port))
     
     #pylint: disable=E1101
-    reactor.listenTCP(args.proxy_port, ProxyFactory(EmptyCacheStorage()))
+    reactor.listenTCP(args.proxy_port, ProxyFactory(ImageReplaceStorage()))
     
     logging.info('Running reactor.')
     reactor.run()

@@ -12,7 +12,7 @@ import logging
 log = logging.getLogger(__name__)
 
 class ProxyRequest(http.Request):
-    #pylint: disable=E1103
+    # pylint: disable=E1103
     """
     Used by Proxy to implement a simple web proxy.
 
@@ -24,7 +24,6 @@ class ProxyRequest(http.Request):
     ports = {'http': 80}
 
     def __init__(self, channel, queued, reactor2=reactor):
-        """ @type cacheStorage: cache.CacheStorage """ 
         http.Request.__init__(self, channel, queued)
         self.cacheStorage = channel.cacheStorage
         self.reactor = reactor2
@@ -60,6 +59,8 @@ class ProxyRequest(http.Request):
         rest = self.extractQuery(parsed)
         
         class_ = self.protocols[protocol]
+        
+        # TODO storing requested data in cache!
         headers = self.getAllHeaders().copy()
         
         if 'host' not in headers:
@@ -72,9 +73,10 @@ class ProxyRequest(http.Request):
                                s, self)
         self.reactor.connectTCP(host, port, clientFactory)
         
-    def returnWebObject(self, webObject):
+    def returnWebObject(self, cacheObject):
         self.setResponseCode(200, "Returned from cache")
-        self.write(webObject)
+        cacheObject.applyHeaders(self.responseHeaders)
+        self.write(cacheObject.content)
         self.finish()
         
     def processCacheResult(self, result):
@@ -84,7 +86,7 @@ class ProxyRequest(http.Request):
             self.requestWebObject()
         
     def processHttp(self):
-        cacheItem = self.cacheStorage.get(self.uri)
+        cacheItem = self.cacheStorage.get(self.uri, self.requestHeaders)
         cacheItem.addCallback(self.processCacheResult)
 
     def processConnect(self):
