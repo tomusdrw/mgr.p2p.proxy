@@ -11,6 +11,7 @@ import urlparse
 
 log = logging.getLogger(__name__)
 
+
 class ProxyRequest(http.Request):
     # pylint: disable=E1103
     """
@@ -27,7 +28,7 @@ class ProxyRequest(http.Request):
         http.Request.__init__(self, channel, queued)
         self.cacheStorage = channel.cacheStorage
         self.reactor = reactor2
-        
+
     def process(self):
         """ Support https proxying """
         if self.method == 'CONNECT':
@@ -36,7 +37,6 @@ class ProxyRequest(http.Request):
             print "Address: " + self.uri
             self.processHttp()
 
-
     def extractHostAndPort(self, parsed, protocol):
         host = parsed[1]
         port = self.ports[protocol]
@@ -44,7 +44,6 @@ class ProxyRequest(http.Request):
             host, port = host.split(':')
             port = int(port)
         return host, port
-
 
     def extractQuery(self, parsed):
         rest = urlparse.urlunparse(('', '') + parsed[2:])
@@ -57,37 +56,39 @@ class ProxyRequest(http.Request):
         protocol = parsed[0]
         host, port = self.extractHostAndPort(parsed, protocol)
         rest = self.extractQuery(parsed)
-        
+
         class_ = self.protocols[protocol]
-        
-        # TODO storing requested data in cache!
+
         headers = self.getAllHeaders().copy()
-        
+
         if 'host' not in headers:
             headers['host'] = host
-            
-        log.info('Performing request for ' + self.uri)
+
+        log.info('Performing {} request for {}'.format(self.method, self.uri))
         self.content.seek(0, 0)
         s = self.content.read()
         clientFactory = class_(self.method, rest, self.clientproto, headers,
                                s, self)
         self.reactor.connectTCP(host, port, clientFactory)
-        
+
     def returnWebObject(self, cacheObject):
         self.setResponseCode(200, "Returned from cache")
         cacheObject.applyHeaders(self.responseHeaders)
         self.write(cacheObject.content)
         self.finish()
-        
+
     def processCacheResult(self, result):
         if result['success']:
             self.returnWebObject(result['result'])
         else:
             self.requestWebObject()
-        
+
     def processHttp(self):
-        cacheItem = self.cacheStorage.get(self.uri, self.requestHeaders)
-        cacheItem.addCallback(self.processCacheResult)
+        if self.method == 'GET':
+            cacheItem = self.cacheStorage.get(self.uri, self.requestHeaders)
+            cacheItem.addCallback(self.processCacheResult)
+        else:
+            self.requestWebObject()
 
     def processConnect(self):
         try:

@@ -55,6 +55,7 @@ class StoreEverytingStorage(CacheStorage):
     def get(self, key, headers=Headers()):
         d = Deferred()
         if key in self.storage:
+            # TODO: 304 responses?
             logging.info('Cache hit for ' + key)
             cacheObject = self.storage[key]
             cacheObject.hit()

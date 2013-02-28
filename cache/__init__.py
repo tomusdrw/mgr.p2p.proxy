@@ -7,12 +7,18 @@ class CacheStorage:
     def get(self, key, headers=Headers()):
         pass
     
+    def items(self):
+        return []
+    
+    def remove(self, key):
+        pass
+    
     def store(self, key, headers, value):
         pass
     
 class CacheObject:
     headers = None
-    content = None
+    _content = None
     hits = 0
 
     def __init__(self, content, headers=None):
@@ -21,5 +27,8 @@ class CacheObject:
     def applyHeaders(self, headerObject):
         for key, value in self.headers.items():
             headerObject.setRawHeaders(key, value)
+    @property
+    def content(self):
+        return self._content
     def hit(self):
         self.hits += 1

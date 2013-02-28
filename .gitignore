@@ -5,3 +5,7 @@
 *.sublime-workspace
 /logs
 *.pyc
+build
+dist
+*.log
+res/doc/tmp

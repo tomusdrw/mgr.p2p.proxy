@@ -7,9 +7,20 @@ class ProxyClient(TwistedProxyClient):
     isCached = False
     responseContent = None
     
+    def cachableCode(self, code):
+        intCode = int(code)
+        # TODO partial content (206) cacheable? Some youtube optimizations for keys required.
+        return intCode == 200
+    
+    def sendCommand(self, command, path):
+        TwistedProxyClient.sendCommand(self, command, path)
+        self.isCached = command == 'GET'
+        
+    
     def handleStatus(self, version, code, message):
         TwistedProxyClient.handleStatus(self, version, code, message)
-        self.isCached = int(code) == 200
+        logging.info('Response for {}: {}'.format(self.father.uri, code))
+        self.isCached = self.isCached and self.cachableCode(code)
         self.responseContent = cStringIO.StringIO()
     
     def handleResponsePart(self, bufferData):
