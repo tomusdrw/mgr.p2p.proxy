@@ -1,19 +1,120 @@
 %%This is a very basic article template.
 %%There is just one section and two subsections.
-\documentclass{article}
+\documentclass[a4paper,12pt]{scrartcl}
+\usepackage[polish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{datetime}
+
+\usepackage{listings}
+\usepackage{graphicx, graphics, epsfig, geometry, pslatex}
+\usepackage{amsmath, amssymb}
+\usepackage{url}
+
+\usepackage{array}
+%\usepackage{times}
+\selectlanguage{polish}
+
+
+\hyphenation{
+	po-sta-ci wyż-szy ksią-żce wszy-stkie war-to-ści
+	ma-cie-rzy al-go-rytm kt\o-re któ-re
+}
+\newcommand{\f}{\texttt}
+\newcommand{\mytitle}{Distributed caching proxy}
+\newcommand{\me}{Tomasz Drwięga}
+\newcommand{\s}{ }
+
+\lstset{numbers=left,
+	numberstyle=\tiny,
+	%basicstyle=\footnotesize,
+	showstringspaces=false,
+	basicstyle=\footnotesize,
+	breaklines=true,
+	captionpos=b,
+	tabsize=3,
+	stepnumber=60,
+	firstnumber=1,
+	}
+%opening
+\usepackage{fullpage}
+\title{\mytitle}
+\author{\me}
+
+\makeindex
 
 \begin{document}
 
+% \parindent0pt
+\pagestyle{empty}
 
-\section{Title}
+\begin{titlepage}
+\vspace*{\fill}
+\begin{center}
+\begin{picture}(300,510)
+	\put( 0,520){\makebox(0,0)[l]{\large \bf \textsc{Wydział Podstawowych
+	Problemów Techniki}}}
+	\put( 0,500){\makebox(0,0)[l]{\large \bf \textsc{Politechniki Wrocławskiej}}}
+	\put( 0,280){\makebox(0,0)[l]{\Huge  \bf \textsc{\mytitle}}}
+	\put(95,240){\makebox(0,0)[l]{\Large     \textsc{\me}}}
+	
+	\put(190, 80){\makebox(0,0)[l]{\large  {Praca magisterska napisana}}}
+	\put(190, 60){\makebox(0,0)[l]{\large  {pod kierunkiem}}}
+	\put(190, 40){\makebox(0,0)[l]{\large  {dra Mirosława Korzeniowskiego}}}
+	
+	\put(110,-80){\makebox(0,0)[bl]{\large \bf \textsc{Wrocław 2013}}}
+\end{picture}
+\end{center}
+\vspace*{\fill}
+\end{titlepage}
 
-\subsection{Subtitle}
+\tableofcontents
 
-Plain text.
+\newpage
 
-\subsection{Another subtitle}
+\pagestyle{headings}
 
-More plain text.
+\section*{Wstęp}
 
+\subsection{Sformułowanie problemu}
+
+\subsection{Istniejące rozwiązania}
+Opis proxy keszujących typu Squid, \cite{piatek}?.
+
+
+\section{Opis działania}
+
+\section{Analiza bezpieczeństwa i wydajności}
+\subsection{System, w którym klucz == url}
+Można śledzić co przeglądają użytkownicy.
+
+Nie jest wymagane STORE zasobu - węzły mogą rozpocząć pobieranie podczas operacji SEARCH.
+
+\subsection{System, w którym klucz == hash(url)}
+Dodatkowo zawartość plików może być szyfrowana prawdziwym \f{url}.
+W ten sposób nie można podglądać zawartości plików. 
+
+\section{Analiza różnych metod cachowania}
+Cache wielopoziomowy:
+\begin{enumerate}
+  \item w pamięci,
+  \item na dysku,
+  \item w sieci P2P (te dane również w pamięci, na dysku)
+\end{enumerate}
+Różne strategie przechodzenia między poziomami.
+
+
+\section{Implementaja}
+\subsection{Wybór technologii}
+Tutaj próby zrobienia tego w JS jako plugin do przeglądarki.
+\subsection{Biblioteki}
+Twisted, Entangled.
+\subsection{Instalacja i uruchomienie}
+
+
+\bibliographystyle{plain}
+
+\bibliography{document}
 
 \end{document}
+
