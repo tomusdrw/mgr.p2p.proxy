@@ -8,6 +8,10 @@ import logging
 import sys
 from cache.test import StoreEverytingStorage
 from cache import DeferredDecorator
+from p2p.node import Node
+import subprocess
+from multiprocessing.process import Process
+import time
 
 PROG_NAME = 'p2p.proxy'
 PROG_VERSION = '0.0.1'
@@ -39,7 +43,27 @@ def parser():
         dest='spawn',
         type=int,
         action='store',
-        help='Spawn some nodes that will be in p2p network')
+        help='Spawn some nodes that will be in P2P network')
+    p.add_argument('--p2p-port',
+        metavar='P2P PORT',
+        dest='p2p_port',
+        type=int,
+        default=4000,
+        action='store',
+        help='Port for P2P network node. In case of spawn it would be start port.'
+    )
+    p.add_argument('--bootstrap',
+        metavar='HOST:PORT',
+        dest='bootstrap',
+        type=str,
+        action='store',
+        help='Provide known bootstrap node for P2P network.')
+    p.add_argument('--known-nodes',
+        metavar='filename',
+        dest='known_nodes',
+        type=argparse.FileType('r'),
+        action='store',
+        help='Provide filename with known nodes in P2P network.')
     return p
 def initLogger(logLevel):
     levels = {
@@ -48,7 +72,24 @@ def initLogger(logLevel):
      'warn' : logging.WARN
     }
     logging.basicConfig(stream=sys.stdout, level=levels[logLevel])
+def getKnownNodes(args):
+    knownNodes = []
+    if args.bootstrap:
+        host, port = args.bootstrap.split(':')
+        knownNodes.append((host, int(port)))
+    if args.known_nodes:
+        line = args.known_nodes.readLine()
+        while line:
+            host, port = line.split()
+            knownNodes.append((host, int(port)))
+            line = args.known_nodes.readLine()
+    return knownNodes
 
+def startNode(id2, port, knownNodes=None):
+    logging.info('Starting p2p node {}'.format(id2))
+    node = Node(port=port, cacheStorage=StoreEverytingStorage())
+    node.joinNetwork(knownNodes)
+        
 
 if __name__ == '__main__':
     args = parser().parse_args()
@@ -56,10 +97,31 @@ if __name__ == '__main__':
     initLogger(args.log)
     log.startLogging(open('logs/twisted.logs', 'w+'))
     
-    logging.info("Starting proxy at :{}".format(args.proxy_port))
-    
-    # pylint: disable=E1101
-    reactor.listenTCP(args.proxy_port, ProxyFactory(DeferredDecorator(StoreEverytingStorage())))
-    
-    logging.info('Running reactor.')
-    reactor.run()
+    if args.spawn:
+        nodes = []
+        logging.info('Spawning {} processes'.format(args.spawn))
+        startNode('Main node', args.p2p_port, getKnownNodes(args))
+        for i in range(1, args.spawn):
+            process = Process(target=startNode, args=('Node {}'.format(i), args.p2p_port + i, [('localhost', args.p2p_port)]))
+            process.start()
+            nodes.append(process)
+        
+        try:
+            while 1:
+                time.sleep(1)
+        finally:
+            for n in nodes:
+                logging.info('Killing node {}'.format(n))
+                n.terminate()
+                n.join()
+    else:
+        # pylint: disable=E1101
+        if not args.no_proxy:
+            logging.info("Starting proxy at :{}".format(args.proxy_port))
+            proxyStorage = DeferredDecorator(StoreEverytingStorage())
+            reactor.listenTCP(args.proxy_port, ProxyFactory(proxyStorage))
+            
+        startNode('P2P node', args.p2p_port, getKnownNodes(args))
+
+        logging.info('Running reactor.')
+        reactor.run()

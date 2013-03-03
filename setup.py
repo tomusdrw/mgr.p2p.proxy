@@ -15,3 +15,4 @@ setup(
 # nose
 # sure (sudo pip install sure)
 # mock
+# simplejson
