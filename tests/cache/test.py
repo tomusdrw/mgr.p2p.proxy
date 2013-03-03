@@ -86,6 +86,15 @@ class TestStoreEverythingCache(TestCase):
         self.respondMock.assert_called_once_with(
                 matchers.instanceOf(defer.Deferred))
         
+    def test_removingItems(self):
+        # Given
+        self.cut.store("a", Headers(), "xyz")
+        self.cut.store("b", Headers(), "xyz")
+        len(self.cut.items()).should.equal(2)
             
-            
-            
+        # When
+        self.cut.remove("a")
+        
+        # Then
+        len(self.cut.items()).should.equal(1)
+        self.cut.items()[0].key.should.equal("b")
