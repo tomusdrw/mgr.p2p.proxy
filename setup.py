@@ -10,3 +10,8 @@ setup(
 #### Requirements
 # twisted
 # entangled
+
+#### For tests
+# nose
+# sure (sudo pip install sure)
+# mock

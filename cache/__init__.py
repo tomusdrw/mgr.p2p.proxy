@@ -17,11 +17,13 @@ class CacheStorage:
         pass
     
 class CacheObject:
+    key = None
     headers = None
     _content = None
     hits = 0
 
-    def __init__(self, content, headers=None):
+    def __init__(self, key, content, headers=None):
+        self.key = key
         self.content = content
         self.headers = headers or {}
     def applyHeaders(self, headerObject):
