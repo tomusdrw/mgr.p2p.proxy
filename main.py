@@ -7,6 +7,7 @@ import argparse
 import logging
 import sys
 from cache.test import StoreEverytingStorage
+from cache import DeferredDecorator
 
 PROG_NAME = 'p2p.proxy'
 PROG_VERSION = '0.0.1'
@@ -58,7 +59,7 @@ if __name__ == '__main__':
     logging.info("Starting proxy at :{}".format(args.proxy_port))
     
     # pylint: disable=E1101
-    reactor.listenTCP(args.proxy_port, ProxyFactory(StoreEverytingStorage()))
+    reactor.listenTCP(args.proxy_port, ProxyFactory(DeferredDecorator(StoreEverytingStorage())))
     
     logging.info('Running reactor.')
     reactor.run()

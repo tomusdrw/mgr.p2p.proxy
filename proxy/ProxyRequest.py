@@ -85,7 +85,7 @@ class ProxyRequest(http.Request):
 
     def processHttp(self):
         if self.method == 'GET':
-            cacheItem = self.cacheStorage.get(self.uri, self.requestHeaders)
+            cacheItem = self.cacheStorage.search(self.uri, self.requestHeaders)
             cacheItem.addCallback(self.processCacheResult)
         else:
             self.requestWebObject()

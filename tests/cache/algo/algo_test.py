@@ -1,14 +1,15 @@
 from cache.test import StoreEverytingStorage
-from mock import patch, MagicMock
-import cache.algo as cut
-from unittest.case import TestCase
+from mock import patch
 from twisted.web.http_headers import Headers
+from unittest.case import TestCase
+import cache.algo as cut
 
 def test_BaseCacheLogicShouldForwardMethods():
     with patch('cache.CacheStorage') as mock:
         # Given
         instance = mock.return_value
         header = object()
+        metadata = object()
         
         cl = cut.CacheLogic(instance)
         
@@ -16,14 +17,14 @@ def test_BaseCacheLogicShouldForwardMethods():
         cl.get("someKey", header)
         cl.items()
         cl.remove("someKey2")
-        cl.store("x", header, "abc")
+        cl.put("x", header, "abc", metadata)
         
         
         # Then
         instance.get.assert_called_once_with("someKey", headers=header)
         instance.items.assert_called_once_with()
         instance.remove.assert_called_once_with("someKey2")
-        instance.store.assert_called_once_with("x", header, "abc")
+        instance.put.assert_called_once_with("x", header, "abc", metadata)
         
 class TestFifoLogic(TestCase):
     
@@ -32,12 +33,12 @@ class TestFifoLogic(TestCase):
         mock = StoreEverytingStorage()
         
         cl = cut.Fifo(mock, 2)
-        cl.store("key1", Headers(), "value1")
-        cl.store("key2", Headers(), "value2")
+        cl.put("key1", Headers(), "value1")
+        cl.put("key2", Headers(), "value2")
         len(cl.items()).should.equal(2)
         
         # When
-        cl.store("key3", Headers(), "value3")
+        cl.put("key3", Headers(), "value3")
         
         # Then
         items = cl.items()
