@@ -1,7 +1,15 @@
-from entangled.kademlia import datastore
 from cache import CacheStorage
-import simplejson as json
+from entangled.kademlia import datastore
+from twisted.web.http_headers import Headers
 
+def serialize(headers, value):
+    return {
+      'headers': headers,
+      'value': value
+    }
+    
+def deserialize(value):
+    return value['headers'], value['value']
 
 class CacheDataStore(datastore.DataStore):
     class Metadata:
@@ -49,16 +57,16 @@ class CacheDataStore(datastore.DataStore):
     def setItem(self, key, value, lastPublished, originallyPublished, originalPublisherID):
         """ I assume that received value will be json encoded string """
         
-        valAndHeaders = json.loads(value)
+        headers, value = deserialize(value)
         metadata = self.Metadata(lastPublished, originallyPublished, originalPublisherID)
         
-        return self.storage.put(key, valAndHeaders['headers'], valAndHeaders['value'], metadata)
+        return self.storage.put(key, Headers(headers), value, metadata)
         
 
     def __getitem__(self, key):
         item = self.storage.get(key)
         if item:
-            return item.content
+            return serialize(item.headers, item.content)
         raise KeyError()
 
     def __delitem__(self, key):

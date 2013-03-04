@@ -8,7 +8,7 @@ import logging
 import sys
 from cache.test import StoreEverytingStorage
 from cache import DeferredDecorator
-from p2p.node import Node
+from p2p.node import Node, DeferredNodeCache
 import subprocess
 from multiprocessing.process import Process
 import time
@@ -89,6 +89,7 @@ def startNode(id2, port, knownNodes=None):
     logging.info('Starting p2p node {}'.format(id2))
     node = Node(port=port, cacheStorage=StoreEverytingStorage())
     node.joinNetwork(knownNodes)
+    return node
         
 
 if __name__ == '__main__':
@@ -115,13 +116,14 @@ if __name__ == '__main__':
                 n.terminate()
                 n.join()
     else:
+        node = startNode('P2P node', args.p2p_port, getKnownNodes(args))
+        
         # pylint: disable=E1101
         if not args.no_proxy:
             logging.info("Starting proxy at :{}".format(args.proxy_port))
-            proxyStorage = DeferredDecorator(StoreEverytingStorage())
+            proxyStorage = DeferredNodeCache(node)
             reactor.listenTCP(args.proxy_port, ProxyFactory(proxyStorage))
             
-        startNode('P2P node', args.p2p_port, getKnownNodes(args))
 
         logging.info('Running reactor.')
         reactor.run()

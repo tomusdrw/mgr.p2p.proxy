@@ -3,6 +3,12 @@ from twisted.internet import reactor
 from twisted.internet.defer import Deferred
         
 class DeferredCacheStorage(object):
+    def respond(self, deferred, success=False, result=None):
+        # pylint: disable=E1101
+        reactor.callLater(0, deferred.callback, {
+            'success': success,
+            'result': result
+        })
     def search(self, key, headers=Headers()):
         """
         Search for an item in cache
@@ -62,13 +68,6 @@ class ForwardingCacheStorage(CacheStorage):
 class DeferredDecorator(ForwardingCacheStorage, DeferredCacheStorage):
     """ This decorator turns normal CacheStorage into {DeferredCacheStorage} """
     
-    def respond(self, deferred, success=False, result=None):
-        # pylint: disable=E1101
-        reactor.callLater(0, deferred.callback, {
-            'success': success,
-            'result': result
-        })
-    
     def store(self, key, headers, value):
         return ForwardingCacheStorage.put(self, key, headers, value)
     
@@ -83,7 +82,6 @@ class DeferredDecorator(ForwardingCacheStorage, DeferredCacheStorage):
             
         return d
             
-        
 
 class CacheObject:
     key = None
