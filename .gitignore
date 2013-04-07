@@ -10,3 +10,4 @@ dist
 *.log
 res/doc/tmp
 res/slides/tmp
+*.synctex.gz
