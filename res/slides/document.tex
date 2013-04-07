@@ -89,11 +89,11 @@
 \frametitle{Problem Statement}
 
 \begin{block}{Content provider}
-A lot of request can cause server to become ``flooded'' (``swamped'')
+A lot of requests can cause server to become ``flooded'' (``swamped'')
 \end{block}
 \pause
 \begin{block}{Network admins}
-Lot of outgoing traffic for the same resources results in lower QoS.
+A lot of outgoing traffic for the same resources results in lower QoS.
 \end{block}
 \pause
 \begin{block}{Users}
@@ -111,7 +111,7 @@ Requesting large files from remote servers can cause significant delays.
 \includegraphics[width=0.8\linewidth]{media_server2_edge.jpg}
 
 \begin{block}{}
-Simple solution: introduce servers that will replicate original content.
+A simple solution: introduce servers that will replicate original content.
 \end{block}
 
 \end{frame}
@@ -126,7 +126,7 @@ Multiple cache servers can be organized into hierarchy \cite{chankhunthod1995hie
 \includegraphics[width=0.54\linewidth]{fig5.jpg}
 \pause
 \begin{block}{}
-Leaf servers can transfer resources among one another (cooperative caching). 
+Leaf servers can transfer resources among themselves (cooperative caching). 
 However it leads to excessive communication \cite{povey1997distributed} \cite{wolman1999scale}.
 \end{block}
 \end{center}
@@ -144,7 +144,7 @@ might contain the resource.
 
 \pause
 \begin{block}{Naive Distribution}
-Let's search for resource $R$ in server $S$: 
+Let's assume we are searching for resource $R$ in server $S$: 
 \begin{equation*}
 S \equiv hash(R) \bmod n
 \end{equation*}
@@ -152,7 +152,7 @@ S \equiv hash(R) \bmod n
 
 \pause
 \begin{block}{Serious Flaw of Naive Distribution}
-When new servers are added or removed whole content has to be remapped to new targets.
+When new servers are added or removed the whole content has to be remapped to new targets.
 \end{block}
 
 \end{frame}
@@ -162,8 +162,8 @@ When new servers are added or removed whole content has to be remapped to new ta
 \frametitle{Consistent hashing}
 
 \begin{block}{}
-We would like to optimize process of adding/removing nodes so that new node
-takes its fair share of objects from others.
+We would like to optimize the process of adding/removing nodes so that new nodes
+takes their fair share of objects from others.
 \end{block}
 
 \begin{columns}[c]
@@ -175,8 +175,8 @@ takes its fair share of objects from others.
 
 \column{0.38\textwidth}
 \begin{block}{Consistent hashing}
-Every node (as well as the resource resource) is mapped to a point on unit circle.
-Node is responsible for keys after it's point and it's successor \cite{karger1999web}. 
+Each node (as well as each resource) is mapped to a point on unit circle.
+Node is responsible for keys after its point and its successor's \cite{karger1999web}. 
 \end{block}
 
 \end{columns}
@@ -191,15 +191,15 @@ Node is responsible for keys after it's point and it's successor \cite{karger199
 \frametitle{Distributed Hash Table}
 
 \begin{block}{Distributed Hash Table}
-Decentralized (autonomous), self-organized peer-to-peer system that provides service similar to hash table.
-DHT should also be fault tolerant and scalable.
+Decentralized (autonomous), self-organized peer-to-peer system that provides service similar to a hash table.
+DHTs should also be fault tolerant and scalable.
 \end{block}
 
 \pause
 \begin{block}{}
-DHT Research was originally motivated by existing systems:
+DHTs research was originally motivated by existing systems:
 \begin{description}
-  \item[Napster] P2P with central index handling searches
+  \item[Napster] P2P with a central index handling searches
   \item[Gnutella] P2P with flooding query model
   \item[Freenet] distributed, but no guarantee that data will be found
 \end{description}
@@ -220,12 +220,13 @@ Like other DHTs, Kademlia contacts only $O(\log n)$ nodes.
 \pause
 
 \begin{block}{}
-Every node and key has a 160 bit key. Node has a routing table that stores
-lists ($k$-buckets) of nodes that have specific distance from node (and shares prefix).
+Each node has a 160 bit key. A node has a routing table that stores
+lists ($k$-buckets) of nodes whose keys share a prefix of length $i$ with its key,
+but differ from it on bit $i+1$. Those $k$-buckets exists for each $i \in [0, 160)$
 \end{block}
 
 \begin{center}
-\includegraphics[width=0.6\linewidth]{kademlia.png}
+\includegraphics[width=0.55\linewidth]{kademlia.png}
 \end{center}
 
 \end{frame}
@@ -234,7 +235,7 @@ lists ($k$-buckets) of nodes that have specific distance from node (and shares p
 \frametitle{Kademlia - XOR metric}
 
 \begin{block}{}
-Kademlia uses XOR metric to define distance. It simplifies formal analysis,
+Kademlia uses XOR metric to define distance, which means that keys with long common prefix are close. It simplifies formal analysis,
 correctness proof and implementation.
 \end{block}
 
@@ -243,11 +244,35 @@ correctness proof and implementation.
 \begin{block}{}
 Protocol messages:
 \begin{description}
-\item[PING] verifies that node is still connected,
-\item[STORE] stores (key, value) pair
-\item[FIND\_NODE] returns $k$ nodes closest to requested key
-\item[FIND\_VALUE] returns $k$ closest nodes to key or corresponding value
+\item[PING] verifies that a node is still connected,
+\item[STORE] asks a node to store (key, value) pair
+\item[FIND\_NODE] given node ID returns $k$ closest nodes
+\item[FIND\_VALUE] given object ID returns $k$ closest nodes or corresponding value
 \end{description}
+\end{block}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Kademlia routing comparison}
+
+\begin{block}{}
+XOR metric simplifies routing algorithm - unlike Pastry or Tapestry same algorithm is used during the whole process.
+\end{block}
+
+\pause
+
+\begin{block}{}
+Because XOR is unidirectional (for any $x$ and $\Delta$ there is only one $y$ such that $d(x, y) = \Delta$) lookups for
+the same key converge along the same path. 
+
+So it is possible (like in design of Tapestry) to cache (key, value) pairs along the path. 
+\end{block}
+
+\pause
+
+\begin{block}{}
+This caching speeds-up retrieving popular content from the network
 \end{block}
 
 \end{frame}
@@ -274,9 +299,9 @@ in Kademlia DHT.
 \frametitle{P2P Caching - Implementation}
 
 \begin{block}{First attempt: Javascript browser plugin}
-Easy-to-install plugin that uses HTML5 APIs.
+An easy-to-install plugin that uses HTML5 APIs.
 
-\textbf{Why not?} Requests has to be processed synchronously. 
+\textbf{Why not?} Requests have to be processed synchronously. 
 \end{block}
 
 \pause
@@ -301,20 +326,22 @@ Proxy server written in Python using Twisted framework and Entangled library imp
 
 \begin{block}{Caching logic}
 \begin{itemize}
-  \item Cache or not to cache?
+  \item To cache or not to cache? That is the question!
   \item Removal of old items 
 \end{itemize}
 \end{block}
 
+\pause
 \begin{block}{Requests balancing}
-Requests for items from same source can be routed to completely different 
+Requests for items from the same source can be routed to completely different 
 parts of network (random hashing keys).
 \end{block}
 
+\pause
 \begin{block}{Caching and Streaming of partial content}
 \begin{itemize}
   \item Cache parts of content
-  \item Stream data instead of sending whole file at once
+  \item Stream data instead of sending whole files at once
 \end{itemize}
 \end{block}
 
@@ -332,10 +359,10 @@ parts of network (random hashing keys).
 
 \column{0.4\textwidth}
 \begin{block}{}
-Retrieving item from disk or P2P cache increases latency.
+Retrieving an item from disk or P2P cache increases latency.
 \end{block}
 \begin{block}{}
-We don't know if item even exists in P2P cache.
+We don't know if the item even exists in P2P cache.
 \end{block}
 
 \end{columns}
@@ -367,7 +394,7 @@ Increasing demand on multimedia content (e.g. Youtube)
 \end{block}
 
 \begin{block}{}
-Should parts of file be stored separately?
+Should parts of a file be stored separately?
 \end{block}
 
 \begin{block}{}
