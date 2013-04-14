@@ -96,7 +96,7 @@
 \section{Historia \keszowania}
 Wraz z rosnącą liczbą użytkowników Internetu w latach dziewięćdziesiątych zaczęły pojawiać się problemy z dostępem do pewnych zasobów.
 Duża liczba odwołań do popularnych strony, w krótkim czasie powodowała znaczące obciążenie serwerów, które dany zasób posiadały.
-Czasami z powodu nadmiernego zalania\footnote{ang. \textit{flooded}, \textit{swamped}} żądaniami serwer nie był w stanie obsłużyć wszystkich przez co strona stawała się niedostępna.
+Czasami z powodu nadmiernego zalania\footnote{ang. \textit{flooded}, \textit{swamped}} żądaniami serwer nie był w stanie obsłużyć wszystkich, przez co strona stawała się niedostępna.
 
 \subsection{Serwery \keszujace}\label{sect_cache}
 Jako rozwiązanie problemu ,,gorących punktów'' (ang. \textit{hot spots}) pojawiły się serwery \keszujace. Rysunek \ref{fig_cache_server} przedstawia wprowadzenie transparentnego, lokalnego \kesza\s i jego relację z serwerem docelowym. 
@@ -116,14 +116,14 @@ mniej żądań skutkuje mniejszym obciążeniem serwera, a ,,lokalność'' serwe
 \end{figure}
 
 Wprowadzenie \keszowania\s niesie ze sobą szereg zalet nie tylko dla administratorów serwerów zawierających zasoby. Serwery znajdujące się na granicy sieci lokalnej z Internetem (jak na rysunku \ref{fig_cache_server}) oferują użytkownikom tej sieci lepszy transfer i mniejsze opóźnienia w dostępie do popularnych zasobów.
-Ponieważ łącze wychodzące z sieci ma ograniczoną przepustowość, \kesz\s pozwala również na oszczędniejsze wykorzystanie łącza, a tym samym poprawę jakości dostępu do Internetu.
+Ponieważ łącze wychodzące z sieci ma ograniczoną przepustowość, \kesz\s pozwala również na jego oszczędniejsze wykorzystanie, a tym samym poprawę jakości dostępu do Internetu.
 
 \subsection{Rozproszony i hierarchiczny \kesz}\label{sect_dist_cache}
 Rozwiązanie przedstawione w rozdziale \ref{sect_cache} pozwala na odciążenie serwera docelowego. Zastanówmy się jednak co będzie się działo w przypadku zwiększania liczby użytkowników korzystających z serwera \keszujacego. Duża liczba żądań może spowodować dokładnie taką samą sytuację jak w przypadku serwera docelowego - \kesz\s zostanie zalany i nie będzie w stanie obsłużyć wszystkich zapytań.
 
 W 1995 roku Malpani i inni \cite{malpani1995making} zaproponowali metodę, w której wiele serwerów \keszujacych\s współpracuje ze sobą w celu zrównoważenia obciążenia. W ich propozycji klient wysyła żądanie do losowego serwera należącego do systemu. W przypadku, gdy serwer posiada określony zasób odsyła go w odpowiedzi, w przeciwnym razie rozsyła to żądanie do wszystkich innych serwerów. Jeżeli żaden z \keszy nie zawiera zasobu, to żądanie jest przesyłane do serwera oryginalnego. Niestety wraz ze wzrostem liczby serwerów, należących do systemu liczba przesyłanych między nimi wiadomości bardzo szybko rośnie i cały system staje się zawodny.
 
-W ramach projektu Harvest \cite{bowman1994harvest} A. Chankhunthod i inni \cite{chankhunthod1995hierarchical} \kesz\s hierarchiczny. Rozwiązanie to pozwala na łączyć kilka serwerów w system, który można skalować w zależności od liczby użytkowników, których ma obsługiwać. Grupy użytkowników łączą się z serwerami, będącymi liśćmi. Przychodzące żądania są obsługiwane najpierw przez serwery na najniższym poziomie, w przypadku gdy te serwery nie mają danego zasobu w \keszu\s decydują czy pobrać go z serwera docelowego, czy odpytać serwery z tego samego i wyższego poziomu. Decyzja podejmowana jest na podstawie opóźnień do obu serwerów.
+W ramach projektu Harvest \cite{bowman1994harvest} A. Chankhunthod i inni \cite{chankhunthod1995hierarchical} stworzyli \kesz\s hierarchiczny. Rozwiązanie to pozwala łączyć kilka serwerów w system, który można skalować w zależności od liczby użytkowników, których ma obsługiwać. Grupy użytkowników łączą się z serwerami, będącymi liśćmi. Przychodzące żądania są obsługiwane najpierw przez serwery na najniższym poziomie, w przypadku gdy te serwery nie mają danego zasobu w \keszu\s decydują czy pobrać go z serwera docelowego, czy odpytać serwery z tego samego i wyższego poziomu. Decyzja podejmowana jest na podstawie opóźnień do obu serwerów.
 
 \begin{figure}[h]
 \centering
@@ -132,7 +132,9 @@ W ramach projektu Harvest \cite{bowman1994harvest} A. Chankhunthod i inni \cite{
 \caption{Połączenie kilu serwerów \keszujacych\s w system hierarchiczny. Każdy z serwerów znajdujących się w liściach obsługuje określoną liczbę użytkowników. Zapytania o zasoby, które nie znajdują się w \keszu\s wysyłane są do rodzica.}
 \end{figure}
 
-W praktyce, w takim systemie serwery na wyższych poziomach muszą obsługiwać dużą liczbę żądań od dzieci oraz składują duże ilości danych \cite{povey1997distributed}. Kolejnym zaproponowanym udoskonaleniem jest \kesz\s rozproszony. Rozwiązanie zachowuje hierarchiczną strukturę w formie drzewa, ale tym razem jedynie serwery w liściach zajmują się \keszowaniem\s zasobów, a pozostałe serwery stanowią indeks, w którym zapamiętywana jest informacja czy zasób znajduje się w systemie oraz jaki serwer go przechowuje.
+W praktyce, w takim systemie serwery na wyższych poziomach muszą obsługiwać dużą liczbę żądań od dzieci przez co stają się wrażliwe na zalanie oraz składują duże ilości danych \cite{povey1997distributed}.
+
+Kolejnym zaproponowanym udoskonaleniem jest \kesz\s rozproszony. Rozwiązanie zachowuje hierarchiczną strukturę w formie drzewa, ale tym razem jedynie serwery w liściach zajmują się \keszowaniem\s zasobów, a pozostałe serwery stanowią indeks, w którym zapamiętywana jest informacja czy zasób znajduje się w systemie oraz jaki serwer go przechowuje.
 
 Jak pokazały eksperymenty \cite{povey1997distributed} rozproszony \kesz\s oferuje zbliżoną wydajność do \keszu\s hierarchicznego rozwiązując dodatkowo problemy związane z obsługą dużej liczby żądań przez serwery na wyższych poziomach.
 
@@ -141,16 +143,18 @@ Przedstawione w rozdziałach \ref{sect_cache} i \ref{sect_dist_cache} metody \ke
 
 W celu ułatwienia dodawania i usuwania serwerów do systemu możemy spróbować innego podejścia do problemu. Podstawowym zadaniem węzłów wewnętrznych w systemie \keszu\s rozproszonego jest utrzymywanie indeksu przechowywanych zasobów i lokalizacja serwera, który dany zasób obsługuje. Zatem jeżeli klient mógłby określić, który serwer \keszujacy\s jest odpowiedzialny za obsługę obiektu, wtedy cała infrastruktura związana z indeksowaniem byłaby niepotrzebna.
 
-Naiwnym rozwiązaniem stosującym takie podejście jest przypisanie zasobów do konkretnych serwerów. Przyjmijmy za identyfikator zasoby jego adres. Możemy teraz przypisać wszystkie zasoby w obrębie jednej domeny do pewnego serwera. Na przykład dysponując 24 serwerami możemy przypisać wszystkie domeny zaczynające się na ,,a'' do serwera pierwszego, na ,,b'' do drugiego itd. Oczywiście pozwoli to na łatwe określenie, który serwer należy odpytać o dany zasób, ale rozwiązanie to ma dwie poważne wady. Po pierwsze rozwiązanie nie jest skalowalne - niezdefiniowane jest jakie zasoby miałby obsługiwać dodatkowy serwer, a po drugie obciążenie na serwerach jest nierównomierne.
+Naiwnym rozwiązaniem stosującym takie podejście jest przypisanie zasobów do konkretnych serwerów. Przyjmijmy za identyfikator zasobu jego adres. Możemy teraz przypisać wszystkie zasoby w obrębie jednej domeny do pewnego serwera. Na przykład dysponując 24 serwerami możemy przypisać wszystkie domeny zaczynające się na ,,a'' do serwera pierwszego, na ,,b'' do drugiego itd. Oczywiście pozwoli to na łatwe określenie, który serwer należy odpytać o dany zasób, ale rozwiązanie to ma dwie poważne wady. Po pierwsze rozwiązanie nie jest skalowalne - niezdefiniowane jest jakie zasoby miałby obsługiwać dodatkowy serwer, a po drugie obciążenie na serwerach jest nierównomierne.
 
 Możemy jednak spróbować rozwiązać problem przydziału zasobów do serwerów nieco inaczej. Niech $n$ oznacza liczbę serwerów, a $R$ adres pewnego zasobu, wtedy:
 \begin{equation*}
 S \equiv hash(R) \bmod n,
 \end{equation*}
- gdzie $S$ oznacza indeks serwera odpowiedzialnego za zasób $R$, a $hash$ jest funkcją mieszającą. Dzięki właściwościom funkcji mieszającej gwarantujemy, że zasoby każdy z serwerów jest odpowiedzialny za równą część składowanych zasobów. Niestety dalej nie jest rozwiązany problem skalowalności. Dodanie $n+1$ serwera powoduje, że wszystkie zasoby zostaną przypisane w inne miejsca.
+ gdzie $S$ oznacza indeks serwera odpowiedzialnego za zasób $R$, a $hash$ jest funkcją haszującą. Dzięki właściwościom funkcji haszujących gwarantujemy, że zasoby każdy z serwerów jest odpowiedzialny za równą część składowanych zasobów. Niestety dalej nie jest rozwiązany problem skalowalności. Dodanie $n+1$ serwera powoduje, że wszystkie zasoby zostaną przypisane w inne miejsca.
  
 \subsubsection{\textit{Consistent Hashing}}
 Podczas dodawania nowego serwera do systemu oczekujemy, że przejmie on od pozostałych równą część zasobów, aktualnie znajdujących się w \keszu. Dodatkowo nie chcemy, aby wartości w \keszu były przesuwane pomiędzy ,,starymi'' serwerami. Taką własność gwarantuje mechanizm \textit{Consistent Hashing}, opracowany przez Kargera i Lehmana \cite{karger1997consistent}.
+
+Załóżmy, że dysponujemy funkcją haszującą w odcinek $[0, 1]$, za pomocą której każdemu zasobowi i serwerowi przyporządkowujemy punkt na tym odcinku. Dodatkowo, traktujemy odcinek jako okrąg o obwodzie równym 1. W podanym przez Kargera i Lehmana schemacie dany zasób jest obsługiwany przez najbliższy serwer idąc zgodnie z ruchem wskazówek zegara. Rysunek \ref{fig_consistent_hashing} przedstawia przykładowe mapowanie zasobów i ich przyporządkowanie do poszczególnych serwerów. W drugiej części rysunku przedstawiona została zmiana przyporządkowania wynikająca z dodania nowego serwera $D$.
 
 \begin{figure}[ht]
 \centering
@@ -166,14 +170,12 @@ Podczas dodawania nowego serwera do systemu oczekujemy, że przejmie on od pozos
 \label{fig_consistent_hashing}
 \end{figure}
 
-Załóżmy, że dysponujemy funkcją haszującą w odcinek $[0, 1]$. Każdemu zasobowi i serwerowi przyporządkowujemy losowo (jednostajnie) punkt na tym odcinku. Dodatkowo, traktujemy odcinek jako okrąg o obwodzie równym 1. W podanym przez Kargera i Lehmana schemacie dany zasób jest obsługiwany przez najbliższy serwer idąc zgodnie z ruchem wskazówek zegara. Rysunek \ref{fig_consistent_hashing} przedstawia przykładowe mapowanie zasobów i ich przyporządkowanie do poszczególnych serwerów. W drugiej części rysunku przedstawiona została zmiana przyporządkowania wynikająca z dodania nowego serwera $D$.
-
 W praktyce, przesłanie informacji dotyczących zmian serwerów do wszystkich klientów byłoby bardzo kosztowne, ale sytuacja, w której klienci mają różne ,,widoki'' (wiedzą tylko o pewnym podzbiorze serwerów) systemu nie stanowi problemu po wprowadzeniu prostej modyfikacji. Zauważmy, że może dojść do sytuacji, w której jeden z serwerów, z powodu niepełnej wiedzy klientów, będzie obsługiwał więcej żądań od pozostałych. W celu rozwiązania nierównego obciążenia autorzy zaproponowali stworzenie wirtualnych kopii serwerów, tzn. każdy z nich zmapowany jest nie do jednego, lecz kilku punktów na okręgu. Dzięki temu zagwarantowane jest równomierne przyporządkowanie zasobów do serwerów \cite{karger1999web}.
 
-Pomimo, że pierwotną motywacją powstania \textit{Consistent Hashing} był problem \keszowania\s zasobów internetowych, schemat znalazł zastosowanie w innych obszarach. W szczególności leży on u podstaw rozproszonych tablic haszujących, które omówione są w rozdziale \ref{sect_dht}.
+Pomimo, że pierwotną motywacją powstania \textit{Consistent Hashing} był problem \keszowania\s zasobów internetowych, schemat znalazł zastosowanie w innych obszarach. W szczególności, leży on u podstaw rozproszonych tablic haszujących, które omówione są w rozdziale \ref{sect_dht}.
 
 \section{Rozproszone tablice haszujące (DHT)}
-\label{sect_dht}.
+\label{sect_dht}
 
 TODO: Opis idei dht, rozszerzenie Consistent Hashing do Chorda
  
