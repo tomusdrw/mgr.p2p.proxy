@@ -1,0 +1,17 @@
+KOLORY:
+
+Blue:
+4262e0ff
+
+Green:
+1eb956ff
+
+Red:
+e04242ff
+
+Yellow:
+faf057ff
+
+Fonts:
+Crillee
+Delicious Heavy
