@@ -93,7 +93,7 @@
 
 \section*{Wstęp}
 
-\section{Historia keszowania}
+\section{Historia \keszowania}
 Wraz z rosnącą liczbą użytkowników Internetu w latach dziewięćdziesiątych zaczęły pojawiać się problemy z dostępem do pewnych zasobów.
 Duża liczba odwołań do popularnych strony, w krótkim czasie powodowała znaczące obciążenie serwerów, które dany zasób posiadały.
 Czasami z powodu nadmiernego zalania\footnote{ang. \textit{flooded}, \textit{swamped}} żądaniami serwer nie był w stanie obsłużyć wszystkich przez co strona stawała się niedostępna.
@@ -109,8 +109,8 @@ Jako rozwiązanie problemu ,,gorących punktów'' (ang. \textit{hot spots}) poja
 Przykład lokalnego serwera \keszujacego.
 Zamiast wielokrotnie odwoływać się do docelowego serwera, który zawiera daną stronę
 możemy zapamiętać ją na serwerze \keszujacym. Takie rozwiązanie niesie ze sobą zalety
-zarówno dla administratorów serwera w Chicago, jak i użytkowników sieci w Japoni:
-mniej żądąń skutkuje mniejszym obciążeniem serwera, a ,,lokalność'' serwera \keszujacego\s zmniejsza opóźnienia i zwiększa szybkość transferu zasobu.
+zarówno dla administratorów serwera w Chicago, jak i użytkowników sieci w Japonii:
+mniej żądań skutkuje mniejszym obciążeniem serwera, a ,,lokalność'' serwera \keszujacego\s zmniejsza opóźnienia i zwiększa szybkość transferu zasobu.
 }
 \label{fig_cache_server}
 \end{figure}
@@ -147,7 +147,7 @@ Możemy jednak spróbować rozwiązać problem przydziału zasobów do serwerów
 \begin{equation*}
 S \equiv hash(R) \bmod n,
 \end{equation*}
- gdzie $S$ oznacza indeks serwera odpowiedzialnego za zasób $R$, a $hash$ jest funkcją mieszającą. Dzięki właściowościom funkcji mieszającej gwarantujemy, że zasoby każdy z serwerów jest odpowiedzialny za równą część składowanych zasobów. Niestety dalej nie jest rozwiązany problem skalowalności. Dodanie $n+1$ serwera powoduje, że wszystkie zasoby zostaną przypisane w inne miejsca.
+ gdzie $S$ oznacza indeks serwera odpowiedzialnego za zasób $R$, a $hash$ jest funkcją mieszającą. Dzięki właściwościom funkcji mieszającej gwarantujemy, że zasoby każdy z serwerów jest odpowiedzialny za równą część składowanych zasobów. Niestety dalej nie jest rozwiązany problem skalowalności. Dodanie $n+1$ serwera powoduje, że wszystkie zasoby zostaną przypisane w inne miejsca.
  
 \subsubsection{\textit{Consistent Hashing}}
 Podczas dodawania nowego serwera do systemu oczekujemy, że przejmie on od pozostałych równą część zasobów, aktualnie znajdujących się w \keszu. Dodatkowo nie chcemy, aby wartości w \keszu były przesuwane pomiędzy ,,starymi'' serwerami. Taką własność gwarantuje mechanizm \textit{Consistent Hashing}, opracowany przez Kargera i Lehmana \cite{karger1997consistent}.
@@ -166,7 +166,7 @@ Podczas dodawania nowego serwera do systemu oczekujemy, że przejmie on od pozos
 \label{fig_consistent_hashing}
 \end{figure}
 
-Załóżmy, że dysponujemy funkcją haszującą w odcinek $[0, 1]$. Każdemu zasóbowi i serwerowi przyporządkowujemy losowo (jednostajnie) punkt na tym odcinku. Dodatkowo, traktujemy odcinek jako okrąg o obwodzie równym 1. W podanym przez Kargera i Lehmana schemacie dany zasób jest obsługiwany przez najbliższy serwer idąc zgodnie z ruchem wskazówek zegara. Rysunek \ref{fig_consistent_hashing} przedstawia przykładowe mapowanie zasobów i ich przyporządkowanie do poszczególnych serwerów. W drugiej części rysunku przedstawiona została zmiana przyporządkowania wynikająca z dodania nowego serwera $D$.
+Załóżmy, że dysponujemy funkcją haszującą w odcinek $[0, 1]$. Każdemu zasobowi i serwerowi przyporządkowujemy losowo (jednostajnie) punkt na tym odcinku. Dodatkowo, traktujemy odcinek jako okrąg o obwodzie równym 1. W podanym przez Kargera i Lehmana schemacie dany zasób jest obsługiwany przez najbliższy serwer idąc zgodnie z ruchem wskazówek zegara. Rysunek \ref{fig_consistent_hashing} przedstawia przykładowe mapowanie zasobów i ich przyporządkowanie do poszczególnych serwerów. W drugiej części rysunku przedstawiona została zmiana przyporządkowania wynikająca z dodania nowego serwera $D$.
 
 W praktyce, przesłanie informacji dotyczących zmian serwerów do wszystkich klientów byłoby bardzo kosztowne, ale sytuacja, w której klienci mają różne ,,widoki'' (wiedzą tylko o pewnym podzbiorze serwerów) systemu nie stanowi problemu po wprowadzeniu prostej modyfikacji. Zauważmy, że może dojść do sytuacji, w której jeden z serwerów, z powodu niepełnej wiedzy klientów, będzie obsługiwał więcej żądań od pozostałych. W celu rozwiązania nierównego obciążenia autorzy zaproponowali stworzenie wirtualnych kopii serwerów, tzn. każdy z nich zmapowany jest nie do jednego, lecz kilku punktów na okręgu. Dzięki temu zagwarantowane jest równomierne przyporządkowanie zasobów do serwerów \cite{karger1999web}.
 
@@ -175,7 +175,7 @@ Pomimo, że pierwotną motywacją powstania \textit{Consistent Hashing} był pro
 \section{Rozproszone tablice haszujące (DHT)}
 \label{sect_dht}.
 
-TODO: Opis idei dht, rozszerzenie consistent hashing do Chorda
+TODO: Opis idei dht, rozszerzenie Consistent Hashing do Chorda
  
  
 \subsection{Kademlia}
@@ -201,7 +201,7 @@ Różne strategie przechodzenia między poziomami.
 \subsection{Wdrożenie}
 TODO: testy opóźnień?
 
-\section{Implementaja}
+\section{Implementacja}
 \subsection{Wybór technologii}
 Tutaj próby zrobienia tego w JS jako plugin do przeglądarki.
 \subsection{Biblioteki}

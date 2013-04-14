@@ -1,0 +1,4 @@
+#!/bin/bash
+
+#aspell create personal ./aspell.pl.pws < ignored
+aspell --mode=tex -c document.tex --personal=./ignored
