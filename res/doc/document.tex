@@ -24,7 +24,7 @@
 
 \newcommand{\f}{\texttt}
 \newcommand{\mytitlea}{Peer-to-peer web objects}
-\newcommand{\mytitleb}{cacheing proxy}
+\newcommand{\mytitleb}{caching proxy}
 \newcommand{\me}{Tomasz Drwięga}
 \newcommand{\s}{ }
 
@@ -100,7 +100,7 @@ Czasami z powodu nadmiernego zalania\footnote{ang. \textit{flooded}, \textit{swa
 
 \subsection{Serwery \keszujace}\label{sect_cache}
 Jako rozwiązanie problemu ,,gorących punktów'' (ang. \textit{hot spots}) pojawiły się serwery \keszujace. Rysunek \ref{fig_cache_server} przedstawia wprowadzenie transparentnego, lokalnego \kesza\s i jego relację z serwerem docelowym. 
-Żądania zasobów wychodzące od użytkowników końcowych są w pierwszej kolejności obsługiwane przez serwer \keszujace, który odpowiada zapamiętanym zasobem lub kontaktuje się z serwerem docelowym i zapamiętuje odpowiedź.
+Żądania zasobów wychodzące od użytkowników końcowych są w pierwszej kolejności obsługiwane przez serwer \keszujacy, który odpowiada zapamiętanym zasobem lub kontaktuje się z serwerem docelowym i zapamiętuje odpowiedź.
 
 \begin{figure}[ht]
 \centering
@@ -176,14 +176,35 @@ Pomimo, że pierwotną motywacją powstania \textit{Consistent Hashing} był pro
 
 \section{Rozproszone tablice haszujące (DHT)}
 \label{sect_dht}
+Rozproszone tablice haszujące (ang. \textit{Distributed Hash Tables}, DHT) to systemy pozwalające na przechowywanie par \textit{(klucz, wartość)}, podobnie jak zwykłe tablice haszujące, w dynamicznej sieci zbudowanej z uczestniczących węzłów (\textit{peer-to-peer}). Odpowiedzialność za przetrzymywanie mapowania kluczy do wartości jest podzielona pomiędzy węzłami, w taki sposób aby zmiany w liczbie uczestników nie powodowały reorganizacji systemu. Dodatkowo rozproszone tablice haszujące oferują efektywne wyszukiwanie kluczy w systemie.
 
-TODO: Opis idei dht, rozszerzenie Consistent Hashing do Chorda
- 
+Początkowe badania nad DHT były motywowane istniejącymi systemami peer-to-peer, oferującymi głównie możliwość dzielenia się plikami, np. \textit{Napster}, \textit{gnutella} i \textit{Freenet}. Sieci te w różnych sposób realizowały wyszukiwanie zasobów, ale każdy z nich miał swoje wady. \textit{Napster} korzystał z centralnego katalogu, do którego każdy serwer wysyłał swoją listę plików i który zarządzał wyszukiwaniem plików. W \textit{gnutelli} w celu odnalezienia zasobu, zapytanie wysyłane było do każdego węzła w sieci, co skutkowało mniejszą szybkością i mnóstwem przesyłanych wiadomości. W przypadku sieci \textit{Freenet}, znajdowanie klucza odbywało się za pomocą heurystycznej metody, która nie zapewniała, że klucz zostanie znaleziony.
+
+Idea rozproszonych tablic haszujących ma na celu rozwiązanie wszystkich przedstawionych problemów:
+\begin{itemize}
+  \item w pełni rozproszony, skalowalny system; brak centralnego zarządzania,
+  \item odporność na awarie węzłów,
+  \item deterministyczny algorytm routingu, z dowiedzioną poprawnością, pozwalający na efektywne wyszukiwanie. 
+\end{itemize} 
+
+Jedną z pierwszy sieci DHT, bazującej na schemacie \textit{Consistent Hashing} jest \textit{Chord}, opisany w rozdziale \ref{sect_dht_chord}.
+
+\subsection{Chord}
+\label{sect_dht_chord}
+TODO: Opis chorda jako zastosowanie Consistent Hashing
+
+\subsection{Pastry}
+TODO: Opis pastry w celu porównania Squirrela
  
 \subsection{Kademlia}
-TODO: Opis Kademli: Routing, Asynchroniczność wywołań routingu - aspekty praktyczne.
+TODO: Opis Kademli\cite{maymounkov2002kademlia}: Routing, Asynchroniczność wywołań routingu - aspekty praktyczne.
 
 \section{Rozproszony \kesz\s z użyciem DHT}
+
+\subsection{Poprzednie prace}
+TODO: Squirrel p2p web cache \cite{iyer2002squirrel}
+
+\subsection{}
 TODO: Opis połączenia keszowania z DHT - zastosowanie w celu realizacji pierwotnych idei. Zmiany w sieci w stosunku do ,,tamtych czasów'' :)
 
 \section{Analiza różnych metod cachowania}
