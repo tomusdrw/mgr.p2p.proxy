@@ -22,12 +22,13 @@
 \usepackage[scaled=.90]{helvet}
 \usepackage{courier}
 \usepackage{graphicx}
+\usepackage[square]{natbib}
 
 
 \usepackage[T1]{fontenc}
 
 
-\title{Peer-to-peer web objects cache}
+\title{Peer-to-peer web objects caching proxy}
 
 %s\subtitle{Chaum, Crepeau, Damgard}
 
@@ -83,76 +84,80 @@
 \end{frame}
 
 
-\section{Problem statement}
+\section{Sformułowanie problemu}
 
 \begin{frame}
-\frametitle{Problem Statement}
+\frametitle{Sformułowanie problemu}
+Problem cache'owania można przedstawić z różnych perspektyw.
 
-\begin{block}{Content provider}
-A lot of requests can cause server to become ``flooded'' (``swamped'')
+\begin{block}{Dostawca treści}
+Wiele żądań może spowodować ``zalanie'' (ang. \textit{flooding, swamping}) serwera.
 \end{block}
-\pause
-\begin{block}{Network admins}
-A lot of outgoing traffic for the same resources results in lower QoS.
+\begin{block}{Administrator sieci}
+Wielokrotny transfer tego samego zasobu może prowadzić do obniżenia jakości usług.
 \end{block}
-\pause
-\begin{block}{Users}
-Requesting large files from remote servers can cause significant delays.
+\begin{block}{Użytkownicy}
+Pobieranie dużych plików z odległych serwerów może odbywać się ze znaczącym opóźnieniem.
 \end{block}
 \end{frame}
 
 
-\section{Previous work}
+\section{Poprzednie prace}
 \subsection{Harvest (Squid) object cache}
 
 \begin{frame}
 \frametitle{Squid object cache}
-
-\includegraphics[width=0.8\linewidth]{media_server2_edge.jpg}
+\centering
+\includegraphics[width=0.8\linewidth]{img/cache.pdf}
 
 \begin{block}{}
-A simple solution: introduce servers that will replicate original content.
+Rozwiązanie: Wprowadzenie serwerów pośredniczących, które będą powielać oryginalne zasoby.
 \end{block}
 
 \end{frame}
 
 
 \begin{frame}
-\frametitle{Hierarchical cache}
+\frametitle{Cache hierarchiczny}
 \begin{block}{}
-Multiple cache servers can be organized into hierarchy \cite{chankhunthod1995hierarchical}.
+Wiele serwerów cache'ujących można zorganizować w hierarchię \citep{chankhunthod1995hierarchical}.
 \end{block}
+
+\begin{columns}[c]
+\column{0.45\textwidth}
 \begin{center}
-\includegraphics[width=0.54\linewidth]{fig5.jpg}
+\includegraphics[width=0.8\linewidth]{img/hierarchical.pdf}
+\end{center}
+
+\column{0.5\textwidth}
 \pause
 \begin{block}{}
-Leaf servers can transfer resources among themselves (cooperative caching). 
-However it leads to excessive communication \cite{povey1997distributed} \cite{wolman1999scale}.
+Serwery, znajdujące się w liściach mogą wymieniać się zasobami (cache kooperacyjny). Prowadzi to jednak do nadmiernej komunikacji \citep{povey1997distributed, wolman1999scale}.
 \end{block}
-\end{center}
+
+\end{columns}
 
 \end{frame}
 
 \subsection{Consistent Hashing}
 
 \begin{frame}
-\frametitle{Towards Consistent Hashing \cite{karger1997consistent}}
+\frametitle{W kierunku Consistent Hashing \citep{karger1997consistent}}
 \begin{block}{}
-The main problem with multiple caching servers was to determine which server
-might contain the resource. 
+Głównym problemem w systemach cache'ujących jest określenie, który z serwerów może być odpowiedzialny za dany zasób. 
 \end{block}
 
 \pause
-\begin{block}{Naive Distribution}
-Let's assume we are searching for resource $R$ in server $S$: 
+\begin{block}{Naiwny podział}
+Załóżmy, że poszukujemy zasobu $R$, który przydzielamy do serwera o indeksie $S$: 
 \begin{equation*}
 S \equiv hash(R) \bmod n
 \end{equation*}
 \end{block}
 
 \pause
-\begin{block}{Serious Flaw of Naive Distribution}
-When new servers are added or removed the whole content has to be remapped to new targets.
+\begin{block}{}
+Kiedy dodajemy lub usuwamy serwery, niemal każdy zasób przydzielony jest do innego serwera.
 \end{block}
 
 \end{frame}
@@ -162,21 +167,20 @@ When new servers are added or removed the whole content has to be remapped to ne
 \frametitle{Consistent hashing}
 
 \begin{block}{}
-We would like to optimize the process of adding/removing nodes so that new nodes
-takes their fair share of objects from others.
+Celem jest poprawienie procesu dodawania i usuwania węzłów tak, żeby nowy serwer przejął równy udział od pozostałych.
 \end{block}
 
 \begin{columns}[c]
-\column{0.58\textwidth}
+\column{0.5\textwidth}
 
 \begin{center}
-\includegraphics[width=0.75\linewidth]{consistent_hashing_1.png}
+\includegraphics[width=0.75\linewidth]{img/consistent.pdf}
 \end{center}
 
-\column{0.38\textwidth}
+\column{0.5\textwidth}
 \begin{block}{Consistent hashing}
-Each node (as well as each resource) is mapped to a point on unit circle.
-Node is responsible for keys after its point and its successor's \cite{karger1999web}. 
+Każdy węzeł (oraz każdy zasób) jest mapowany do punktu na okręgu jednostkowym.
+Węzeł jest odpowiedzialny za klucze, które znajdują się między nim a jego poprzednikiem \citep{karger1999web}. 
 \end{block}
 
 \end{columns}
@@ -188,91 +192,89 @@ Node is responsible for keys after its point and its successor's \cite{karger199
 \subsection{DHT - Kademlia}
 
 \begin{frame}
-\frametitle{Distributed Hash Table}
+\frametitle{Rozproszone Tablice Haszujące (DHT)}
 
-\begin{block}{Distributed Hash Table}
-Decentralized (autonomous), self-organized peer-to-peer system that provides service similar to a hash table.
-DHTs should also be fault tolerant and scalable.
+\begin{block}{}
+Zdecentralizowany (autonomiczny), samo-organizujący się system typu peer-to-peer, oferujący usługę przypominającą tablicę haszującą.
+DHT są dodatkowo odporne na błędy i skalowalne.
 \end{block}
 
 \pause
 \begin{block}{}
-DHTs research was originally motivated by existing systems:
+Badania nad DHT były motywowane istniejącymi systemami:
 \begin{description}
-  \item[Napster] P2P with a central index handling searches
-  \item[Gnutella] P2P with flooding query model
-  \item[Freenet] distributed, but no guarantee that data will be found
+  \item[Napster] P2P z centralnym serwerem indeksującym, który obsługiwał wyszukiwanie
+  \item[Gnutella] P2P rozsyłające zapytanie do każdego z węzłów
+  \item[Freenet] w pełni rozproszony, ale nie gwarantujący, że dane zostaną odnalezione
 \end{description}
 \end{block}
 
-\begin{block}{Four main DHTs (2001)}
+\begin{block}{Cztery główne DHT (2001)}
 CAN, Chord, Pastry, Tapestry
 \end{block}
 
 \end{frame}
 
 \begin{frame}
-\frametitle{Kademlia \cite{maymounkov2002kademlia} (2002)}
+\frametitle{Kademlia \citep{maymounkov2002kademlia}}
 \begin{block}{}
-Like other DHTs, Kademlia contacts only $O(\log n)$ nodes.
+Podobnie jak pozostałe DHT, Kademlia podczas wyszukiwania kontaktuje się tylko z $O(\log n)$ węzłami.
 \end{block}
 
 \pause
 
 \begin{block}{}
-Each node has a 160 bit key. A node has a routing table that stores
-lists ($k$-buckets) of nodes whose keys share a prefix of length $i$ with its key,
-but differ from it on bit $i+1$. Those $k$-buckets exists for each $i \in [0, 160)$
+Każdemu węzłowi przypisany jest 160-bitowy klucz. Węzeł utrzymuje tablicę routingu, w której przechowuje listy (\textit{$k$-buckets}) węzłow, z którymi dzieli prefiks długości $i$, ale różni się na na bicie $i+1$.
+Takie \textit{$k$-buckets} istnieją dla każdego $i \in [0, 160)$.
 \end{block}
 
 \begin{center}
-\includegraphics[width=0.55\linewidth]{kademlia.png}
+\includegraphics[width=0.55\linewidth]{img/kademlia.pdf}
 \end{center}
 
 \end{frame}
 
 \begin{frame}
-\frametitle{Kademlia - XOR metric}
+\frametitle{Kademlia - metryka XOR}
 
 \begin{block}{}
-Kademlia uses XOR metric to define distance, which means that keys with long common prefix are close. It simplifies formal analysis,
-correctness proof and implementation.
+Kademlia korzysta z metryki XOR to określenia odległości między węzłami. Oznacza to, że węzły, które mają długi wspólny prefiks są blisko siebie. Upraszcza to formalną analizę, dowód poprawności i implementację.
 \end{block}
 
 \pause
 
 \begin{block}{}
-Protocol messages:
+Wiadomości protokołu:
 \begin{description}
-\item[PING] verifies that a node is still connected,
-\item[STORE] asks a node to store (key, value) pair
-\item[FIND\_NODE] given node ID returns $k$ closest nodes
-\item[FIND\_VALUE] given object ID returns $k$ closest nodes or corresponding value
+\item[PING] weryfikuje, że węzeł jest aktywny,
+\item[STORE] prosi węzeł o zapamiętanie pary (klucz, wartość)
+\item[FIND\_NODE] zwraca $k$ najbliższych węzłów dla zadanego ID
+\item[FIND\_VALUE] zwraca $k$ najbliższych węzłów lub przypisaną wartość dla danego ID
 \end{description}
 \end{block}
 
 \end{frame}
 
 \begin{frame}
-\frametitle{Kademlia routing comparison}
+\frametitle{Kademlia - porównanie}
 
 \begin{block}{}
-XOR metric simplifies routing algorithm - unlike Pastry or Tapestry same algorithm is used during the whole process.
+Metryka XOR upraszcza algorytm routingu - w przeciwieństwie do Pastry czy Tapestry ten sam algorytm jest używany podczas całego procesu.
 \end{block}
 
 \pause
 
 \begin{block}{}
-Because XOR is unidirectional (for any $x$ and $\Delta$ there is only one $y$ such that $d(x, y) = \Delta$) lookups for
-the same key converge along the same path. 
+Ponieważ XOR jest ???jednokierunkowa??? (czyli dla dowolnego $x$ i $\Delta$ istnieje tylko jeden $y$ taki, że $d(x, y) = \Delta$) wyszukiwania tego samego klucza zbiegają po tych samych ścieżkach.
 
-So it is possible (like in design of Tapestry) to cache (key, value) pairs along the path. 
+Zatem możliwe jest cache'owanie par (klucz, wartośc) na węzłach znajdujących się na tej ścieżce.
+ 
 \end{block}
 
 \pause
 
 \begin{block}{}
-This caching speeds-up retrieving popular content from the network
+Takie cache'owanie pozwala na przyspieszenie wyszukiwania popularnych zasobów w sieci.
 \end{block}
 
 \end{frame}
@@ -282,47 +284,46 @@ This caching speeds-up retrieving popular content from the network
 \frametitle{P2P Caching}
 
 \begin{block}{}
-Instead of downloading resource from original server we perform lookup
-in Kademlia DHT.
+Zamiast pobierać zasoby z oryginalnego serwera przeszukujemy najpierw rozproszoną tablicę haszującą, opartą na Kademli.
 \end{block}
 
-\begin{block}{Potential benefits}
+\begin{block}{Potencjalne zalety}
 \begin{itemize}
-  \item Large resources can be obtained faster (nodes are in the same LAN)
-  \item WAN network bandwidth is saved
+  \item ``Duże'' zasoby mogą zostać pobrane szybciej (węzły należą do tej samej sieci LAN)
+  \item Przepustowość łącza WAN jest oszczędzana
 \end{itemize}
 \end{block}
 
 \end{frame}
 
 \begin{frame}
-\frametitle{P2P Caching - Implementation}
+\frametitle{P2P Caching - Implementacja}
 
-\begin{block}{First attempt: Javascript browser plugin}
-An easy-to-install plugin that uses HTML5 APIs.
+\begin{block}{Pierwsza próba: Wtyczka przeglądarkowa w Javascript}
+Łatwa w instalacji wtyczka używająca nowych API z HTML5.
 
-\textbf{Why not?} Requests have to be processed synchronously. 
+\textbf{Dlaczego nie?} Żądania musiałyby być przetwarzane synchronicznie.
 \end{block}
 
 \pause
-\begin{block}{Native Client plugin for Chrome}
-Easy-to-install, good performance, but limited only to Chrome.
+\begin{block}{Wtyczka Native Client dla Chrome}
+Łatwa w instalacji, oferująca dobrą wydajność, ale ograniczona tylko do przeglądarek Chrome.
 
-\textbf{Why not?} Lack of documentation, unsufficient APIs.
+\textbf{Dlaczego nie?} Brak dokumentacji, niewystarczające API.
 \end{block}
 
 \pause
-\begin{block}{Fallback: Proxy \cite{guha2002improving}}
-Proxy server written in Python using Twisted framework and Entangled library implementing Kademlia.
+\begin{block}{Fallback: Proxy cache'ujące}
+Serwer proxy napisany w jęzku Python z użyciem frameworku Twisted i biblioteki Entangled.
 
-\textbf{Drawback:} Requires additional configuration
+\textbf{Wada:} Wymagana jest dodatkowa konfiguracji przeglądarki.
 \end{block}
 
 \end{frame}
 
-\section{Challenges}
+\section{Wyzwania}
 \begin{frame}
-\frametitle{Challenges}
+\frametitle{Wyzwania}
 
 \begin{block}{Caching logic}
 \begin{itemize}
@@ -373,7 +374,7 @@ We don't know if the item even exists in P2P cache.
 \frametitle{Requests balancing}
 
 \begin{block}{}
-We could use skip graphs \cite{aspnes2007skip} to ask for keys in some range 
+We could use skip graphs \citep{aspnes2007skip} to ask for keys in some range 
 (for instance resources from same domain). 
 \end{block}
 
@@ -405,7 +406,7 @@ We need to retrieve parts in order to allow streaming of content.
 
 \begin{frame}[allowframebreaks]
 \frametitle{References}
-\bibliographystyle{abbrv}
+\bibliographystyle{plainnat}
 \bibliography{document.bib}
 \end{frame}
 
