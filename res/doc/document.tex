@@ -93,7 +93,7 @@
 
 \section*{Wstęp}
 
-TODO: Opis problemu cachowania (oryginalnego - hot spots), nasilenie związane z efektem slashdot, multimedia
+TODO: Opis problemu cachowania (oryginalnego - hot spots), nasilenie związane z efektem slash-dot, multimedia
 
 \section{Historia \keszowania}
 Wraz z rosnącą liczbą użytkowników Internetu w latach dziewięćdziesiątych zaczęły pojawiać się problemy z dostępem do pewnych zasobów.
@@ -154,6 +154,7 @@ S \equiv hash(R) \bmod n,
  gdzie $S$ oznacza indeks serwera odpowiedzialnego za zasób $R$, a $hash$ jest funkcją haszującą. Dzięki właściwościom funkcji haszujących gwarantujemy, że zasoby każdy z serwerów jest odpowiedzialny za równą część składowanych zasobów. Niestety dalej nie jest rozwiązany problem skalowalności. Dodanie $n+1$ serwera powoduje, że wszystkie zasoby zostaną przypisane w inne miejsca.
  
 \subsubsection{\textit{Consistent Hashing}}
+\label{sect_consistent_hashing}
 Podczas dodawania nowego serwera do systemu oczekujemy, że przejmie on od pozostałych równą część zasobów, aktualnie znajdujących się w \keszu. Dodatkowo nie chcemy, aby wartości w \keszu były przesuwane pomiędzy ,,starymi'' serwerami. Taką własność gwarantuje mechanizm \textit{Consistent Hashing}, opracowany przez Kargera i Lehmana \cite{karger1997consistent}.
 
 Załóżmy, że dysponujemy funkcją haszującą w odcinek $[0, 1]$, za pomocą której każdemu zasobowi i serwerowi przyporządkowujemy punkt na tym odcinku. Dodatkowo, traktujemy odcinek jako okrąg o obwodzie równym 1. W podanym przez Kargera i Lehmana schemacie dany zasób jest obsługiwany przez najbliższy serwer idąc zgodnie z ruchem wskazówek zegara. Rysunek \ref{fig_consistent_hashing} przedstawia przykładowe mapowanie zasobów i ich przyporządkowanie do poszczególnych serwerów. W drugiej części rysunku przedstawiona została zmiana przyporządkowania wynikająca z dodania nowego serwera $D$.
@@ -168,7 +169,7 @@ Załóżmy, że dysponujemy funkcją haszującą w odcinek $[0, 1]$, za pomocą 
 \centering
 \includegraphics[width=0.95\textwidth]{img/consistent_2.pdf}
 \end{minipage}
-\caption{Idea \textit{Consistent Hashing}. Zasoby, reprezentowane przez zielone punkty, oraz serwery \keszujace\s (kwadraty) mapowane są na punkty na okręgu o jednostkowym obwodzie. Każdy serwer jest odpowiedzialny za obsługę zasobów znajdujących się pomiędzy jego punktem i punktem jego poprzednika. Dodanie nowego serwera $D$ powoduje wyłącznie zmianę przydziału zasobu $4$.}
+\caption{Idea \textit{Consistent Hashing}. Zasoby, reprezentowane przez zielone punkty, oraz serwery \keszujace\s (kwadraty) mapowane są na punkty na okręgu o jednostkowym obwodzie. W praktyce do reprezentowania punktów na okręgu najczęściej wykorzystywane są klucze binarne o ustalonej długości $m$. Pozwala to na umieszczenie w sieci $2^m$ obiektów. Każdy serwer jest odpowiedzialny za obsługę zasobów znajdujących się pomiędzy jego punktem i punktem jego poprzednika. Dodanie nowego serwera $D$ powoduje wyłącznie zmianę przydziału zasobu $4$.}
 \label{fig_consistent_hashing}
 \end{figure}
 
@@ -193,13 +194,47 @@ Jedną z pierwszy sieci DHT, bazującej na schemacie \textit{Consistent Hashing}
 
 \subsection{Chord}
 \label{sect_dht_chord}
-TODO: Opis chorda jako zastosowanie Consistent Hashing
+Sieć \textit{Chord} opracowana przez Stoicę, Morrisa, Kargera, Kaashoeka i Balakrishnana  \cite{stoica2001chord} to jedna z czterech pierwszych powstałych rozproszonych tablic haszujących\footnote{Pozostałe to CAN\cite{ratnasamy2001scalable}, Tapestry \cite{zhao2001tapestry} i Pastry\cite{rowstron2001pastry}.}. Zapewnia szybki i odporny na błędy protokół routingu, znajdujący węzeł odpowiedzialny za dany klucz w czasie logarytmicznym w stosunku do liczby węzłów w sieci.
+
+U podstaw \textit{Chorda} leży mechanizm \textit{Constistent Hashing} opisany w rozdziale \ref{sect_consistent_hashing}. W przypadku \textit{Constistent Hashing}, aby zlokalizować węzeł odpowiedzialny za dany klucz wymagana była znajomość wszystkich węzłów w sieci. Takie rozwiązanie pozwala na szybkie odnalezienie węzła, ale nie daje możliwości skalowania na dowolną liczbę węzłów. W uproszczonej wersji \textit{Chorda}, w celu zapewnienia efektywnego skalowania, autorzy wymagają wyłącznie znajomości przez węzeł swojego następnika. Dzięki temu, niezależnie od wielkości sieci każdy z węzłów przechowuje informacje tylko o jednym sąsiedzie, ale czas odnalezienia dowolnego klucza jest liniowy w stosunku do liczby węzłów (wiadomości są przesyłane po pierścieniu aż dotrą do docelowego serwera).
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.5\linewidth]{img/chord.pdf}
+\caption{Kontakty (\textit{fingers}) węzła $A$ w sieci Chord. Dla ustalonej długości klucza $m$, węzeł $n$ przechowuje kontakty: $successor(n + 2^{i-1})$ dla każdego $i = 1, 2, \dots,  m$; gdzie $successor(k)$ oznacza serwer odpowiedzialny za klucz $k$.}
+\label{fig_chord_fingers_1}
+\end{figure}
+
+Bardziej efektywna wersja routingu zakłada, że każdy z węzłów utrzymuje tabelę z kontaktami, w określonych odległościach od niego samego. Kolejne kontakty są wykładniczo coraz bardziej odległe tak, jak przedstawione to zostało na rysunku \ref{fig_chord_fingers_1}. Takie podejście pozwala na odnalezienie węzła odpowiedzialnego za zadany klucz w czasie $O (\log n)$. Aby łatwiej zauważyć tę własność, możemy przedstawić kontakty w formie drzewa (rysunek \ref{fig_chord_fingers_2}). Każdy krok w routingu \textit{Chorda}, skraca wtedy pozostały dystans co najmniej o połowę.
+
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\linewidth]{img/chord_2.pdf}
+\caption{Kontakty węzła $A$ w sieci Chord w postaci drzewa. Węzeł ma możliwość kontaktowania się z pojedynczymi węzłami w kolejnych poddrzewach, o co raz większej wysokości.  
+TODO: Pełniejszy opis i powiązanie z Kademlią?}
+\label{fig_chord_fingers_2}
+\end{figure}
+
+Podczas dołączania do sieci węzeł $n$ musi znać adres co najmniej jednego węzła, który należy już do sieci, nazwijmy go $n`$. Procedura dołączania polega na poproszeniu $n`$ o znalezienie następnika dla $n$. W kolejnym kroku $n$ buduje tablicę kontaktów wysyłając zapytania o $successor(n + 2^{i-1})$ dla każdego kolejnego $i$. Po zakończeniu tego procesu $n$ posiada pełną listę kontaktów, ale tylko jego następnik wie o jego istnieniu.
+
+Pozostałe węzły mają możliwość uwzględnienia nowych podczas cyklicznego wykonywania procedury $stab$, odpowiadającej za uaktualnienie (poprawienie) informacji o poprzedniku i następniku dla każdego węzła. Dodatkowa procedura $fix\_fingers$, która również jest wywoływana cyklicznie, odpowiada za uaktualnianie tabel kontaktów.
+
+TODO: Krótkie podsumowanie Chorda?
 
 \subsection{Pastry}
 TODO: Opis pastry w celu porównania Squirrela?
  
 \subsection{Kademlia}
 TODO: Opis Kademli\cite{maymounkov2002kademlia}: Routing, Asynchroniczność wywołań routingu - aspekty praktyczne.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.9\linewidth]{img/kademlia.pdf}
+\caption{Kontakty w Kademli. Szare elipsy oznaczają kolejne \textit{$k$-pojemniki}. 
+TODO: Pełniejszy opis}
+\label{fig_kademlia}
+\end{figure}
 
 \section{Rozproszony \kesz\s z użyciem DHT}
 
@@ -209,7 +244,7 @@ TODO: Squirrel p2p web cache \cite{iyer2002squirrel}
 \subsection{}
 TODO: Opis połączenia keszowania z DHT - zastosowanie w celu realizacji pierwotnych idei. 
 TODO: Zmiany w sieci w stosunku do ,,tamtych czasów'' :)
-TODO: Opis efektu slashdot (przykłady stron w stylu reddit, wykop, etc)
+TODO: Opis efektu slash-dot (przykłady stron w stylu reddit, wykop, etc)
 
 \section{Analiza różnych metod cachowania}
 TODO:
