@@ -1,6 +1,7 @@
 from twisted.web.http_headers import Headers
 from twisted.internet import reactor
 from twisted.internet.defer import Deferred
+from datetime import datetime
         
 class DeferredCacheStorage(object):
     def respond(self, deferred, success=False, result=None):
@@ -88,12 +89,14 @@ class CacheObject:
     headers = None
     _content = None
     hits = 0
+    lastUsed = None
     metadata = None
 
     def __init__(self, key, content, headers=None, metadata=None):
         self.key = key
         self.content = content
         self.headers = headers or {}
+        self.lastUsed = datetime.now()
         self.metadata = metadata
         
     def applyHeaders(self, headerObject):
@@ -104,6 +107,7 @@ class CacheObject:
         return self._content
     def hit(self):
         self.hits += 1
+        self.lastUsed = datetime.now()
         
     def destroy(self):
         """ Can be used to clear allocated objects etc """

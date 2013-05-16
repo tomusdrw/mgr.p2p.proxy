@@ -49,7 +49,7 @@
 % Department of Theoretical Philosophy\\
 % Univ of E}
 
-\date{20.03.2013 / Seminary}
+\date{08.05.2013 / Seminarium}
 
 
 % This is only inserted into the PDF information catalog. Can be left
@@ -78,13 +78,13 @@
 \end{frame}
 
 \begin{frame}
-\frametitle{Outline}
+\frametitle{Agenda}
 \tableofcontents
 % You might wish to add the option [pausesections]
 \end{frame}
 
 
-\section{Sformułowanie problemu}
+% \section{Sformułowanie problemu}
 
 \begin{frame}
 \frametitle{Sformułowanie problemu}
@@ -203,8 +203,8 @@ DHT są dodatkowo odporne na błędy i skalowalne.
 \begin{block}{}
 Badania nad DHT były motywowane istniejącymi systemami:
 \begin{description}
-  \item[Napster] P2P z centralnym serwerem indeksującym, który obsługiwał wyszukiwanie
-  \item[Gnutella] P2P rozsyłające zapytanie do każdego z węzłów
+  \item[Napster] P2P z centralnym serwerem indeksującym
+  \item[Gnutella] P2P rozsyłające zapytanie do każdego z węzłów w pewnym promieniu
   \item[Freenet] w pełni rozproszony, ale nie gwarantujący, że dane zostaną odnalezione
 \end{description}
 \end{block}
@@ -255,29 +255,29 @@ Wiadomości protokołu:
 
 \end{frame}
 
-\begin{frame}
-\frametitle{Kademlia - porównanie}
-
-\begin{block}{}
-Metryka XOR upraszcza algorytm routingu - w przeciwieństwie do Pastry czy Tapestry ten sam algorytm jest używany podczas całego procesu.
-\end{block}
-
-\pause
-
-\begin{block}{}
-Ponieważ XOR jest ???jednokierunkowa??? (czyli dla dowolnego $x$ i $\Delta$ istnieje tylko jeden $y$ taki, że $d(x, y) = \Delta$) wyszukiwania tego samego klucza zbiegają po tych samych ścieżkach.
-
-Zatem możliwe jest cache'owanie par (klucz, wartośc) na węzłach znajdujących się na tej ścieżce.
- 
-\end{block}
-
-\pause
-
-\begin{block}{}
-Takie cache'owanie pozwala na przyspieszenie wyszukiwania popularnych zasobów w sieci.
-\end{block}
-
-\end{frame}
+% \begin{frame}
+% \frametitle{Kademlia - porównanie}
+% 
+% \begin{block}{}
+% Metryka XOR upraszcza algorytm routingu - w przeciwieństwie do Pastry czy Tapestry ten sam algorytm jest używany podczas całego procesu.
+% \end{block}
+% 
+% \pause
+% 
+% \begin{block}{}
+% Ponieważ XOR jest ???jednokierunkowa??? (czyli dla dowolnego $x$ i $\Delta$ istnieje tylko jeden $y$ taki, że $d(x, y) = \Delta$) wyszukiwania tego samego klucza zbiegają po tych samych ścieżkach.
+% 
+% Zatem możliwe jest cache'owanie par (klucz, wartośc) na węzłach znajdujących się na tej ścieżce.
+%  
+% \end{block}
+% 
+% \pause
+% 
+% \begin{block}{}
+% Takie cache'owanie pozwala na przyspieszenie wyszukiwania popularnych zasobów w sieci.
+% \end{block}
+% 
+% \end{frame}
 
 \section{P2P Caching}
 \begin{frame}
@@ -325,87 +325,110 @@ Serwer proxy napisany w jęzku Python z użyciem frameworku Twisted i biblioteki
 \begin{frame}
 \frametitle{Wyzwania}
 
-\begin{block}{Caching logic}
+\begin{block}{Logika cache'owania}
 \begin{itemize}
-  \item To cache or not to cache? That is the question!
-  \item Removal of old items 
+  \item Kiedy zasób powinien być cache'owany? Czy warto go cache'ować?
+  \item Kiedy i które elementy usuwać z cache?
 \end{itemize}
 \end{block}
 
-\pause
-\begin{block}{Requests balancing}
-Requests for items from the same source can be routed to completely different 
-parts of network (random hashing keys).
+\begin{block}{Równoważenie obciążenia}
+Żądania o zasoby z tej samej strony internetowej mogą być routowane do zupełnie
+innych części sieci z powodu losowego wyboru kluczy.
 \end{block}
 
-\pause
-\begin{block}{Caching and Streaming of partial content}
-\begin{itemize}
-  \item Cache parts of content
-  \item Stream data instead of sending whole files at once
-\end{itemize}
+\begin{block}{Wybór / porównanie różnych DHT}
+Pomimo tej samej teoretycznej złożoności routingu, różne sieci P2P
+mogą istotnie różnić się w zastosowaniu praktycznym.
 \end{block}
 
 \end{frame}
 
-\subsection{Caching logic}
+\subsection{Algorytmy cache'owania}
 \begin{frame}
-\frametitle{Caching logic \cite{motwani1995randomized} - multilevel cache}
+\frametitle{Logika cache'owania (\cite{motwani1995randomized})}
 \begin{columns}[c]
 
 \column{0.4\textwidth}
 \begin{center}
-\includegraphics[width=0.65\linewidth]{cache1.eps}
+\includegraphics[width=0.65\linewidth]{img/multi-level.pdf}
 \end{center}
 
-\column{0.4\textwidth}
+\column{0.6\textwidth}
 \begin{block}{}
-Retrieving an item from disk or P2P cache increases latency.
+Pobieranie zasobu z sieci P2P zwiększa opóźnienie, 
+popularne elementy warto przechowywać w pamięci.
 \end{block}
+
 \begin{block}{}
-We don't know if the item even exists in P2P cache.
+Porównanie różnych algorytmów:
+\begin{itemize}
+  \item LRU
+  \item LFU
+  \item Multi Queue (wzięcie pod uwagę rozmiaru, nagłówków cachowania, itp.)
+\end{itemize}
 \end{block}
 
 \end{columns}
 \end{frame}
 
-\subsection{Requests balancing}
+\subsection{Równoważenie obciążenia}
 \begin{frame}
-\frametitle{Requests balancing}
+\frametitle{Równoważenie obciążenia}
 
 \begin{block}{}
-We could use skip graphs \citep{aspnes2007skip} to ask for keys in some range 
-(for instance resources from same domain). 
+Wiele zasobów z jednej witryny, które pobierane są razem może zostać spakowane
+i umieszczone pod wspólnym kluczem w sieci P2P.
 \end{block}
 
 \begin{block}{}
-Multiple files from same domain could be also stored as one resource
-in P2P network - we could retrieve whole bunch when any resource is requested
-(keywords based searching).
+Prosząc o pojedynczy zasób z sieci, otrzymujemy paczkę zawierającą zasoby, które
+prawdopodobnie będą nam potrzebne w najbliższej przyszłości.
 \end{block}
 
 \end{frame}
 
-\subsection{Caching/Streaming partial content}
+\section{Przeprowadzone testy}
+\begin{frame}
+\frametitle{Wyniki eksperymentów}
+
+\begin{block}{Dane testowe}
+\begin{itemize}
+  \item Problem ze znalezieniem aktualnych logów z serwerów (najnowsze z roku 2007).
+  \item Możliwośc wygenerowania danych losowych 
+\end{itemize}
+\end{block}
+
+\begin{block}{Porównanie z innymi rozwiązaniami}
+\begin{itemize}
+  \item Wyniki z prac bazują na przestarzałych danych
+  \item Brak kodu lub warunków na uruchomienie aplikacji
+\end{itemize}
+\end{block}
+\end{frame}
 
 \begin{frame}
-\frametitle{Streaming partial content}
+\frametitle{Wyniki eksperymentów - plan}
 \begin{block}{}
-Increasing demand on multimedia content (e.g. Youtube)
+Użycie danych z serwera proxy z 2007 roku.
+\end{block}
+
+\begin{block}{Algorytmy}
+Porównanie algorytmów cachowania: LRU, LFU i Multi Queue.
+\end{block}
+
+\begin{block}{Równoważenie obciążenia}
+Grupowanie (bazowane na czasie) zasobów pochodzących z jednej strony (np. obrazki) pod wspólnym kluczem w sieci P2P.
 \end{block}
 
 \begin{block}{}
-Should parts of a file be stored separately?
+Porównanie opóźnień w Kademlii, Chordzie i Pastry.
 \end{block}
-
-\begin{block}{}
-We need to retrieve parts in order to allow streaming of content.
-\end{block}
-
 \end{frame}
+
 
 \begin{frame}[allowframebreaks]
-\frametitle{References}
+\frametitle{Literatura}
 \bibliographystyle{plainnat}
 \bibliography{document.bib}
 \end{frame}
