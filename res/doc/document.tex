@@ -97,7 +97,7 @@ TODO: Opis problemu cachowania (oryginalnego - hot spots), nasilenie związane z
 
 \section{Historia \keszowania}
 Wraz z rosnącą liczbą użytkowników Internetu w latach dziewięćdziesiątych zaczęły pojawiać się problemy z dostępem do pewnych zasobów.
-Duża liczba odwołań do popularnych strony, w krótkim czasie powodowała znaczące obciążenie serwerów, które dany zasób posiadały.
+Duża liczba odwołań do popularnych stron w krótkim czasie powodowała znaczące obciążenie serwerów, które dany zasób posiadały.
 Czasami z powodu nadmiernego zalania\footnote{ang. \textit{flooded}, \textit{swamped}} żądaniami serwer nie był w stanie obsłużyć wszystkich, przez co strona stawała się niedostępna.
 
 \subsection{Serwery \keszujace}\label{sect_cache}
@@ -169,7 +169,7 @@ Załóżmy, że dysponujemy funkcją haszującą w odcinek $[0, 1]$, za pomocą 
 \centering
 \includegraphics[width=0.95\textwidth]{img/consistent_2.pdf}
 \end{minipage}
-\caption{Idea \textit{Consistent Hashing}. Zasoby, reprezentowane przez zielone punkty, oraz serwery \keszujace\s (kwadraty) mapowane są na punkty na okręgu o jednostkowym obwodzie. W praktyce do reprezentowania punktów na okręgu najczęściej wykorzystywane są klucze binarne o ustalonej długości $m$. Pozwala to na umieszczenie w sieci $2^m$ obiektów. Każdy serwer jest odpowiedzialny za obsługę zasobów znajdujących się pomiędzy jego punktem i punktem jego poprzednika. Dodanie nowego serwera $D$ powoduje wyłącznie zmianę przydziału zasobu $4$.}
+\caption{Idea \textit{Consistent Hashing}. Zasoby, reprezentowane przez zielone punkty, oraz serwery \keszujace\s (kwadraty) mapowane są na punkty na okręgu o jednostkowym obwodzie. W praktyce do reprezentowania punktów na okręgu najczęściej wykorzystywane są klucze binarne o ustalonej długości $m$. Każdy serwer jest odpowiedzialny za obsługę zasobów znajdujących się pomiędzy jego punktem i punktem jego poprzednika. Dodanie nowego serwera $D$ powoduje wyłącznie zmianę przydziału zasobu $4$.}
 \label{fig_consistent_hashing}
 \end{figure}
 
@@ -179,9 +179,9 @@ Pomimo, że pierwotną motywacją powstania \textit{Consistent Hashing} był pro
 
 \section{Rozproszone tablice haszujące (DHT)}
 \label{sect_dht}
-Rozproszone tablice haszujące (ang. \textit{Distributed Hash Tables}, DHT) to systemy pozwalające na przechowywanie par \textit{(klucz, wartość)}, podobnie jak zwykłe tablice haszujące, w dynamicznej sieci zbudowanej z uczestniczących węzłów (\textit{peer-to-peer}). Odpowiedzialność za przetrzymywanie mapowania kluczy do wartości jest podzielona pomiędzy węzłami, w taki sposób aby zmiany w liczbie uczestników nie powodowały reorganizacji systemu. Dodatkowo rozproszone tablice haszujące oferują efektywne wyszukiwanie kluczy w systemie.
+Rozproszone tablice haszujące (ang. \textit{Distributed Hash Tables}, DHT) to systemy pozwalające na przechowywanie par \textit{(klucz, wartość)}, podobnie jak zwykłe tablice haszujące, w dynamicznej sieci zbudowanej z uczestniczących węzłów (\textit{peer-to-peer}). Odpowiedzialność za przetrzymywanie mapowania kluczy do wartości jest podzielona pomiędzy węzły, w taki sposób aby zmiany w liczbie uczestników nie powodowały reorganizacji całości systemu, ale tylko jego drobnej części. Dodatkowo rozproszone tablice haszujące oferują efektywne wyszukiwanie kluczy w systemie.
 
-Początkowe badania nad DHT były motywowane istniejącymi systemami peer-to-peer, oferującymi głównie możliwość dzielenia się plikami, np. \textit{Napster}, \textit{gnutella} i \textit{Freenet}. Sieci te w różnych sposób realizowały wyszukiwanie zasobów, ale każdy z nich miał swoje wady. \textit{Napster} korzystał z centralnego katalogu, do którego każdy serwer wysyłał swoją listę plików i który zarządzał wyszukiwaniem plików. W \textit{gnutelli} w celu odnalezienia zasobu, zapytanie wysyłane było do każdego węzła w sieci, co skutkowało mniejszą szybkością i mnóstwem przesyłanych wiadomości. W przypadku sieci \textit{Freenet}, znajdowanie klucza odbywało się za pomocą heurystycznej metody, która nie zapewniała, że klucz zostanie znaleziony.
+Początkowe badania nad DHT były motywowane istniejącymi systemami peer-to-peer, oferującymi głównie możliwość dzielenia się plikami, np. \textit{Napster}, \textit{Gnutella} i \textit{Freenet}. Sieci te na różne sposóby realizowały wyszukiwanie zasobów, ale każdy z nich miał swoje wady. \textit{Napster} korzystał z centralnego katalogu, do którego każdy serwer wysyłał swoją listę plików i który zarządzał wyszukiwaniem plików. W \textit{gnutelli} w celu odnalezienia zasobu, zapytanie wysyłane było do każdego węzła w sieci w określonym promienu, co skutkowało mniejszą szybkością i mnóstwem przesyłanych wiadomości oraz podobnie jak w przypadku sieci \textit{Freenet}, w której znajdowanie klucza odbywało się za pomocą heurystycznej metody, brak gwarancji odnalezienia klucza.
 
 Idea rozproszonych tablic haszujących ma na celu rozwiązanie wszystkich przedstawionych problemów:
 \begin{itemize}
@@ -205,7 +205,7 @@ U podstaw \textit{Chorda} leży mechanizm \textit{Constistent Hashing} opisany w
 \label{fig_chord_fingers_1}
 \end{figure}
 
-Bardziej efektywna wersja routingu zakłada, że każdy z węzłów utrzymuje tabelę z kontaktami, w określonych odległościach od niego samego. Kolejne kontakty są wykładniczo coraz bardziej odległe tak, jak przedstawione to zostało na rysunku \ref{fig_chord_fingers_1}. Takie podejście pozwala na odnalezienie węzła odpowiedzialnego za zadany klucz w czasie $O (\log n)$. Aby łatwiej zauważyć tę własność, możemy przedstawić kontakty w formie drzewa (rysunek \ref{fig_chord_fingers_2}). Każdy krok w routingu \textit{Chorda}, skraca wtedy pozostały dystans co najmniej o połowę.
+Bardziej efektywna wersja routingu zakłada, że każdy z węzłów utrzymuje tabelę z kontaktami w określonych odległościach od niego samego. Kolejne kontakty są wykładniczo coraz bardziej odległe tak, jak przedstawione to zostało na rysunku \ref{fig_chord_fingers_1}. Takie podejście pozwala na odnalezienie węzła odpowiedzialnego za zadany klucz w czasie $O (\log n)$. Aby łatwiej zauważyć tę własność, możemy przedstawić kontakty w formie drzewa (rysunek \ref{fig_chord_fingers_2}). Każdy krok w routingu \textit{Chorda} skraca wtedy pozostały dystans co najmniej o połowę.
 
 
 \begin{figure}[h]
@@ -216,9 +216,9 @@ TODO: Pełniejszy opis i powiązanie z Kademlią?}
 \label{fig_chord_fingers_2}
 \end{figure}
 
-Podczas dołączania do sieci węzeł $n$ musi znać adres co najmniej jednego węzła, który należy już do sieci, nazwijmy go $n`$. Procedura dołączania polega na poproszeniu $n`$ o znalezienie następnika dla $n$. W kolejnym kroku $n$ buduje tablicę kontaktów wysyłając zapytania o $successor(n + 2^{i-1})$ dla każdego kolejnego $i$. Po zakończeniu tego procesu $n$ posiada pełną listę kontaktów, ale tylko jego następnik wie o jego istnieniu.
+Podczas dołączania do sieci węzeł $n$ musi znać adres co najmniej jednego węzła, który należy już do sieci, nazwijmy go $n'$. Procedura dołączania polega na poproszeniu $n'$ o znalezienie następnika dla $n$. W kolejnym kroku $n$ buduje tablicę kontaktów wysyłając zapytania o $successor(n + 2^{i-1})$ dla każdego kolejnego $i$. Po zakończeniu tego procesu $n$ posiada pełną listę kontaktów, ale tylko jego następnik wie o jego istnieniu.
 
-Pozostałe węzły mają możliwość uwzględnienia nowych podczas cyklicznego wykonywania procedury $stab$, odpowiadającej za uaktualnienie (poprawienie) informacji o poprzedniku i następniku dla każdego węzła. Dodatkowa procedura $fix\_fingers$, która również jest wywoływana cyklicznie, odpowiada za uaktualnianie tabel kontaktów.
+Pozostałe węzły mają możliwość uwzględnienia nowych podczas cyklicznego wykonywania procedury $stab$??????????????TODO, odpowiadającej za uaktualnienie (poprawienie) informacji o poprzedniku i następniku dla każdego węzła. Dodatkowa procedura $fix\_fingers$, która również jest wywoływana cyklicznie, odpowiada za uaktualnianie tabel kontaktów.
 
 TODO: Krótkie podsumowanie Chorda?
 

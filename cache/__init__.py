@@ -3,6 +3,7 @@ from twisted.internet import reactor
 from twisted.internet.defer import Deferred
 from datetime import datetime
         
+        
 class DeferredCacheStorage(object):
     def respond(self, deferred, success=False, result=None):
         # pylint: disable=E1101
@@ -19,6 +20,7 @@ class DeferredCacheStorage(object):
         """
         Store item in cache.
         """
+
 
 class CacheStorage(object):
     """ Storage for local cache """
@@ -46,6 +48,7 @@ class CacheStorage(object):
         Additionaly provide response headers and metadata for {CacheObject}.
         """
         
+        
 class ForwardingCacheStorage(CacheStorage):
     """ {CacheStorage} that forwards all calls to delegate. """
     delegate = None
@@ -66,6 +69,7 @@ class ForwardingCacheStorage(CacheStorage):
     def put(self, key, headers, value, metadata=None):
         return self.delegate.put(key, headers, value, metadata)
     
+    
 class DeferredDecorator(ForwardingCacheStorage, DeferredCacheStorage):
     """ This decorator turns normal CacheStorage into {DeferredCacheStorage} """
     
@@ -76,13 +80,13 @@ class DeferredDecorator(ForwardingCacheStorage, DeferredCacheStorage):
         cacheObject = ForwardingCacheStorage.get(self, key, headers=headers)
         d = Deferred()
         
-        if cacheObject:
+        if cacheObject is not None:
             self.respond(d, success=True, result=cacheObject)
         else:
             self.respond(d)
             
         return d
-            
+
 
 class CacheObject:
     key = None

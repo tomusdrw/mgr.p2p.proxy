@@ -7,11 +7,11 @@ import argparse
 import logging
 import sys
 from cache.test import StoreEverytingStorage
-from cache import DeferredDecorator
 from p2p.node import Node, DeferredNodeCache
-import subprocess
 from multiprocessing.process import Process
 import time
+from cache.algo import LRU, LFU
+from cache.multi import TwoLevelCache
 
 PROG_NAME = 'p2p.proxy'
 PROG_VERSION = '0.0.1'
@@ -65,6 +65,8 @@ def parser():
         action='store',
         help='Provide filename with known nodes in P2P network.')
     return p
+
+
 def initLogger(logLevel):
     levels = {
      'info' : logging.INFO,
@@ -72,6 +74,8 @@ def initLogger(logLevel):
      'warn' : logging.WARN
     }
     logging.basicConfig(stream=sys.stdout, level=levels[logLevel])
+    
+    
 def getKnownNodes(args):
     knownNodes = []
     if args.bootstrap:
@@ -85,9 +89,10 @@ def getKnownNodes(args):
             line = args.known_nodes.readLine()
     return knownNodes
 
+
 def startNode(id2, port, knownNodes=None):
     logging.info('Starting p2p node {}'.format(id2))
-    node = Node(port=port, cacheStorage=StoreEverytingStorage())
+    node = Node(port=port, cacheStorage=LRU(StoreEverytingStorage(), 1024))
     node.joinNetwork(knownNodes)
     return node
         
@@ -121,8 +126,12 @@ if __name__ == '__main__':
         # pylint: disable=E1101
         if not args.no_proxy:
             logging.info("Starting proxy at :{}".format(args.proxy_port))
+            
             proxyStorage = DeferredNodeCache(node)
-            reactor.listenTCP(args.proxy_port, ProxyFactory(proxyStorage))
+            memoryCache = LFU(StoreEverytingStorage(), queueSize=1024)
+            multiCache = TwoLevelCache(memoryCache, proxyStorage)
+            
+            reactor.listenTCP(args.proxy_port, ProxyFactory(multiCache))
             
 
         logging.info('Running reactor.')
