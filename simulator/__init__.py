@@ -23,6 +23,7 @@ class SimulatorNode(Node):
 class ClientFactory:
     
     port = 4000
+    memQueueSize = 128
     
     def getKnownHosts(self):
         return [('localhost', self.port)]
@@ -35,7 +36,7 @@ class ClientFactory:
     
     def createClientCache(self, node):
         p2pCache = DeferredNodeCache(node)
-        memoryCache = LRU(StoreEverytingStorage(), queueSize=128)
+        memoryCache = LRU(StoreEverytingStorage(), queueSize=self.memQueueSize)
         
         return TwoLevelCache(memoryCache, p2pCache)
      
@@ -96,6 +97,7 @@ class SimulatorClientProcess:
             
         df = self.cache.search(address)
         df.addCallback(processResult)
+
 
 class Simulator:
     """
