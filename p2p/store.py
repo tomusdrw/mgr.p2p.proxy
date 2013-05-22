@@ -8,8 +8,10 @@ def serialize(headers, value):
       'value': value
     }
     
-def deserialize(value):
-    return value['headers'], value['value']
+def deserialize(serializedValue):
+    # TODO Something is wrong when running simulations value is not always present.
+    value = serializedValue['value'] if 'value' in serializedValue else None
+    return serializedValue['headers'], value
 
 class CacheDataStore(datastore.DataStore):
     class Metadata:
@@ -54,10 +56,10 @@ class CacheDataStore(datastore.DataStore):
         was originally published """
         return self.storage.get(key).metadata.originallyPublished
 
-    def setItem(self, key, value, lastPublished, originallyPublished, originalPublisherID):
+    def setItem(self, key, serializedValue, lastPublished, originallyPublished, originalPublisherID):
         """ I assume that received value will be json encoded string """
-        
-        headers, value = deserialize(value)
+        print "Deserializing: "+key
+        headers, value = deserialize(serializedValue)
         metadata = self.Metadata(lastPublished, originallyPublished, originalPublisherID)
         
         return self.storage.put(key, Headers(headers), value, metadata)

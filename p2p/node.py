@@ -14,7 +14,7 @@ class Node(kademlia.node.Node):
 
 class DeferredNodeCache(DeferredCacheStorage):
     class NodeCacheObject(CacheObject):
-        pass
+        level = 2
     
     node = None
     
@@ -52,4 +52,5 @@ class DeferredNodeCache(DeferredCacheStorage):
     def store(self, key, headers, value):
         keyHash = self.hash(key)
         logging.info('Storing ' + key + ' in network')
-        self.node.iterativeStore(keyHash, store.serialize(dict(headers.getAllRawHeaders()), value))
+        serialized = store.serialize(dict(headers.getAllRawHeaders()), value)
+        self.node.iterativeStore(keyHash, serialized)

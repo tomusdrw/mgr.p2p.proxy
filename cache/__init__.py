@@ -89,6 +89,7 @@ class DeferredDecorator(ForwardingCacheStorage, DeferredCacheStorage):
 
 
 class CacheObject:
+    level = 1
     key = None
     headers = None
     _content = None
@@ -106,9 +107,11 @@ class CacheObject:
     def applyHeaders(self, headerObject):
         for key, value in self.headers.items():
             headerObject.setRawHeaders(key, value)
+            
     @property
     def content(self):
         return self._content
+    
     def hit(self):
         self.hits += 1
         self.lastUsed = datetime.now()
