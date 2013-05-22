@@ -36,7 +36,7 @@ class DeferredNodeCache(DeferredCacheStorage):
     def search(self, key, headers=Headers()):
         keyHash = self.hash(key)
         d = Deferred()
-        logging.info('Searching for ' + key)
+        logging.debug('Searching for ' + key)
         
         def checkResult(result):
             if type(result) == dict:
@@ -51,6 +51,6 @@ class DeferredNodeCache(DeferredCacheStorage):
         
     def store(self, key, headers, value):
         keyHash = self.hash(key)
-        logging.info('Storing ' + key + ' in network')
+        logging.debug('Storing ' + key + ' in network')
         serialized = store.serialize(dict(headers.getAllRawHeaders()), value)
         self.node.iterativeStore(keyHash, serialized)

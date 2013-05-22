@@ -501,9 +501,11 @@ class Node(object):
                     else:
                         findValueResult['closestNodeNoValue'] = aContact
                 for contactTriple in result:
-                    testContact = Contact(contactTriple[0], contactTriple[1], contactTriple[2], self._protocol)
-                    if testContact not in shortlist:
-                        shortlist.append(testContact)
+                    #TODO [ToDr] Why the fuck it receives broken packages?
+                    if not isinstance(contactTriple, basestring):
+                        testContact = Contact(contactTriple[0], contactTriple[1], contactTriple[2], self._protocol)
+                        if testContact not in shortlist:
+                            shortlist.append(testContact)
             return responseMsg.nodeID
 
         def removeFromShortlist(failure):

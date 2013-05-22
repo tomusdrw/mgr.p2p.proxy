@@ -58,7 +58,6 @@ class CacheDataStore(datastore.DataStore):
 
     def setItem(self, key, serializedValue, lastPublished, originallyPublished, originalPublisherID):
         """ I assume that received value will be json encoded string """
-        print "Deserializing: "+key
         headers, value = deserialize(serializedValue)
         metadata = self.Metadata(lastPublished, originallyPublished, originalPublisherID)
         

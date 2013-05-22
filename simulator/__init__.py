@@ -7,6 +7,8 @@ import time
 import logging
 from twisted.internet import reactor
 from twisted.web.http_headers import Headers
+from multiprocessing.process import Process
+from multiprocessing import Queue
 
 
 class SimulatorNode(Node):
@@ -18,23 +20,18 @@ class SimulatorNode(Node):
         Node.__init__(self, port=port, cacheStorage=cacheStorage)
         
         
-class SimulatorClient:
-    
-    node = None
-    cacheStorage = None
-    
-    def __init__(self, node, cacheStorage):
-        self.node = node
-        self.cacheStorage = cacheStorage
-    
-        
 class ClientFactory:
+    
+    port = 4000
+    
+    def getKnownHosts(self):
+        return [('localhost', self.port)]
     
     def createNodeStorage(self):
         return StoreEverytingStorage()
     
-    def createNode(self, nodeId):
-        return SimulatorNode(port=4000 + nodeId, cacheStorage=self.createNodeStorage())
+    def createNode(self, nodeNo):
+        return SimulatorNode(port=self.port + nodeNo, cacheStorage=self.createNodeStorage())
     
     def createClientCache(self, node):
         p2pCache = DeferredNodeCache(node)
@@ -45,35 +42,47 @@ class ClientFactory:
      
 class ResultsLogger:
     
-    def logRequest(self, nodeId, address, latency, cacheLevel=-1):   
+    def logRequest(self, nodeId, address, latency, cacheLevel= -1):   
         logging.info("Request: nodeId: {}, address: {}, latency: {}, cacheLevel: {}".format(nodeId, address, latency, cacheLevel))
 
-class Simulator:
-    """
-    Dictionary with mapping nodeId -> SimulatorClient
-    """
-    clients = None
+
+class SimulatorClientProcess:
+    
+    nodeId = None
+    nodeNo = None
     resultsLogger = None
     
-    def __init__(self, nodesId=["Node1"], factory=None, resultsLogger=None):
-        if factory is None:
-            factory = ClientFactory()
-        if resultsLogger is None:
-            self.resultsLogger = ResultsLogger()
-        else:
-            self.resultsLogger = resultsLogger
-            
-        self.clients = dict()
-        for i in range(len(nodesId)):
-            node = factory.createNode(i)
-            cache = factory.createClientCache(node)
+    node = None
+    cache = None
+    
+    def __init__(self, nodeId, nodeNo, resultsLogger, knownHosts):
+        self.nodeId = nodeId
+        self.nodeNo = nodeNo
+        self.resultsLogger = resultsLogger
+        self.knownHosts = knownHosts
         
-            self.clients[nodesId[i]] = SimulatorClient(node, cache)
+    def joinNetwork(self):
+        self.node.joinNetwork(self.knownHosts)
         
-    def makeRequest(self, nodeId, address):
-        logging.debug("Making request by " + nodeId + " to " + address)
-        client = self.clients[nodeId]
+     
+    def startNode(self, factory, requests):
+        self.node = factory.createNode(self.nodeNo)
+        self.cache = factory.createClientCache(self.node)
         
+        logging.info("Starting node: {}".format(self.nodeId))
+        
+        # Take all elements from queue and put them to reactor queue
+        self.scheduleRequests(requests)
+        self.joinNetwork()
+        reactor.run()
+        
+    def scheduleRequests(self, requests):
+         for delay, requestAddress in requests:
+            reactor.callLater(delay, self.makeRequest, requestAddress)
+   
+    def makeRequest(self, address):
+        logging.debug("Making request by {} to {}.".format(self.nodeId, address))
+         
         startTime = time.time()
         
         def processResult(result):
@@ -82,37 +91,62 @@ class Simulator:
             cacheLevel = result['result'].level if success else -1
             # We have to store result if no cacheHit
             if cacheLevel == -1:
-                client.cacheStorage.store(address, Headers(), 'a')
-            self.resultsLogger.logRequest(nodeId, address, latency, cacheLevel)
+                self.cache.store(address, Headers(), '')
+            self.resultsLogger.logRequest(self.nodeId, address, latency, cacheLevel)
             
-        df = client.cacheStorage.search(address)
+        df = self.cache.search(address)
         df.addCallback(processResult)
+
+class Simulator:
+    """
+    Dictionary with mapping nodeId -> SimulatorClient
+    """
+    clients = None
+    
         
-    def start(self, requests):
-        self.buildNetwork()
-        
-        #Bind makeRequest function
-        def makeRequest(nodeId, address):
-            self.makeRequest(nodeId, address)
+    def __init__(self, requests=None, factory=None, resultsLogger=None):
+        if requests is None:
+            requests = {
+                    "Node1" : [
+                        (1, "someAddress"),
+                        (3, "someAddress2")
+                        (5, "someAddress"),
+                    ],
+                    "Node2" : [
+                        (1, "someAddress2")
+                        (2, "someAddress")
+                    ]
+                }
+        if factory is None:
+            factory = ClientFactory()
+        if resultsLogger is None:
+            resultsLogger = ResultsLogger()
             
+        knownHosts = factory.getKnownHosts() 
+        nodesIds = requests.keys()
         
-        scheduler = sched.scheduler(time.time, time.sleep)
+        self.clients = dict()
+        for i in range(len(nodesIds)):
+            nodeName = nodesIds[i]
+            nodeRequests = requests[nodeName]
+            client = SimulatorClientProcess(nodeName, i, resultsLogger, knownHosts)
+            
+            process = Process(target=client.startNode, args=(factory, nodeRequests))
+            
+            self.clients[nodeName] = process
         
-        for nodeId, delay, requestAddress in requests:
-            #Since in same thread there are nodes running use callLater method
-            reactor.callLater(delay, makeRequest, nodeId, requestAddress)
-        
-        logging.info("Starting scheduler. Waiting for events to complete.")
-        scheduler.run()
-        logging.info("All requests completed. Check log file for results.")
-        
-        
-    def buildNetwork(self):
-        knownHosts = [('localhost', self.clients.values()[0].node.port)]
-        
-        # First join network
+    def start(self, maxTime=10):
+        # Start all processes
         for client in self.clients.values():
-            client.node.joinNetwork(knownHosts)
+            client.start()
+        # # TODO when to finish?
+        try:
+            time.sleep(maxTime)
+        finally:
+            for nodeName, client in self.clients.items():
+                logging.info('Killing node {}'.format(nodeName))
+                client.terminate()
+                client.join()
 
 
     
