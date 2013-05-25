@@ -49,6 +49,8 @@ class ResultsLogger:
 
 class SimulatorClientProcess:
     
+    shutdownDelay = None
+    
     nodeId = None
     nodeNo = None
     resultsLogger = None
@@ -56,11 +58,13 @@ class SimulatorClientProcess:
     node = None
     cache = None
     
-    def __init__(self, nodeId, nodeNo, resultsLogger, knownHosts):
+    
+    def __init__(self, nodeId, nodeNo, resultsLogger, knownHosts, shutdownDelay = 5):
         self.nodeId = nodeId
         self.nodeNo = nodeNo
         self.resultsLogger = resultsLogger
         self.knownHosts = knownHosts
+        self.shutdownDelay = shutdownDelay
         
     def joinNetwork(self):
         self.node.joinNetwork(self.knownHosts)
@@ -78,8 +82,20 @@ class SimulatorClientProcess:
         reactor.run()
         
     def scheduleRequests(self, requests):
+         maxDelay = 0
          for delay, requestAddress in requests:
+            if delay > maxDelay:
+                maxDelay = delay
             reactor.callLater(delay, self.makeRequest, requestAddress)
+         # Terminate after completion
+         reactor.callLater(maxDelay + self.shutdownDelay, self.terminate)
+         
+    def terminate(self):
+        # TODO terminate gently?
+        logging.info("Node {} finished. Goodbye.".format(self.nodeId))
+        reactor.stop()
+ 
+        
    
     def makeRequest(self, address):
         logging.debug("Making request by {} to {}.".format(self.nodeId, address))
@@ -106,19 +122,7 @@ class Simulator:
     clients = None
     
         
-    def __init__(self, requests=None, factory=None, resultsLogger=None):
-        if requests is None:
-            requests = {
-                    "Node1" : [
-                        (1, "someAddress"),
-                        (3, "someAddress2")
-                        (5, "someAddress"),
-                    ],
-                    "Node2" : [
-                        (1, "someAddress2")
-                        (2, "someAddress")
-                    ]
-                }
+    def __init__(self, requests, factory=None, resultsLogger=None):
         if factory is None:
             factory = ClientFactory()
         if resultsLogger is None:
@@ -137,18 +141,21 @@ class Simulator:
             
             self.clients[nodeName] = process
         
-    def start(self, maxTime=10):
+    def start(self):
         # Start all processes
         for client in self.clients.values():
             client.start()
-        # # TODO when to finish?
         try:
-            time.sleep(maxTime)
-        finally:
+            # Normally just wait for clients to join
+            for client in self.clients.values():
+                client.join() 
+        except:
+            # But in case of exception terminate all
             for nodeName, client in self.clients.items():
                 logging.info('Killing node {}'.format(nodeName))
                 client.terminate()
                 client.join()
+        logging.info("Simulation finished. Hope you enjoyed.")
 
 
     

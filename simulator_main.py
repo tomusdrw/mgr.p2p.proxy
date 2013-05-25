@@ -1,10 +1,13 @@
 #!/usr/bin/python2
 
 from main import initLogger
-from simulator import Simulator
+from simulator import Simulator, ResultsLogger
 from twisted.python import log
+from multiprocessing import Queue
 import argparse
 import csv
+import logging
+from multiprocessing.process import Process
 
 
 
@@ -51,13 +54,72 @@ def readClientsData():
     return clientsData
     
 
+class FileResultsLogger(ResultsLogger):
+    
+    process = None
+    queue = None
+    logFileName = None
+    
+    def __init__(self, logFileName):
+        self.queue = Queue()
+        self.logFileName = logFileName
+    
+    def logRequest(self, nodeId, address, latency, cacheLevel=-1):
+        ResultsLogger.logRequest(self, nodeId, address, latency, cacheLevel=cacheLevel)
+        self.queue.put("{};{};{};{}\n".format(nodeId, address, latency, cacheLevel))
+
+    def finish(self):
+        self.queue.put("STOP")
+        self.process.join()
+            
+    def writerProcess(self):
+        fileObject = open(self.logFileName, 'w+')
+        for logEntry in iter(self.queue.get, "STOP"):
+            fileObject.write(logEntry)
+        fileObject.close()
+        
+    def start(self):
+        self.process = Process(target=self.writerProcess)
+        self.process.start()
+        
+
 if __name__ == '__main__':
     args = parser().parse_args()
     
     initLogger(args.log)
     log.startLogging(open('logs/twisted.logs', 'w+'))
     
-    simulator = Simulator(requests=readClientsData())
+    logFile = 'logs/simulator.logs'
+    
+    resultsLogger = FileResultsLogger(logFile)
+    resultsLogger.start()
+    #simulator = Simulator(requests=readClientsData())
+    simulator = Simulator(requests = {
+        "Node1" : [
+                     (1, "someAdress"),
+                     (1, "someAdress2"),
+                     (5, "someAdress2")
+                  ],
+        "Node2" : [
+                     (4, "someAdress3"),
+                     (5, "someAdress")
+                 ],
+        "Node3": [],
+        "Node4": [],
+        "Node5" : [
+                     (0.5, "someAdress7"),
+                     (1.5, "someAdress2"),
+                     (5, "someAdress4")
+                  ],
+        "Node6" : [
+                     (2, "someAdress3"),
+                     (1, "someAdress")
+                 ],
+        "Node7": [],
+        "Node8": []
+    }, resultsLogger = resultsLogger)
     simulator.start()
-
+    # Write output to file
+    logging.info("Waiting for logs to write to file")
+    resultsLogger.finish()
 
