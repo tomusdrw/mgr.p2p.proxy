@@ -4,6 +4,7 @@ from main import initLogger
 from simulator import Simulator
 from twisted.python import log
 import argparse
+import csv
 
 
 
@@ -23,36 +24,40 @@ def parser():
         choices=['info', 'debug', 'warn'])
     return p
 
+def readClients(clientsFilename = 'simulator/data/clients.txt'):
+    clientsFile = open(clientsFilename, 'rb')
+    clients = []
+    line = clientsFile.readline().strip()
+    while line:
+        clients.append(line)
+        line = clientsFile.readline().strip()
+    return clients
+    
+def readClientsData():
+    clientsDir = 'simulator/data/clients/'
+    clients = readClients()
+    
+    clientsData = {}
+    for c in clients:
+        data = []
+        with open(clientsDir + c, 'rb') as csvfile:
+            reader = csv.reader(csvfile, delimiter=',')
+            for row in reader:
+                # Trim columns
+                if row[0] != 'time':
+                    data.append((float(row[0]), row[1]))
+        clientsData[c] = data
+        
+    return clientsData
+    
+
 if __name__ == '__main__':
     args = parser().parse_args()
     
     initLogger(args.log)
     log.startLogging(open('logs/twisted.logs', 'w+'))
     
-    simulator = Simulator(requests={
-        "Node1" : [
-                     (1, "someAdress"),
-                     (1, "someAdress2"),
-                     (5, "someAdress2")
-                  ],
-        "Node2" : [
-                     (4, "someAdress3"),
-                     (5, "someAdress")
-                 ],
-        "Node3": [],
-        "Node4": [],
-        "Node5" : [
-                     (0.5, "someAdress7"),
-                     (1.5, "someAdress2"),
-                     (5, "someAdress4")
-                  ],
-        "Node6" : [
-                     (2, "someAdress3"),
-                     (1, "someAdress")
-                 ],
-        "Node7": [],
-        "Node8": []
-    })
+    simulator = Simulator(requests=readClientsData())
     simulator.start()
 
 
