@@ -139,7 +139,7 @@ if __name__ == '__main__':
     resultsLogger.start()
     factory = ArgsClientFactory(args)
     
-    """
+    #"""
     simulator = Simulator(requests = readClientsData(), resultsLogger = resultsLogger, factory = factory)
     """
     simulator = Simulator(requests = {
