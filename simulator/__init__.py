@@ -1,6 +1,6 @@
 from p2p.node import Node, DeferredNodeCache
 from cache.test import StoreEverytingStorage
-from cache.algo import LRU
+from cache.algo import LRU,LFU
 from cache.multi import TwoLevelCache
 import sched
 import time
@@ -24,19 +24,26 @@ class ClientFactory:
     
     port = 4000
     memQueueSize = 128
+    p2pQueueSize = 128
+    
+    memAlgo = LRU
+    p2pAlgo = LFU
+    
+    def __init__(self):
+        logging.info("Settings: Mem: {}({}), P2P {}({})".format(self.memAlgo.__name__, self.memQueueSize, self.p2pAlgo.__name__, self.p2pQueueSize))
     
     def getKnownHosts(self):
         return [('localhost', self.port)]
     
     def createNodeStorage(self):
-        return StoreEverytingStorage()
+        return self.p2pAlgo(StoreEverytingStorage(), queueSize=self.p2pQueueSize)
     
     def createNode(self, nodeNo):
         return SimulatorNode(port=self.port + nodeNo, cacheStorage=self.createNodeStorage())
     
     def createClientCache(self, node):
         p2pCache = DeferredNodeCache(node)
-        memoryCache = LRU(StoreEverytingStorage(), queueSize=self.memQueueSize)
+        memoryCache = self.memAlgo(StoreEverytingStorage(), queueSize=self.memQueueSize)
         
         return TwoLevelCache(memoryCache, p2pCache)
      
