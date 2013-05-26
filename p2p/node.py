@@ -8,9 +8,10 @@ from twisted.internet.defer import Deferred
 import logging
 
 class Node(kademlia.node.Node):
-    def __init__(self, port=4000, cacheStorage=None):
+    def __init__(self, knownHosts, port=4000, cacheStorage=None):
         dataStore = store.CacheDataStore(cacheStorage)
         kademlia.node.Node.__init__(self, udpPort=port, dataStore=dataStore)
+        self.joinNetwork(knownHosts)
 
 class DeferredNodeCache(DeferredCacheStorage):
     class NodeCacheObject(CacheObject):
@@ -23,11 +24,12 @@ class DeferredNodeCache(DeferredCacheStorage):
         @param node: {Node}
         """
         self.node = node
+        
     def hash(self, key):
         # pylint: disable=E1101
         h = hashlib.sha1()
         h.update(key)
-        return h.hexdigest()
+        return h.digest()
     
     def cacheObject(self, key, result):
         headers, value = store.deserialize(result)

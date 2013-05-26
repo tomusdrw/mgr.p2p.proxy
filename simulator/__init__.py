@@ -9,54 +9,8 @@ from twisted.internet import reactor
 from twisted.web.http_headers import Headers
 from multiprocessing.process import Process
 from multiprocessing import Queue
+from common import ClientFactory
 
-
-class SimulatorNode(Node):
-    
-    port = None
-    
-    def __init__(self, port=4000, cacheStorage=None):
-        self.port = port
-        Node.__init__(self, port=port, cacheStorage=cacheStorage)
-        
-        
-class ClientFactory:
-    
-    port = 4000
-    memQueueSize = 128
-    p2pQueueSize = 128
-    
-    memAlgo = LRU
-    p2pAlgo = LFU
-    
-    noMem = False
-    
-    def __init__(self):
-        if self.noMem:
-            logging.info("Settings: No memory, P2P {}({})".format(self.p2pAlgo.__name__, self.p2pQueueSize))
-        else:
-            logging.info("Settings: Mem: {}({}), P2P {}({})".format(self.memAlgo.__name__, self.memQueueSize, self.p2pAlgo.__name__, self.p2pQueueSize))
-    
-    def getKnownHosts(self):
-        return [('localhost', self.port)]
-    
-    def createNodeStorage(self):
-        return self.p2pAlgo(StoreEverytingStorage(), queueSize=self.p2pQueueSize)
-    
-    def createNode(self, nodeNo):
-        return SimulatorNode(port=self.port + nodeNo, cacheStorage=self.createNodeStorage())
-    
-    def createClientCache(self, node):
-        p2pCache = DeferredNodeCache(node)
-        
-        if self.noMem:
-            return p2pCache
-        else:
-            memoryCache = self.memAlgo(StoreEverytingStorage(), queueSize=self.memQueueSize)
-        
-            return TwoLevelCache(memoryCache, p2pCache)
-     
-     
 class ResultsLogger:
     
     def logRequest(self, nodeId, address, latency, cacheLevel= -1):   
@@ -64,7 +18,6 @@ class ResultsLogger:
 
 
 class SimulatorClientProcess:
-    
     shutdownDelay = None
     
     nodeId = None
@@ -75,26 +28,23 @@ class SimulatorClientProcess:
     cache = None
     
     
-    def __init__(self, nodeId, nodeNo, resultsLogger, knownHosts, shutdownDelay = 5):
+    def __init__(self, port, nodeId, nodeNo, resultsLogger, knownHosts, shutdownDelay = 5):
+        self.port = port
         self.nodeId = nodeId
         self.nodeNo = nodeNo
         self.resultsLogger = resultsLogger
         self.knownHosts = knownHosts
         self.shutdownDelay = shutdownDelay
         
-    def joinNetwork(self):
-        self.node.joinNetwork(self.knownHosts)
-        
      
     def startNode(self, factory, requests):
-        self.node = factory.createNode(self.nodeNo)
+        self.node = factory.createNode(self.port + self.nodeNo, self.knownHosts)
         self.cache = factory.createClientCache(self.node)
         
         logging.info("Starting node: {}".format(self.nodeId))
         
         # Take all elements from queue and put them to reactor queue
         self.scheduleRequests(requests)
-        self.joinNetwork()
         reactor.run()
         
     def scheduleRequests(self, requests):
@@ -144,18 +94,20 @@ class Simulator:
         if resultsLogger is None:
             resultsLogger = ResultsLogger()
             
-        knownHosts = factory.getKnownHosts() 
+        knownHosts = [('localhost', factory.port)]
         nodesIds = requests.keys()
         
         self.clients = dict()
+        logging.debug("Spawning client nodes.")
         for i in range(len(nodesIds)):
             nodeName = nodesIds[i]
             nodeRequests = requests[nodeName]
-            client = SimulatorClientProcess(nodeName, i, resultsLogger, knownHosts)
+            client = SimulatorClientProcess(factory.port, nodeName, i, resultsLogger, knownHosts)
             
             process = Process(target=client.startNode, args=(factory, nodeRequests))
             
             self.clients[nodeName] = process
+        logging.debug("Spawning done.")
         
     def start(self):
         # Start all processes

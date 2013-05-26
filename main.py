@@ -2,17 +2,11 @@
 
 from proxy.ProxyFactory import ProxyFactory
 from twisted.internet import reactor
-from twisted.python import log
 import argparse
 import logging
-import sys
-from cache.test import StoreEverytingStorage
-from p2p.node import Node, DeferredNodeCache
 from multiprocessing.process import Process
 import time
-from cache.algo import LRU, LFU
-from cache.multi import TwoLevelCache
-from p2p.chord import ChordNode, DeferredChordNodeCache
+from common import initLogger, ArgsClientFactory, initDefaultParserOptions
 
 PROG_NAME = 'p2p.proxy'
 PROG_VERSION = '0.0.1'
@@ -23,11 +17,6 @@ def parser():
     p.add_argument('--version',
         action='version',
         version=PROG_VERSION)
-    p.add_argument('--log',
-        help='Change logging mode',
-        dest='log',
-        default='info',
-        choices=['info', 'debug', 'warn'])
     p.add_argument('-P',
         metavar='port',
         dest='proxy_port',
@@ -45,14 +34,7 @@ def parser():
         type=int,
         action='store',
         help='Spawn some nodes that will be in P2P network')
-    p.add_argument('--p2p-port',
-        metavar='P2P PORT',
-        dest='p2p_port',
-        type=int,
-        default=4000,
-        action='store',
-        help='Port for P2P network node. In case of spawn it would be start port.'
-    )
+ 
     p.add_argument('--bootstrap',
         metavar='HOST:PORT',
         dest='bootstrap',
@@ -65,18 +47,11 @@ def parser():
         type=argparse.FileType('r'),
         action='store',
         help='Provide filename with known nodes in P2P network.')
+    
+    initDefaultParserOptions(p)
     return p
 
 
-def initLogger(logLevel):
-    levels = {
-     'info' : logging.INFO,
-     'debug' : logging.DEBUG,
-     'warn' : logging.WARN
-    }
-    logging.basicConfig(stream=sys.stdout, level=levels[logLevel])
-    
-    
 def getKnownNodes(args):
     knownNodes = []
     if args.bootstrap:
@@ -91,9 +66,9 @@ def getKnownNodes(args):
     return knownNodes
 
 
-def startNode(id2, port, knownNodes=None):
+def startNode(id2, factory, port, knownNodes=None):
     logging.info('Starting p2p node {}'.format(id2))
-    node = ChordNode(knownNodes, port=port, cacheStorage=LRU(StoreEverytingStorage(), 1024))
+    node = factory.createNode(port, knownNodes)
     return node
         
 
@@ -102,13 +77,14 @@ if __name__ == '__main__':
     
     initLogger(args.log)
     #log.startLogging(open('logs/twisted.logs', 'w+'))
+    factory = ArgsClientFactory(args)
     
     if args.spawn:
         nodes = []
         logging.info('Spawning {} processes'.format(args.spawn))
-        startNode('Main node', args.p2p_port, getKnownNodes(args))
+        startNode('Main node', factory, args.p2p_port, getKnownNodes(args))
         for i in range(1, args.spawn):
-            process = Process(target=startNode, args=('Node {}'.format(i), args.p2p_port + i, [('localhost', args.p2p_port)]))
+            process = Process(target=startNode, args=('Node {}'.format(i), factory, args.p2p_port + i, [('localhost', args.p2p_port)]))
             process.start()
             nodes.append(process)
         
@@ -121,17 +97,14 @@ if __name__ == '__main__':
                 n.terminate()
                 n.join()
     else:
-        node = startNode('P2P node', args.p2p_port, getKnownNodes(args))
+        node = startNode('P2P node', factory, args.p2p_port, getKnownNodes(args))
         
         # pylint: disable=E1101
         if not args.no_proxy:
             logging.info("Starting proxy at :{}".format(args.proxy_port))
             
-            proxyStorage = DeferredChordNodeCache(node.node)
-            memoryCache = LFU(StoreEverytingStorage(), queueSize=1024)
-            multiCache = TwoLevelCache(memoryCache, proxyStorage)
-            
-            reactor.listenTCP(args.proxy_port, ProxyFactory(multiCache))
+            clientCache = factory.createClientCache(node)
+            reactor.listenTCP(args.proxy_port, ProxyFactory(clientCache))
             
 
         logging.info('Running reactor.')

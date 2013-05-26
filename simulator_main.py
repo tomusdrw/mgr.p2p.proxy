@@ -1,14 +1,13 @@
 #!/usr/bin/python2
 
-from main import initLogger
-from simulator import Simulator, ResultsLogger, ClientFactory
+from simulator import Simulator, ResultsLogger
 from twisted.python import log
 from multiprocessing import Queue
 import argparse
 import csv
 import logging
 from multiprocessing.process import Process
-from cache.algo import LFU, LRU, Fifo
+from common import ArgsClientFactory, initLogger, initDefaultParserOptions
 
 
 
@@ -21,40 +20,8 @@ def parser():
     p.add_argument('--version',
         action='version',
         version=PROG_VERSION)
-    p.add_argument('--log',
-        help='Change logging mode',
-        dest='log',
-        default='info',
-        choices=['info', 'debug', 'warn'])
-    
-    p.add_argument('--mem-algo',
-        help='Change memory cache algorithm',
-        dest='mem_algo',
-        default='lru',
-        choices=['lru', 'lfu', 'fifo'])
-    p.add_argument('--mem-size',
-        help='Change memory cache queue size',
-        dest='mem_size',
-        type=int,
-        default=128)
-    
-    p.add_argument('--no-mem',
-        help='Disable memory cache (use only P2P)',
-        dest='no_mem',
-        action='store_true'
-        )
-    
-    p.add_argument('--p2p-algo',
-        help='Change p2p cache algorithm',
-        dest='p2p_algo',
-        default='lfu',
-        choices=['lru', 'lfu', 'fifo'])
-    p.add_argument('--p2p-size',
-        help='Change p2p cache queue size',
-        dest='p2p_size',
-        type=int,
-        default=128)
-    
+
+    initDefaultParserOptions(p, memSize=64, p2pSize=64)
     return p
 
 def readClients(clientsFilename = 'simulator/data/clients.txt'):
@@ -84,6 +51,7 @@ def readClientsData():
                     data.append((float(row[0]), row[1]))
         clientsData[c] = data
         
+    logging.debug("Reading clients done")
     return clientsData
     
 
@@ -119,34 +87,11 @@ class FileResultsLogger(ResultsLogger):
         self.process = Process(target=self.writerProcess)
         self.process.start()
       
-      
-class ArgsClientFactory(ClientFactory):
-
-    def __init__(self, args):
-        self.memAlgo = self.getAlgo(args.mem_algo)
-        self.p2pAlgo = self.getAlgo(args.p2p_algo)
-        
-        self.memQueueSize = args.mem_size
-        self.p2pQueueSize = args.p2p_size
-        
-        self.noMem = args.no_mem
-        
-        ClientFactory.__init__(self)
-        
-    def getAlgo(self, algoStr):
-        algos = {
-            'lfu' : LFU,
-            'lru' : LRU,
-            'fifo' : Fifo
-        }
-        return algos[algoStr]
-
-
 if __name__ == '__main__':
     args = parser().parse_args()
     
     initLogger(args.log)
-    log.startLogging(open('logs/twisted.logs', 'w+'))
+    #log.startLogging(open('logs/twisted.logs', 'w+'))
     
     resultsLogger = FileResultsLogger(args)
     resultsLogger.start()
