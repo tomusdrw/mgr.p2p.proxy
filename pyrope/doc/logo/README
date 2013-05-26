@@ -1,0 +1,8 @@
+Files for recreating the pyrope logo.
+
+* The letter "o" was created using a Python script: letter_o.py
+* The font for other letters is:
+  * Fertigo Pro by Jos Buivenga ( http://www.josbuivenga.demon.nl ) 
+  * RGB color #646464
+
+The Gimp .xcf is provided for reference.

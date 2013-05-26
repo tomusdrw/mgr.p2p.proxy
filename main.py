@@ -12,6 +12,7 @@ from multiprocessing.process import Process
 import time
 from cache.algo import LRU, LFU
 from cache.multi import TwoLevelCache
+from p2p.chord import ChordNode, DeferredChordNodeCache
 
 PROG_NAME = 'p2p.proxy'
 PROG_VERSION = '0.0.1'
@@ -92,8 +93,7 @@ def getKnownNodes(args):
 
 def startNode(id2, port, knownNodes=None):
     logging.info('Starting p2p node {}'.format(id2))
-    node = Node(port=port, cacheStorage=LRU(StoreEverytingStorage(), 1024))
-    node.joinNetwork(knownNodes)
+    node = ChordNode(knownNodes, port=port, cacheStorage=LRU(StoreEverytingStorage(), 1024))
     return node
         
 
@@ -101,7 +101,7 @@ if __name__ == '__main__':
     args = parser().parse_args()
     
     initLogger(args.log)
-    log.startLogging(open('logs/twisted.logs', 'w+'))
+    #log.startLogging(open('logs/twisted.logs', 'w+'))
     
     if args.spawn:
         nodes = []
@@ -127,7 +127,7 @@ if __name__ == '__main__':
         if not args.no_proxy:
             logging.info("Starting proxy at :{}".format(args.proxy_port))
             
-            proxyStorage = DeferredNodeCache(node)
+            proxyStorage = DeferredChordNodeCache(node.node)
             memoryCache = LFU(StoreEverytingStorage(), queueSize=1024)
             multiCache = TwoLevelCache(memoryCache, proxyStorage)
             

@@ -27,7 +27,7 @@ class DeferredNodeCache(DeferredCacheStorage):
         # pylint: disable=E1101
         h = hashlib.sha1()
         h.update(key)
-        return h.digest()
+        return h.hexdigest()
     
     def cacheObject(self, key, result):
         headers, value = store.deserialize(result)

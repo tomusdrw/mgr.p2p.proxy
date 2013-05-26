@@ -61,7 +61,7 @@ class StoreEverytingStorage(CacheStorage):
     def get(self, key, headers=Headers()):
         if key in self._storage:
             # TODO: 304 responses?
-            logging.debug('Cache hit for ' + key)
+            logging.debug('Cache hit for '.format(key))
             cacheObject = self._storage[key]
             cacheObject.hit()
             return cacheObject
@@ -70,7 +70,7 @@ class StoreEverytingStorage(CacheStorage):
     def put(self, key, headers, value, metadata=None):
         # First remove any previous element
         self.remove(key)
-        logging.debug('Storing to cache: ' + key)
+        logging.debug('Storing to cache: '.format(key))
         headersDict = dict(headers.getAllRawHeaders())
         cacheObject = self.MyCacheObject(key, value, headersDict, metadata)
         

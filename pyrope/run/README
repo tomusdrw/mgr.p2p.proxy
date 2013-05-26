@@ -1,0 +1,5 @@
+Simple node runners for testing.
+
+The server/client naming is misleading for a peer-to-peer system:
+* server.py is only meant to be the first node to run on the network
+* all further nodes should be ran using client.py
