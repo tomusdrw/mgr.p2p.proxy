@@ -14,7 +14,7 @@ getData <- data[data['verb'] == 'GET', c('time', 'client', 'address')]
 getData <- getData[getData['address'] != 'http://us.dl1.yimg.com/download.yahoo.com/pgdownload8/msgup_us.yim', ]
 
 # Data is taken from 24 hours, but we don't want to wait so long for tests
-getData['time'] <- getData['time'] / 36
+getData['time'] <- getData['time'] / 24
 
 # Take only half of the data
 getData <- getData[1:200000, ]

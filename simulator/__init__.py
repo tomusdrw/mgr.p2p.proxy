@@ -29,8 +29,13 @@ class ClientFactory:
     memAlgo = LRU
     p2pAlgo = LFU
     
+    noMem = False
+    
     def __init__(self):
-        logging.info("Settings: Mem: {}({}), P2P {}({})".format(self.memAlgo.__name__, self.memQueueSize, self.p2pAlgo.__name__, self.p2pQueueSize))
+        if self.noMem:
+            logging.info("Settings: No memory, P2P {}({})".format(self.p2pAlgo.__name__, self.p2pQueueSize))
+        else:
+            logging.info("Settings: Mem: {}({}), P2P {}({})".format(self.memAlgo.__name__, self.memQueueSize, self.p2pAlgo.__name__, self.p2pQueueSize))
     
     def getKnownHosts(self):
         return [('localhost', self.port)]
@@ -43,9 +48,13 @@ class ClientFactory:
     
     def createClientCache(self, node):
         p2pCache = DeferredNodeCache(node)
-        memoryCache = self.memAlgo(StoreEverytingStorage(), queueSize=self.memQueueSize)
         
-        return TwoLevelCache(memoryCache, p2pCache)
+        if self.noMem:
+            return p2pCache
+        else:
+            memoryCache = self.memAlgo(StoreEverytingStorage(), queueSize=self.memQueueSize)
+        
+            return TwoLevelCache(memoryCache, p2pCache)
      
      
 class ResultsLogger:

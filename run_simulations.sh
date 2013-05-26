@@ -11,7 +11,7 @@ do
     for size in ${SIZES[*]}
     do
       echo "Running simulation for ${memAlgo}(${size}) ${p2pAlgo}(${size})"
-      time ./simulator_main.py --mem-algo $memAlgo --p2p-algo $p2pAlgo --mem-size $size --p2p-size $size > logs/run_${memAlgo}_${memSize}_${p2pAlgo}_${p2pSize}.log
+      time ./simulator_main.py --mem-algo $memAlgo --p2p-algo $p2pAlgo --mem-size $size --p2p-size $size > logs/run_${memAlgo}_${size}_${p2pAlgo}_${size}.log
     done
   done
 done

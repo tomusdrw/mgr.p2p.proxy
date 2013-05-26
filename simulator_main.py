@@ -38,6 +38,12 @@ def parser():
         type=int,
         default=128)
     
+    p.add_argument('--no-mem',
+        help='Disable memory cache (use only P2P)',
+        dest='no_mem',
+        action='store_true'
+        )
+    
     p.add_argument('--p2p-algo',
         help='Change p2p cache algorithm',
         dest='p2p_algo',
@@ -89,7 +95,10 @@ class FileResultsLogger(ResultsLogger):
     
     def __init__(self, args):
         self.queue = Queue()
-        fileName = '_'.join([args.mem_algo, str(args.mem_size), args.p2p_algo, str(args.p2p_size)])
+        if args.no_mem:
+            fileName = '_'.join(['no_mem', args.p2p_algo, str(args.p2p_size)])
+        else:
+            fileName = '_'.join([args.mem_algo, str(args.mem_size), args.p2p_algo, str(args.p2p_size)])
         self.logFileName = 'logs/' + fileName + '.logs'
     
     def logRequest(self, nodeId, address, latency, cacheLevel=-1):
@@ -110,14 +119,18 @@ class FileResultsLogger(ResultsLogger):
         self.process = Process(target=self.writerProcess)
         self.process.start()
       
+      
 class ArgsClientFactory(ClientFactory):
-    
+
     def __init__(self, args):
         self.memAlgo = self.getAlgo(args.mem_algo)
         self.p2pAlgo = self.getAlgo(args.p2p_algo)
         
         self.memQueueSize = args.mem_size
         self.p2pQueueSize = args.p2p_size
+        
+        self.noMem = args.no_mem
+        
         ClientFactory.__init__(self)
         
     def getAlgo(self, algoStr):
