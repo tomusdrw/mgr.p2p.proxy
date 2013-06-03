@@ -5,6 +5,7 @@ from cache.multi import TwoLevelCache
 import sched
 import time
 import logging
+import random
 from twisted.internet import reactor
 from twisted.web.http_headers import Headers
 from multiprocessing.process import Process
@@ -27,7 +28,6 @@ class SimulatorClientProcess:
     node = None
     cache = None
     
-    
     def __init__(self, port, nodeId, nodeNo, resultsLogger, knownHosts, shutdownDelay = 5):
         self.port = port
         self.nodeId = nodeId
@@ -36,8 +36,9 @@ class SimulatorClientProcess:
         self.knownHosts = knownHosts
         self.shutdownDelay = shutdownDelay
         
-     
     def startNode(self, factory, requests):
+        # Everynode is waiting some time to make joining less stressful for machine running simualtor
+        time.sleep(self.nodeNo + random.randint(1, 10))
         self.node = factory.createNode(self.port + self.nodeNo, self.knownHosts)
         self.cache = factory.createClientCache(self.node)
         
@@ -59,10 +60,9 @@ class SimulatorClientProcess:
     def terminate(self):
         # TODO terminate gently?
         logging.info("Node {} finished. Goodbye.".format(self.nodeId))
+        self.node.terminate()
         reactor.stop()
  
-        
-   
     def makeRequest(self, address):
         logging.debug("Making request by {} to {}.".format(self.nodeId, address))
          
@@ -87,6 +87,16 @@ class Simulator:
     """
     clients = None
     
+    initWait = 10
+    
+    def startNode(self, requests, nodesIds, idx, factory, resultsLogger, knownHosts):
+        nodeName = nodesIds[idx]
+        nodeRequests = requests[nodeName]
+        client = SimulatorClientProcess(factory.port, nodeName, idx, resultsLogger, knownHosts)
+        
+        process = Process(target=client.startNode, args=(factory, nodeRequests))
+            
+        self.clients[nodeName] = process
         
     def __init__(self, requests, factory=None, resultsLogger=None):
         if factory is None:
@@ -99,14 +109,14 @@ class Simulator:
         
         self.clients = dict()
         logging.debug("Spawning client nodes.")
-        for i in range(len(nodesIds)):
-            nodeName = nodesIds[i]
-            nodeRequests = requests[nodeName]
-            client = SimulatorClientProcess(factory.port, nodeName, i, resultsLogger, knownHosts)
-            
-            process = Process(target=client.startNode, args=(factory, nodeRequests))
-            
-            self.clients[nodeName] = process
+        # Spawn first node first
+        self.startNode(requests, nodesIds, 0, factory, resultsLogger, [])
+        time.sleep(self.initWait / 2)
+        logging.info("Spawning nodes")
+        for i in range(1, len(nodesIds)):
+            self.startNode(requests, nodesIds, i, factory, resultsLogger, knownHosts)
+        # Wait until everynode is ready
+        time.sleep(self.initWait)
         logging.debug("Spawning done.")
         
     def start(self):

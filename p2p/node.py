@@ -6,12 +6,19 @@ from twisted.web.http_headers import Headers
 import hashlib
 from twisted.internet.defer import Deferred
 import logging
+import time
 
 class Node(kademlia.node.Node):
     def __init__(self, knownHosts, port=4000, cacheStorage=None):
         dataStore = store.CacheDataStore(cacheStorage)
         kademlia.node.Node.__init__(self, udpPort=port, dataStore=dataStore)
         self.joinNetwork(knownHosts)
+        
+    def terminate(self):
+        """
+        We don't need to do anything
+        """
+        pass
 
 class DeferredNodeCache(DeferredCacheStorage):
     class NodeCacheObject(CacheObject):

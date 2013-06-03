@@ -1,4 +1,5 @@
 # -*- coding:utf-8 -*-
+import logging
 __author__    = "Nicolas Dumazet"
 __copyright__ = "Copyright 2009, Nicolas Dumazet"
 __license__   = "MIT"
@@ -33,10 +34,13 @@ def decorator(function):
     decorated.__doc__ = function.__doc__
     return decorated
 
+def logF(msg):
+    logging.debug(msg)
+
 class Server(jsonrpc.Server):
 
     def __init__(self, id, port, log=False):
-        logfunc = (log and jsonrpc.log_stdout) or jsonrpc.log_dummy
+        logfunc = (log and logF) or jsonrpc.log_dummy
 
         address = ('', port)
         jsonrpc.Server.__init__(self, ChordJsonRpc(id, address),
@@ -62,6 +66,7 @@ class ServerProxy(jsonrpc.ServerProxy):
 
         self._laddress = laddress
         self._lid = lid
+        print "Connecting to node: {}".format(raddress)
         jsonrpc.ServerProxy.__init__(self, ChordJsonRpc(),
                                     jsonrpc.TransportTcpIp(addr=raddress,
                                                 limit=MSG_LIMIT,

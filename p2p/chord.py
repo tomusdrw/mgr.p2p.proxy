@@ -8,6 +8,7 @@ import hashlib
 from multiprocessing.process import Process
 from pyrope.network import ChordJsonRpc, ServerProxy
 from pyrope import jsonrpc
+import time
 
 NETWORK_SIZE = 2**16
 
@@ -21,7 +22,7 @@ class BlockingChordNode(PyRopeNode):
             host = knownHosts[0]
         else:
             host = None
-            
+        logging.info("Starting node {} at port {}. Joining {}".format(nodeId, port, host))
         PyRopeNode.__init__(self, nodeId, port, host)
     
     def findValue(self, key):
@@ -59,6 +60,12 @@ class ChordNode:
         self.process = Process(target=self.createNode, args=(nodeId, port, cacheStorage, knownHosts))
         self.process.start()
         self.node = ServerProxy(('', port), nodeId, ('localhost', port))
+        
+    def terminate(self):
+        """
+        Kill node process
+        """
+        self.process.terminate()
     
         
         
