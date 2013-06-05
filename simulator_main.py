@@ -64,9 +64,9 @@ class FileResultsLogger(ResultsLogger):
     def __init__(self, args):
         self.queue = Queue()
         if args.no_mem:
-            fileName = '_'.join(['no_mem', args.p2p_algo, str(args.p2p_size)])
+            fileName = '_'.join([args.p2p_net, 'no_mem', args.p2p_algo, str(args.p2p_size)])
         else:
-            fileName = '_'.join([args.mem_algo, str(args.mem_size), args.p2p_algo, str(args.p2p_size)])
+            fileName = '_'.join([args.p2p_net, args.mem_algo, str(args.mem_size), args.p2p_algo, str(args.p2p_size)])
         self.logFileName = 'logs/' + fileName + '.logs'
     
     def logRequest(self, nodeId, address, latency, cacheLevel=-1):
@@ -91,7 +91,7 @@ if __name__ == '__main__':
     args = parser().parse_args()
     
     initLogger(args.log)
-    #log.startLogging(open('logs/twisted.logs', 'w+'))
+    log.startLogging(open('logs/twisted.logs', 'w+'))
     
     resultsLogger = FileResultsLogger(args)
     resultsLogger.start()
