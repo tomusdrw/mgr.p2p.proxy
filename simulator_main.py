@@ -21,7 +21,7 @@ def parser():
         action='version',
         version=PROG_VERSION)
 
-    initDefaultParserOptions(p, memSize=64, p2pSize=64)
+    initDefaultParserOptions(p, memSize=256, p2pSize=256)
     return p
 
 def readClients(clientsFilename = 'simulator/data/clients.txt'):

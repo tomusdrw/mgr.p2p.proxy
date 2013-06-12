@@ -45,17 +45,39 @@
 \newcommand{\Keszowanie}{Cache'owanie}
 \newcommand{\keszowaniem}{cache'owaniem}
 
+
+\usepackage{color}
+\definecolor{lightgray}{rgb}{.9,.9,.9}
+\definecolor{darkgray}{rgb}{.4,.4,.4}
+\definecolor{purple}{rgb}{0.65, 0.12, 0.82}
+
+\lstdefinelanguage{javascript}{
+  keywords={typeof, new, true, false, catch, function, return, null, catch,
+  switch, var, if, in, while, do, else, case, break, continue},
+  keywordstyle=\color{blue}\bfseries, 
+  ndkeywords={class, export, boolean, throw, implements, import, this,
+  prototype}, ndkeywordstyle=\color{darkgray}\bfseries,
+  identifierstyle=\color{black},
+  sensitive=false,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\color{red}\ttfamily,
+  morestring=[b]',
+  morestring=[b]"
+}
+
 \lstset{numbers=left,
-	numberstyle=\tiny,
-	%basicstyle=\footnotesize,
-	showstringspaces=false,
-	basicstyle=\footnotesize,
-	breaklines=true,
-	captionpos=b,
-	tabsize=3,
-	stepnumber=60,
-	firstnumber=1,
-	}
+  numberstyle=\tiny,
+  %basicstyle=\footnotesize,
+  showstringspaces=false,
+  basicstyle=\footnotesize,
+  breaklines=true,
+  captionpos=b,
+  tabsize=3,
+  stepnumber=60,
+  firstnumber=1,
+  }
 %opening
 \title{\mytitlea \mytitleb}
 \author{\me}
@@ -269,16 +291,14 @@ Obecnie, około 13 lat później, Internet i jego użycie zmieniło się diametr
 Jakkolwiek oryginalna motywacja \keszowania\s straciła obecnie na znaczeniu, to jednak współczesny Internet stawia szereg nowych problemów, którym musimy sprostać. Wraz ze wzrostem popularności serwisów, które zajmują się agregowaniem treści (jak \textit{reddit\footnote{\url{http://reddit.com}}} oraz \textit{Wykop\footnote{\url{http://wykop.pl}}}) coraz większym problemem staje się tzw. \textit{slash-dot effect}. Efekt obserwowany jest kiedy strona ciesząca się pierwotnie niewielkim lub umiarkowanym zainteresowaniem trafia do agregatora, dzięki któremu w krótkim czasie zyskuje olbrzymi wzrost liczby wizyt. W rezultacie serwer, który nigdy nie był przygotowany do obsługi tak wielu zapytań zostaje zalany i staje się niedostępny. Na wykresie \ref{fig_slashdot} przedstawiona została liczba wizyt spowodowana efektem slash-dot.
 
 \begin{figure}
-\label{fig_slashdot}
 \caption{TODO: jakiś wykres związany z slashdot}
+\label{fig_slashdot}
 \end{figure}
 
 
-TODO: Akapit o średnim rozmiarze strony oraz prędkościach internetu. Jakis wykres mówiący o średnim rozmiarze strony (może zestawione ze średnią prędkością łącza?)
+TODO: Akapit o średnim rozmiarze strony oraz prędkościach internetu. Jakiś wykres mówiący o średnim rozmiarze strony (może zestawione ze średnią prędkością łącza?)
 
 Rozproszony \kesz\s oparty o DHT wykorzystuje moc obliczeniową współczesnych maszyn klienckich w celu odciążenia serwerów i zmniejszenia opóźnień użytkowników.
-
-
 
 \subsection{Poprzednie prace}
 TODO: Squirrel p2p web cache \cite{iyer2002squirrel}
@@ -293,17 +313,24 @@ TODO: Jakiś diagram decyzyjny co się dzieje w systemie
 \subsection{Dane testowe}
 TODO: Opis danych testowych uc.sanitized i wziąć jeszcze jakieś z iirc.
 
-\subsection{\Keszowanie w pamięci}
+\subsection{\Keszowanie\s w pamięci}
 TODO: Opis wyników tylko i wyłącznie keszy trzymanych w pamięci danego klienta, porównanie lfu, lru i fifo i wpływu rozmiaru na procent zkeszowanych zasobów
 
-\subsection{\Keszowanie w sieci P2P}
+\subsection{\Keszowanie\s w sieci P2P}
+
+\begin{figure}[h!]
+\includegraphics[width=0.95\linewidth]{img/cache.eps}
+\caption{Wyniki testów --no-mem. TODO: WYniki testów dla > 1024 muszą być powtórzone, bo zmieniałem wartości buffora UDP w kernelu i zamiast poprawić liczbę niezdropowanych pakietów to się pogorszyło, dlatego rozrzut wyników jest o wiele większy}
+\end{figure}
+
 TODO: Opis specyfiki testów, dlaczego są przyspieszone i dlaczego tylko 25\% requestów nie ma timeoutów
 
 TODO: Wyniki przyspieszonych testów dla danych uc.sanitized i jeszcze jakichś
 TODO: Wyniki tylko dla Kademli?
 TODO: Porównanie lfu, lru i fifo oraz rozmiarów 256, 512, 1024, 2048
 
-\subsection{\Keszowanie dwupoziomowe}
+
+\subsection{\Keszowanie\s dwupoziomowe}
 TODO: odpalenie symulacji nieprzyspieszonej (albo przyspieszonej mniej)
 TODO: Dobranie odpowiednich algorytmów i wielkości kolejek
 TODO: testy opóźnień?
@@ -326,7 +353,8 @@ Pierwszą podjętą próbą implementacji było stworzenie rozszerzenia do przeg
 
 Jako \textit{proof-of-concept} stworzony został plugin, którego kod znajduje się na listing \ref{lst_plugin_1}.
 
-\begin{lstlisting}
+\begin{lstlisting}[language={JavaScript}, label={lst_plugin_1}, 
+  caption={Kod rozszerzenia dla przeglądarki Chrome, realizujący \textit{proof-of-concept}.}]
 (function() { 'use strict';
 var cowImg;
 chrome.webRequest.onBeforeRequest.addListener(function(details){
@@ -334,16 +362,17 @@ chrome.webRequest.onBeforeRequest.addListener(function(details){
 	if (loldogs.indexOf(details.url) !== -1) {
 		return;
 	}
-  
+	
   // Redirect to cow
 	var url = cowImg;
   // or to loldogs
 	if (Math.random() < .5) {
 		url = loldogs[Math.round(Math.random() * loldogs.length)];
 	}
+	
 	console.log("Redirecting", details.url, " to ", 
     (url === cowImg ? "COW" : url));
-
+    
   // Return redirection url
 	return {
 		redirectUrl: url
@@ -357,13 +386,13 @@ cowImg = "data:image/png;base64,iVBORw0KG...";
 }());
 \end{lstlisting}
 
-Rozwiązanie korzysta z API \f{chrome.webRequest.onBeforeRequest}\footnote{\url{http://developer.chrome.com/extensions/webRequest.html}}, które pozwala nasłuchiwać oraz modyfikować wszystkie żądania, wychodzące z przeglądarki. Nasłuchiwane są tylko żądania o obrazki, z dowolnymi adresami URL. Następnie każde żądanie z prawdopodobieństwem $\nicefrac{1}{2}$ zostaje zastąpione obrazkiem \f{cowImg}, który znajduje się w pliku źródłówym w zakodowanej postaci (\f{base64}) oraz z prawdopodobieństwem $\nicefrac{1}{2}$ jednym z obrazków z tablicy \f{loldogs}. Dzięki przekierowaniu na zasób w postaci \f{base64} nie jest konieczne wykonywanie dodatkowego żadania przez przeglądarkę i obrazek jest wyświetlany od razu. 
+Rozwiązanie korzysta z API \f{chrome.webRequest.onBeforeRequest}\footnote{\url{http://developer.chrome.com/extensions/webRequest.html}}, które pozwala nasłuchiwać oraz modyfikować wszystkie żądania, wychodzące z przeglądarki. Nasłuchiwane są tylko żądania o obrazki, z dowolnymi adresami URL. Następnie każde żądanie z prawdopodobieństwem $\nicefrac{1}{2}$ zostaje zastąpione obrazkiem \f{cowImg}, który znajduje się w pliku źródłowym w zakodowanej postaci (\f{base64}) oraz z prawdopodobieństwem $\nicefrac{1}{2}$ jednym z obrazków z tablicy \f{loldogs}. Dzięki przekierowaniu na zasób w postaci \f{base64} nie jest konieczne wykonywanie dodatkowego żądania przez przeglądarkę i obrazek jest wyświetlany od razu. 
 
 Niestety stworzenie tego pluginu pokazało poważną wadę tego podejścia. Żeby przechwytywać żądania w trybie \f{onBeforeRequest}, czyli przed wykonaniem zapytania przez przeglądarkę musimy korzystać z opcji \f{blocking}, która powoduje, że żądania muszą być przetwarzane synchronicznie. Zatem próby pobrania zasobu z sieci P2P podczas przechwytywania zapytania będą skutkowały zwiększonymi opóźnieniami w dostępie do zasobów, co podważa podstawową ideę rozwiązania.
 
 \subsubsection{Plugin \textit{Native Client}}
 \label{sect_plugin_2}
-Kolejnym podejściem było stworzenie pluginu dla przeglądarki Chrome w technologii \textit{Native Client(NaCL)}. \textit{NaCL} pozwala na kompilację programów, które uruchamiane są w piaskownicy (ang. \textit{sanboxed environment}) w celu zapewnienia bezpieczeństwa użytkownika. Główną zaletą technologii jest wydajność, która jest bliska wydajności natywnych aplikacji.
+Kolejnym podejściem było stworzenie pluginu dla przeglądarki Chrome w technologii \textit{Native Client(NaCL)}. \textit{NaCL} pozwala na kompilację programów, które uruchamiane są w piaskownicy (ang. \textit{sandboxed environment}) w celu zapewnienia bezpieczeństwa użytkownika. Główną zaletą technologii jest wydajność, która jest bliska wydajności natywnych aplikacji.
 
 Pomimo ogłoszenia przez Google gotowości \textit{Native Client} do produkcyjnego użycia, plugin nie został stworzony z powodu słabej dokumentacji oraz braku wersji odpowiednich bibliotek na platformie \textit{NaCL}.
 
@@ -373,17 +402,17 @@ Po nieudanych próbach stworzenia rozszerzenia do przeglądarki stworzone zosta�
 
 Program został wykonany w języku \f{Python} z użyciem bibliotek \f{Twisted}\footnote{\url{http://twistedmatrix.com}} oraz \f{Entangled}\footnote{\url{http://entangled.sourceforge.net}}. Aplikacja składa się z dwóch części:
 \begin{description}
-  \item[Proxy]{ - server proxy, który odpowiada za przekazywanie zapytań oraz odpytywanie \keszu\s o zasoby,}
+  \item[Proxy]{ - serwer proxy, który odpowiada za przekazywanie zapytań oraz odpytywanie \keszu\s o zasoby,}
   \item[P2P]{ - klient sieci Peer-to-Peer, pozwalający na odszukiwanie zasobów, które w tej sieci się znajdują.}
 \end{description}
 Na rysunku \ref{fig_architecture} przedstawione zostało przykładowe zapytanie i jego droga przez poszczególne komponenty aplikacji. 
 
-TODO: Cos o Twisted i jego zaletach, jakiś fragment o tym, że entangled też jest w twisted?
+TODO: Cos o Twisted i jego zaletach, jakiś fragment o tym, że Entangled też jest w Twisted?
 TODO: Możliwość łatwego podmieniania komponentów (np. jak budowany jest cache)
 
-\begin{figure}
+\begin{figure}[h]
+\caption{TODO: Rysunek przedstawiający komponenty aplikacji (proxy serwer, p2p serwer, twolevelcache) i request, który jest obsługiwany z cacha lub nie.}
 \label{fig_architecture}
-\caption{TODO: Rysunek przedstawiający komponenty aplikacji (proxy server, p2p server, twolevelcache) i request, który jest obsługiwany z cacha lub nie.}
 \end{figure}
 
 \subsection{Symulator}
@@ -397,7 +426,7 @@ Aby ułatwić przetwarzania plików z logami zostały wykonane pomocnicze skrypt
 
 Pierwszy ze skryptów (\f{read.data.r}) odpowiedzialny jest za wczytanie danych testowych i przetworzenie ich na format, które oczekuje symulator. Skrypt wczytuje więc plik z logami z serwera, który zawiera wpisy dla wszystkich żądań i dzieli go na pliki z zapytaniami dla poszczególnych klientów. Dodatkowo czas zapytań zamieniany jest z absolutnego na relatywny, czyli pierwsze zapytanie ma czas $0$, a czas pozostałych to opóźnienie w stosunku do pierwszego żądania.
 
-Skrypt \f{read.logs.r} pozwala na wczytanie danych wyjściowych z symulatora i opracowanie na ich podstawie wykresów odpowiedzi z poszczególnych \keszy. Skrypt zapisuje też uproszczone wyniki symulacji, które używane sa przez ostatni ze skryptów (\f{combine.logs.r}). Ponieważ wyniki symulacji są w pewnym stopniu losowe (co wynika z użycia protokołu UDP dla sieci Kademlia oraz różnego obciążenia maszyny, na której uruchomione były symulacje) ostatni skrypt zbiera wyniki z wielu uruchomień symulatora i prezentuje wykresy z uśrednionymi wynikami.
+Skrypt \f{read.logs.r} pozwala na wczytanie danych wyjściowych z symulatora i opracowanie na ich podstawie wykresów odpowiedzi z poszczególnych \keszy. Skrypt zapisuje też uproszczone wyniki symulacji, które używane są przez ostatni ze skryptów (\f{combine.logs.r}). Ponieważ wyniki symulacji są w pewnym stopniu losowe (co wynika z użycia protokołu UDP dla sieci Kademlia oraz różnego obciążenia maszyny, na której uruchomione były symulacje) ostatni skrypt zbiera wyniki z wielu uruchomień symulatora i prezentuje wykresy z uśrednionymi wynikami.
 
 \subsection{Instalacja i uruchomienie}
 \label{sect_impl_install}
@@ -418,7 +447,7 @@ Dodatkowo w celu uruchomienia wielu symulacji utworzone zostały pomocniczy skry
 
 \section{Podsumowanie}
 
-TODO: Podsumowanie tego co zostało zrobione, interpretacja wyników i ogólnie troche wody.
+TODO: Podsumowanie tego co zostało zrobione, interpretacja wyników i ogólnie trochę wody.
 
 \bibliographystyle{plain}
 

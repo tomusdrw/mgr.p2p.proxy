@@ -5,10 +5,14 @@ paths = c(
   'No-mem (1-200k) (:24) 3',
   'No-mem (1-200k) (:24) 4',
   'No-mem (1-200k) (:24) 5',
-  'No-mem (1-200k) (:24) (rmem=25MB) 2'
+  'No-mem (1-200k) (:24) (rmem=25MB) 2',
+  'No-mem (1-200k) (:24) (rmem=25MB) 3',
+  'No-mem (1-200k) (:24) (rmem=25MB) 4',
+  'No-mem (1-200k) (:24) (rmem=25MB) 5',
+  'No-mem (1-200k) (:24) (rmem=25MB) 6'
 )
 
-values = c(256, 512, 1024, 2048)
+values = c(256, 512, 1024, 2048, 4096)
 
 
 lapply(paths, function(path) {
@@ -34,3 +38,9 @@ summary(combined.results)
 
 plot(formula = L2.Cache.hits.... ~ type, data=combined.results, col=colors(seq(1, 3)))
 legend("bottomright", legend=c('lfu', 'lru', 'fifo'), bty='0', pch=19, col=colors(seq(1, 3)))
+
+setEPS()
+postscript('plot.eps')
+plot(formula = L2.Cache.hits.... ~ type, data=combined.results, col=colors(seq(1, 3)))
+legend("bottomright", legend=c('lfu', 'lru', 'fifo'), bty='0', pch=19, col=colors(seq(1, 3)))
+dev.off()
