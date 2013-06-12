@@ -4,6 +4,7 @@
 *.sublime-project
 *.sublime-workspace
 /logs
+/logs*
 *.pyc
 build
 dist
@@ -13,3 +14,8 @@ res/doc/tmp
 res/slides/tmp
 *.synctex.gz
 simulator/data
+simulator/logs
+simulator/.RData
+simulator/.Rhistory
+*.swp
+*.swo

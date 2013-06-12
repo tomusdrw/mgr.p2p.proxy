@@ -40,6 +40,7 @@
 \newcommand{\keszujacym}{cache'ującym}
 \newcommand{\keszujacych}{cache'ujących}
 \newcommand{\keszowania}{cache'owania}
+\newcommand{\keszowanie}{cache'owanie}
 \newcommand{\keszowaniem}{cache'owaniem}
 
 \lstset{numbers=left,
@@ -181,7 +182,7 @@ Pomimo, że pierwotną motywacją powstania \textit{Consistent Hashing} był pro
 \label{sect_dht}
 Rozproszone tablice haszujące (ang. \textit{Distributed Hash Tables}, DHT) to systemy pozwalające na przechowywanie par \textit{(klucz, wartość)}, podobnie jak zwykłe tablice haszujące, w dynamicznej sieci zbudowanej z uczestniczących węzłów (\textit{peer-to-peer}). Odpowiedzialność za przetrzymywanie mapowania kluczy do wartości jest podzielona pomiędzy węzły, w taki sposób aby zmiany w liczbie uczestników nie powodowały reorganizacji całości systemu, ale tylko jego drobnej części. Dodatkowo rozproszone tablice haszujące oferują efektywne wyszukiwanie kluczy w systemie.
 
-Początkowe badania nad DHT były motywowane istniejącymi systemami peer-to-peer, oferującymi głównie możliwość dzielenia się plikami, np. \textit{Napster}, \textit{Gnutella} i \textit{Freenet}. Sieci te na różne sposóby realizowały wyszukiwanie zasobów, ale każdy z nich miał swoje wady. \textit{Napster} korzystał z centralnego katalogu, do którego każdy serwer wysyłał swoją listę plików i który zarządzał wyszukiwaniem plików. W \textit{gnutelli} w celu odnalezienia zasobu, zapytanie wysyłane było do każdego węzła w sieci w określonym promienu, co skutkowało mniejszą szybkością i mnóstwem przesyłanych wiadomości oraz podobnie jak w przypadku sieci \textit{Freenet}, w której znajdowanie klucza odbywało się za pomocą heurystycznej metody, brak gwarancji odnalezienia klucza.
+Początkowe badania nad DHT były motywowane istniejącymi systemami peer-to-peer, oferującymi głównie możliwość dzielenia się plikami, np. \textit{Napster}, \textit{Gnutella} i \textit{Freenet}. Sieci te na różne sposoby realizowały wyszukiwanie zasobów, ale każdy z nich miał swoje wady. \textit{Napster} korzystał z centralnego katalogu, do którego każdy serwer wysyłał swoją listę plików i który zarządzał wyszukiwaniem plików. W \textit{gnutelli} w celu odnalezienia zasobu, zapytanie wysyłane było do każdego węzła w sieci w określonym promieniu, co skutkowało mniejszą szybkością i mnóstwem przesyłanych wiadomości oraz podobnie jak w przypadku sieci \textit{Freenet}, w której znajdowanie klucza odbywało się za pomocą heurystycznej metody, brak gwarancji odnalezienia klucza.
 
 Idea rozproszonych tablic haszujących ma na celu rozwiązanie wszystkich przedstawionych problemów:
 \begin{itemize}
@@ -216,13 +217,13 @@ TODO: Pełniejszy opis i powiązanie z Kademlią?}
 \label{fig_chord_fingers_2}
 \end{figure}
 
-Podczas dołączania do sieci węzeł $n$ musi znać adres co najmniej jednego węzła, który należy już do sieci, nazwijmy go $n'$. Procedura dołączania polega na poproszeniu $n'$ o znalezienie następnika dla $n$. W kolejnym kroku $n$ buduje tablicę kontaktów wysyłając zapytania o $successor(n + 2^{i-1})$ dla każdego kolejnego $i$. Po zakończeniu tego procesu $n$ posiada pełną listę kontaktów, ale tylko jego następnik wie o jego istnieniu.
+Podczas dołączania do sieci węzeł $n$ musi znać adres co najmniej jednego węzła, który należy już do sieci, nazwijmy go $n'$. Procedura dołączania polega na poproszeniu $n'$ o znalezienie następnika dla $n$. W kolejnym kroku $n$ buduje tablicę kontaktów wysyłając zapytania o $successor(n + 2^{i-1})$ dla każdego kolejnego $i$. Po zakończeniu tego procesu $n$ posiada pełną listę kontaktów, ale tylko jego następnik wie o jego istnieniu.
 
-
-TODO: kolejny akapit jest gównaniy, bo nagle z dupy zaczyna rzucać jakimiś procedurami.
+TODO: kolejny akapit jest gówniany, bo nagle z dupy zaczyna rzucać jakimiś procedurami.
 
 Pozostałe węzły mają możliwość uwzględnienia nowych podczas cyklicznego wykonywania procedury $stab$??????????????TODO, odpowiadającej za uaktualnienie (poprawienie) informacji o poprzedniku i następniku dla każdego węzła. Dodatkowa procedura $fix\_fingers$, która również jest wywoływana cyklicznie, odpowiada za uaktualnianie tabel kontaktów.
 
+\subsection{Podsumowanie}
 TODO: Krótkie podsumowanie Chorda?
 
 
@@ -231,34 +232,54 @@ TODO: Opis Kademli\cite{maymounkov2002kademlia}: Routing, Asynchroniczność wyw
 
 W 2002 roku Maymounkov i Mazieres opracowali nową sieć P2P, która wykorzystywała zalety pierwszych sieci oraz uwzględniała nie tylko aspekty teoretyczne, ale również wykorzystanie sieci w praktyce.
 
-Kademlia \cite{maymounkov2002kademlia}, podobnie jak pierwsze powstałe sieci peer-to-peer, pozwala na odnalezienie zasobu w czasie logarytmicznym od liczby węzłów w sieci. Zaletą Kademli jest fakt, że każdy pakiet wymieniany pomiędzy węzłami niesie ze sobą dodatkowe, użyteczne informacje o pozostałych węzłach, dzięki czemu nie jest konieczne wysyłanie dodatkowych komunikatów, niezbędnych do działania systemu. Wykorzystanie tej własności umożliwia użycie metryki odległości opartej na funkcji XOR, co więcej sieć pozwala na rownoległe odpytywanie wielu węzłów w celu zmniejszenia opóźnień użytkownika. Szczegóły działania routingu Kademli zostały opisane w rozdziale \ref{kad_routing}.
+Kademlia \cite{maymounkov2002kademlia}, podobnie jak pierwsze powstałe sieci peer-to-peer, pozwala na odnalezienie zasobu w czasie logarytmicznym od liczby węzłów w sieci. Zaletą Kademli jest fakt, że każdy pakiet wymieniany pomiędzy węzłami niesie ze sobą dodatkowe, użyteczne informacje o pozostałych węzłach, dzięki czemu nie jest konieczne wysyłanie dodatkowych komunikatów, niezbędnych do działania systemu. Wykorzystanie tej własności umożliwia użycie metryki odległości opartej na funkcji XOR, co więcej sieć pozwala na równoległe odpytywanie wielu węzłów w celu zmniejszenia opóźnień użytkownika. Szczegóły działania routingu Kademli zostały opisane w rozdziale \ref{kad_routing}.
 
 W celu identyfikacji zasobów i węzłów w sieci Kademlia używane są 160-bitowe klucze (np. hash SHA-1 identyfikatora). Zasoby są składowane w węzłach, których klucz jest blisko identyfikatora zasobu. W celu określenia "bliskości" elementów wykorzystywana jest metryka XOR, tzn. im więcej początkowych bitów dwóch kluczy jest zgodnych tym bliżej siebie się znajdują. Dzięki temu, że funkcja XOR jest symetryczna każde zapytanie, które dociera do danego węzła, może nieść ze sobą informacje o nowym kontakcie, którym jest nadawca komunikatu.
 
 Każdy węzeł utrzymuje swoją tablicę kontaktów wykorzystywaną podczas wyszukiwania zasobów. Tablica dla węzła o identyfikatorze $X$ składa się z $k$-pojemników (ang. \textit{$k$-buckets}), które dla każdego $i \in [0, 160)$ przechowują adresy (maksymalnie) $k$ węzłów, które znajdują się w odległości od $2^i$ do $2^{i+1}$ od danego węzła. Zatem klucze w $i$-tym pojemniku mają z $X$ wspólny prefiks długości $160 - (i+1)$, ale różnią się na bicie $160 - i$. Parametr $k$ jest stały i ustalony dla danej sieci (autorzy Kademli proponują wartość $k=20$). Na rysunku \ref{fig_kademlia} przedstawiona została przykładowa sieć dla kluczy długości $3$ oraz kontakty węzła o kluczu $000$. 
 
-Bazując na zapisów logów zebranych przez Saroiu i innych \cite[] z działającej sieci Gnutella, zaobserwowano, że prawdopodobieństwo, że węzeł który znajduje się w sieci od $x$ minut będzie się w niej znajdował również w czasie $x+60$ rośnie wraz ze wzrostem $x$. Własność ta została wykorzystana w Kademli w celu ustalenia kolejności w $k$-pojemnikach. Węzły są uszeregowane według malejącego czasu ostatniej widoczności\footnote{Czas ten jest uaktualniany w momencie otrzymywania zapytań lub odpowiedzi na zapytania od danego węzła.}. W momencie kiedy do danej listy ma trafić kolejny węzeł do ostatniego węzła na liście wysyłany jest komunikat w celu sprawdzenia czy jest wciąż aktywny. W przypadku braku odpowiedzi węzeł jest usuwany z listy, a nowy węzeł wstawiany jest na początek. W przeciwnym razie węzeł jest przesuwany na początek listy, a nowy kontakt jest ignorowany. Dzięki takiemu podejściu sieć dodatkowo staje się częściowo odporna na ataki, w których adwersarz wprowadza wiele nowych węzłów, które mają na celu "wypchnięcie" prawdziwych węzłów z tabel kontaktów.
-
-\subsubsection{Routing}
-\label{kad_routing}
-
+Bazując na zapisów logów zebranych przez Saroiu i innych \cite{saroiu2001measurement} z działającej sieci Gnutella, zaobserwowano, że prawdopodobieństwo, że węzeł który znajduje się w sieci od $x$ minut będzie się w niej znajdował również w czasie $x+60$ rośnie wraz ze wzrostem $x$. Własność ta została wykorzystana w Kademli w celu ustalenia kolejności w $k$-pojemnikach. Węzły są uszeregowane według malejącego czasu ostatniej widoczności\footnote{Czas ten jest uaktualniany w momencie otrzymywania zapytań lub odpowiedzi na zapytania od danego węzła.}. W momencie kiedy do danej listy ma trafić kolejny węzeł do ostatniego węzła na liście wysyłany jest komunikat w celu sprawdzenia czy jest wciąż aktywny. W przypadku braku odpowiedzi węzeł jest usuwany z listy, a nowy węzeł wstawiany jest na początek. W przeciwnym razie węzeł jest przesuwany na początek listy, a nowy kontakt jest ignorowany. Dzięki takiemu podejściu sieć dodatkowo staje się częściowo odporna na ataki, w których adwersarz wprowadza wiele nowych węzłów, które mają na celu "wypchnięcie" prawdziwych węzłów z tabel kontaktów.
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.9\linewidth]{img/kademlia.pdf}
-\caption{Tablica kontaktów węzła $000$ w przykładowej sieci Kademli. Szare elipsy oznaczają kolejne $k$-pojemniki. Rysunek ten bardzo przypomina rysunek \ref{fig_chord_fingers_2}. W przypadku Chorda węzeł znał co najwyżej jeden węzeł z każdego poddrzewa. Dzięki zastosowaniu metryki XOR w Kademli węzły bez dodatkowych komunikatów mogą dowiedzieć się o pozostałych węzłach, które należą do danego przedziału. Informacja ta wykorzystywana jest w celu przyspieszenia routingu w praktycznych zastosowaniach.
+\caption{Tablica kontaktów węzła $000$ w przykładowej sieci Kademli. Szare elipsy oznaczają kolejne $k$-pojemniki. Rysunek ten bardzo przypomina rysunek \ref{fig_chord_fingers_2}. W przypadku Chorda węzeł znał co najwyżej jeden węzeł z każdego poddrzewa. Dzięki zastosowaniu metryki XOR w Kademli węzły bez dodatkowych komunikatów mogą dowiedzieć się o pozostałych węzłach, które należą do danego przedziału. Informacja ta wykorzystywana jest w celu przyspieszenia routingu w praktycznych zastosowaniach.}
 \label{fig_kademlia}
 \end{figure}
 
+\subsubsection{Routing}
+\label{kad_routing}
+Protokół Kademli oparty jest o cztery procedury: \f{STORE}, \f{PING}, \f{FIND\_NODE} oraz \f{FIND\_VALUE}. Pierwsza procedura wysyła prośbę o zapamiętanie pary (klucz, wartość). \f{PING} używany jest do ustalenia czy dany węzeł powinien zostać usunięty z pewnego $k$-pojemnika lub czy dalej jest aktywny. Dwie kolejne procedury stanowią najważniejszą część sieci. Obie używają tego samego algorytmu routingu w celu odnalezienia węzła lub wartości, która reprezentowana jest przez zadany klucz.
+
+W celu odnalezienia węzła o kluczu $X$ przez węzeł $S$ na podstawie tablicy kontaktów określanych jest $k$ najbliższych do klucza $X$ węzłów sieci. W kolejnym kroku $S$ przesyła zapytanie o $k$ najbliższych węzłów do węzłów wybranych w poprzednim kroku. Dzięki zastosowanej metryce XOR i jej własnościom możliwe jest wysyłanie równoczesnych zapytań do kilku węzłów. Liczbę równoległych żądań określa parametr $\alpha$, dla którego Maymounkov i Mazieres proponują wartość 3. Dzięki odpytywaniu wielu węzłów w tym samym czasie możemy uzyskać krótszy czas dostępu do zasobów, w przypadku gdy część węzłów nie odpowiada na komunikaty węzła $S$. Procedura \f{FIND\_VALUE} obsługiwana jest dokładnie w ten sam sposób, dopóki jeden z węzłów nie posiada wartości odpowiadającej danemu kluczowi. Wtedy węzeł zamiast zwracać $k$ najbliższych węzłów zwraca po prostu wartość, znajdującą się pod podanym kluczem.
+
+\subsection{Podsumowanie}
+TODO: Krótkie podsumowanie kademli; Może nie robić z tego osobnego akapitu?
+
 \section{Rozproszony \kesz\s z użyciem DHT}
+Obecne zastosowania DHT skupiają się głównie na systemach wymiany plików takich jak Kad czy BitTorrent. W systemach tych DHT są używane w celu odnalezienia komputerów, które przechowują dany plik. W tej pracy proponujemy użycie DHT w celu \keszowania\s zasobów internetowych. Jak opisane zostało w rozdziale \ref{sect_consistent_hashing} \keszowanie\s zasobów leżało u podstaw powstania mechanizmu \textit{Consistent Hashing}, który z kolei zapoczątkował rozwój DHT.
+
+\subsection{Motywacja}
+Pod koniec lat dziewięćdziesiątych, kiedy opracowane zostało \textit{Constistent Hashing} z internetu korzystało 7\% światowej populacji (31\% w krajach rozwiniętych). Problemy, które stały wówczas przed twórcami mechanizmu rozpatrywane były głównie z punktu widzenia serwerów, których zalanie nadmierną liczbą zapytań powodowało czasowe problemy z dostępem do zasobów. Rozwiązania miały na celu stworzenie infrastruktury, która pozwalałaby na odciążenie serwerów i w efekcie zwiększenie dostępności danych.
+
+Obecnie, około 13 lat później, Internet i jego użycie zmieniło się diametralnie. Liczba użytkowników Internetu podwoiła się w krajach rozwiniętych (do poziomu 77\%) oraz wzrosła ponad pięciokrotnie (do 39\%) biorąc pod uwagę całą populację. Wraz z rozwojem sieci rozwijała się też technologia. Obecne serwery mogą sprostać o wiele większemu obciążeniu. Pojawiły się również dodatkowe rozwiązania pozwalające na łatwiejsze skalowanie dużych stron internetowych takie jak CDN (\textit{Content Delivery Network}) oraz \textit{Cloud-based hosting}.
+
+Jakkolwiek oryginalna motywacja \keszowania\s straciła obecnie na znaczeniu, to jednak współczesny Internet stawia szereg nowych problemów, którym musimy sprostać. Wraz ze wzrostem popularności serwisów, które zajmują się agregowaniem treści (jak \textit{reddit\footnote{\url{http://reddit.com}}} oraz \textit{Wykop\footnote{\url{http://wykop.pl}}}) coraz większym problemem staje się tzw. \textit{slash-dot effect}. Efekt obserwowany jest kiedy strona ciesząca się pierwotnie niewielkim lub umiarkowanym zainteresowaniem trafia do agregatora, dzięki któremu w krótkim czasie zyskuje olbrzymi wzrost liczby wizyt. W rezultacie serwer, który nigdy nie był przygotowany do obsługi tak wielu zapytań zostaje zalany i staje się niedostępny. Na wykresie \ref{fig_slashdot} przedstawiona została liczba wizyt spowodowana efektem slash-dot.
+
+\begin{figure}
+\label{fig_slashdot}
+\caption{TODO: jakiś wykres związany z slashdot}
+\end{figure}
+
+
+TODO: Akapit o średnim rozmiarze strony oraz prędkościach internetu. Jakis wykres mówiący o średnim rozmiarze strony (może zestawione ze średnią prędkością łącza?)
+
+Rozproszony \kesz\s oparty o DHT wykorzystuje moc obliczeniową współczesnych maszyn klienckich w celu odciążenia serwerów i zmniejszenia opóźnień użytkowników.
+
+
 
 \subsection{Poprzednie prace}
 TODO: Squirrel p2p web cache \cite{iyer2002squirrel}
-
-\subsection{}
-TODO: Opis połączenia keszowania z DHT - zastosowanie w celu realizacji pierwotnych idei. 
-TODO: Zmiany w sieci w stosunku do ,,tamtych czasów'' :)
-TODO: Opis efektu slash-dot (przykłady stron w stylu reddit, wykop, etc)
 
 \section{Analiza różnych metod cachowania}
 TODO:
@@ -278,11 +299,21 @@ Różne strategie przechodzenia między poziomami.
 TODO: testy opóźnień?
 
 \section{Implementacja}
+W niniejszym rozdziale opisana została implementacja rozproszonego \keszu\s z użyciem DHT. W rozdziale \ref{sect_impl_technology}
+przedstawione zostały podjęte próby innej formy implementacji, a w rozdziale \ref{sect_impl_proxy} opisane zostało ostatecznie wybrane rozwiązanie.
+Rozdział \ref{sect_impl_install} prezentuje informacje o instalacji i uruchomieniu stworzonego programu.
+
 \subsection{Wybór technologii}
+\label{sect_impl_technology}
+Wybór technologii był silnie zależny od celu, który chcieliśmy uzyskać. 
+
 Tutaj próby zrobienia tego w JS jako plugin do przeglądarki.
-\subsection{Biblioteki}
+
+\subsection{Proxy \keszujace}
+\label{sect_impl_proxy}
 Twisted, Entangled.
 \subsection{Instalacja i uruchomienie}
+\label{sect_impl_install}
 
 
 \bibliographystyle{plain}
