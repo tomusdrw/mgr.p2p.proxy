@@ -15,6 +15,7 @@
 \usepackage{times}
 \usepackage{caption}
 \usepackage{a4wide}
+\usepackage{units}
 
 \newcommand{\figsource}[1]{
 \captionsetup{font={scriptsize, it}}
@@ -305,13 +306,63 @@ Rozdział \ref{sect_impl_install} prezentuje informacje o instalacji i uruchomie
 
 \subsection{Wybór technologii}
 \label{sect_impl_technology}
-Wybór technologii był silnie zależny od celu, który chcieliśmy uzyskać. 
+Wybór technologii był silnie zależny od celu, który chcieliśmy osiągnąć. Początkowo istotnym aspektem, był aspekt praktyczny tworzonego rozwiązania, priorytetem było maksymalne uproszczenie i ułatwienie procesu instalacji \keszu, tak aby jak najwięcej osób było chętnych przetestować system. Celem było zebranie danych do testów oraz analiza działania i uzyskiwanych opóźnień podczas normalnej pracy programu. Z tego powodu przed implementacją ostatecznego rozwiązania opisanego w rozdziale \ref{sect_impl_proxy} podjęte zostały próby utworzenia pluginu do przeglądarki, opisane w rozdziałach \ref{sect_plugin_1} i \ref{sect_plugin_2}.
 
-Tutaj próby zrobienia tego w JS jako plugin do przeglądarki.
+\subsubsection{Plugin do przeglądarki}
+\label{sect_plugin_1}
+Pierwszą podjętą próbą implementacji było stworzenie rozszerzenia do przeglądarki Chrome\footnote{\url{http://chrome.google.com}}, które korzystałoby z nowego API dla połączeń Peer-to-peer, zaproponowanego w HTML5\footnote{\url{http://www.w3.org/TR/2008/WD-html5-20080122/#peer-to-peer}, \url{http://www.w3.org/TR/webrtc}}.
+
+Jako \textit{proof-of-concept} stworzony został plugin, którego kod znajduje się na listing \ref{lst_plugin_1}.
+
+\begin{lstlisting}
+(function() { 'use strict';
+var cowImg;
+chrome.webRequest.onBeforeRequest.addListener(function(details){
+  // Don't redirect multiple times
+	if (loldogs.indexOf(details.url) !== -1) {
+		return;
+	}
+  
+  // Redirect to cow
+	var url = cowImg;
+  // or to loldogs
+	if (Math.random() < .5) {
+		url = loldogs[Math.round(Math.random() * loldogs.length)];
+	}
+	console.log("Redirecting", details.url, " to ", 
+    (url === cowImg ? "COW" : url));
+
+  // Return redirection url
+	return {
+		redirectUrl: url
+	};
+}, {
+	urls: ['<all\_urls>'],
+	types: ['image']
+}, ["blocking"]);
+
+cowImg = "data:image/png;base64,iVBORw0KG...";
+}());
+\end{lstlisting}
+
+Rozwiązanie korzysta z API \f{chrome.webRequest.onBeforeRequest}\footnote{\url{http://developer.chrome.com/extensions/webRequest.html}}, które pozwala nasłuchiwać oraz modyfikować wszystkie żądania, wychodzące z przeglądarki. Nasłuchiwane są tylko żądania o obrazki, z dowolnymi adresami URL. Następnie każde żądanie z prawdopodobieństwem $\nicefrac{1}{2}$ zostaje zastąpione obrazkiem \f{cowImg}, który znajduje się w pliku źródłówym w zakodowanej postaci (\f{base64}) oraz z prawdopodobieństwem $\nicefrac{1}{2}$ jednym z obrazków z tablicy \f{loldogs}. Dzięki przekierowaniu na zasób w postaci \f{base64} nie jest konieczne wykonywanie dodatkowego żadania przez przeglądarkę i obrazek jest wyświetlany od razu. 
+
+Niestety stworzenie tego pluginu pokazało poważną wadę tego podejścia. Żeby przechwytywać żądania w trybie \f{onBeforeRequest}, czyli przed wykonaniem zapytania przez przeglądarkę musimy korzystać z opcji \f{blocking}, która powoduje, że żądania muszą być przetwarzane synchronicznie. Zatem próby pobrania zasobu z sieci P2P podczas przechwytywania zapytania będą skutkowały zwiększonymi opóźnieniami w dostępie do zasobów, co podważa podstawową ideę rozwiązania.
+
+\subsubsection{Plugin \textit{Native Client}}
+\label{sect_plugin_2}
+Kolejnym podejściem było stworzenie pluginu dla przeglądarki Chrome w technologii \textit{Native Client(NaCL)}. \textit{NaCL} pozwala na kompilację programów, które uruchamiane są w piaskownicy (ang. \textit{sanboxed environment}) w celu zapewnienia bezpieczeństwa użytkownika. Główną zaletą technologii jest wydajność, która jest bliska wydajności natywnych aplikacji.
+
+Pomimo ogłoszenia przez Google gotowości \textit{Native Client} do produkcyjnego użycia, plugin nie został stworzony z powodu słabej dokumentacji oraz braku wersji odpowiednich bibliotek na platformie \textit{NaCL}.
+
+TODO: Ostateczne rozwiązanie?
 
 \subsection{Proxy \keszujace}
 \label{sect_impl_proxy}
-Twisted, Entangled.
+
+
+TODO: Twisted, Entangled.
+
 \subsection{Instalacja i uruchomienie}
 \label{sect_impl_install}
 
