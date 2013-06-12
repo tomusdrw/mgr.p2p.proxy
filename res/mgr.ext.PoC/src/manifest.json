@@ -1,0 +1,13 @@
+{
+  "name": "Override request proof of concept.",
+  "version": "1.0",
+  "manifest_version": 2,
+  "description": "The first extension that I made.",
+  "background" : {
+	"persistent": true,
+	"scripts": ["loldogs.js", "ext.js"]
+  },
+  "permissions": [
+    "webRequest", "webRequestBlocking", "<all_urls>"
+  ]
+}
