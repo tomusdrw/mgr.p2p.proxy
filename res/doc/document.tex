@@ -42,6 +42,7 @@
 \newcommand{\keszujacych}{cache'ujących}
 \newcommand{\keszowania}{cache'owania}
 \newcommand{\keszowanie}{cache'owanie}
+\newcommand{\Keszowanie}{Cache'owanie}
 \newcommand{\keszowaniem}{cache'owaniem}
 
 \lstset{numbers=left,
@@ -282,22 +283,33 @@ Rozproszony \kesz\s oparty o DHT wykorzystuje moc obliczeniową współczesnych 
 \subsection{Poprzednie prace}
 TODO: Squirrel p2p web cache \cite{iyer2002squirrel}
 
-\section{Analiza różnych metod cachowania}
-TODO:
-Cache wielopoziomowy:
-\begin{enumerate}
-  \item w pamięci,
-  \item na dysku,
-  \item w sieci P2P (te dane również w pamięci, na dysku)
-\end{enumerate}
-Różne strategie przechodzenia między poziomami.
+\subsection{Architektura}
+TODO: Opis architektury programu może ten sam wykres co w implementacji?
+TODO: Jakiś diagram decyzyjny co się dzieje w systemie
 
 \section{Testy}
-\subsection{Spreparowane dane}
+\label{sect_tests}
 
+\subsection{Dane testowe}
+TODO: Opis danych testowych uc.sanitized i wziąć jeszcze jakieś z iirc.
 
-\subsection{Wdrożenie}
+\subsection{\Keszowanie w pamięci}
+TODO: Opis wyników tylko i wyłącznie keszy trzymanych w pamięci danego klienta, porównanie lfu, lru i fifo i wpływu rozmiaru na procent zkeszowanych zasobów
+
+\subsection{\Keszowanie w sieci P2P}
+TODO: Opis specyfiki testów, dlaczego są przyspieszone i dlaczego tylko 25\% requestów nie ma timeoutów
+
+TODO: Wyniki przyspieszonych testów dla danych uc.sanitized i jeszcze jakichś
+TODO: Wyniki tylko dla Kademli?
+TODO: Porównanie lfu, lru i fifo oraz rozmiarów 256, 512, 1024, 2048
+
+\subsection{\Keszowanie dwupoziomowe}
+TODO: odpalenie symulacji nieprzyspieszonej (albo przyspieszonej mniej)
+TODO: Dobranie odpowiednich algorytmów i wielkości kolejek
 TODO: testy opóźnień?
+
+\subsection{Wnioski}
+TODO: Wnioski wynikające z testów
 
 \section{Implementacja}
 W niniejszym rozdziale opisana została implementacja rozproszonego \keszu\s z użyciem DHT. W rozdziale \ref{sect_impl_technology}
@@ -355,17 +367,58 @@ Kolejnym podejściem było stworzenie pluginu dla przeglądarki Chrome w technol
 
 Pomimo ogłoszenia przez Google gotowości \textit{Native Client} do produkcyjnego użycia, plugin nie został stworzony z powodu słabej dokumentacji oraz braku wersji odpowiednich bibliotek na platformie \textit{NaCL}.
 
-TODO: Ostateczne rozwiązanie?
-
 \subsection{Proxy \keszujace}
 \label{sect_impl_proxy}
+Po nieudanych próbach stworzenia rozszerzenia do przeglądarki stworzone zostało rozwiązanie, które wymaga dodatkowej instalacji i konfiguracji systemu, ale bazuje na znanych i dobrze przetestowanych komponentach. Ostateczną aplikacją jest proxy \keszujace, w którym każde zapytanie (wykluczając ruch \f{https}) jest przekazywane do oryginalnego serwera tylko w momencie, gdy nie zostanie znalezione w \keszu.
 
+Program został wykonany w języku \f{Python} z użyciem bibliotek \f{Twisted}\footnote{\url{http://twistedmatrix.com}} oraz \f{Entangled}\footnote{\url{http://entangled.sourceforge.net}}. Aplikacja składa się z dwóch części:
+\begin{description}
+  \item[Proxy]{ - server proxy, który odpowiada za przekazywanie zapytań oraz odpytywanie \keszu\s o zasoby,}
+  \item[P2P]{ - klient sieci Peer-to-Peer, pozwalający na odszukiwanie zasobów, które w tej sieci się znajdują.}
+\end{description}
+Na rysunku \ref{fig_architecture} przedstawione zostało przykładowe zapytanie i jego droga przez poszczególne komponenty aplikacji. 
 
-TODO: Twisted, Entangled.
+TODO: Cos o Twisted i jego zaletach, jakiś fragment o tym, że entangled też jest w twisted?
+TODO: Możliwość łatwego podmieniania komponentów (np. jak budowany jest cache)
+
+\begin{figure}
+\label{fig_architecture}
+\caption{TODO: Rysunek przedstawiający komponenty aplikacji (proxy server, p2p server, twolevelcache) i request, który jest obsługiwany z cacha lub nie.}
+\end{figure}
+
+\subsection{Symulator}
+\label{sect_impl_simulator}
+W celu wykonania testów, których wyniki przedstawione zostały w rozdziale \ref{sect_tests} wykonany został symulator bazujący na stworzonej aplikacji. 
+
+Symulator pozwala na wczytanie danych o klientach i żądaniach, które mają wykonać. Każdy z klientów jest osobnym procesem, który uruchamiany jest przez proces główny (\f{simulator\_main.py}). Wyniki symulacji zapisywane są do pliku z logami i zawierają identyfikator \keszu, z którego otrzymano zasób (lub $-1$ w przypadku, gdy zasób nie został znaleziony w żadnych \keszu) oraz opóźnienie, czyli czas, który upłynął od wysłania zapytania do otrzymania odpowiedzi.
+
+\subsection{Skrypty pomocnicze}
+Aby ułatwić przetwarzania plików z logami zostały wykonane pomocnicze skrypty dla środowiska \f{R}\footnote{\url{http://www.r-project.org}}. 
+
+Pierwszy ze skryptów (\f{read.data.r}) odpowiedzialny jest za wczytanie danych testowych i przetworzenie ich na format, które oczekuje symulator. Skrypt wczytuje więc plik z logami z serwera, który zawiera wpisy dla wszystkich żądań i dzieli go na pliki z zapytaniami dla poszczególnych klientów. Dodatkowo czas zapytań zamieniany jest z absolutnego na relatywny, czyli pierwsze zapytanie ma czas $0$, a czas pozostałych to opóźnienie w stosunku do pierwszego żądania.
+
+Skrypt \f{read.logs.r} pozwala na wczytanie danych wyjściowych z symulatora i opracowanie na ich podstawie wykresów odpowiedzi z poszczególnych \keszy. Skrypt zapisuje też uproszczone wyniki symulacji, które używane sa przez ostatni ze skryptów (\f{combine.logs.r}). Ponieważ wyniki symulacji są w pewnym stopniu losowe (co wynika z użycia protokołu UDP dla sieci Kademlia oraz różnego obciążenia maszyny, na której uruchomione były symulacje) ostatni skrypt zbiera wyniki z wielu uruchomień symulatora i prezentuje wykresy z uśrednionymi wynikami.
 
 \subsection{Instalacja i uruchomienie}
 \label{sect_impl_install}
+Aplikacja, jej źródła oraz niniejsza praca dostępne są na publicznym repozytorium\footnote{\url{TODO: adres url do repo}}. W celu uruchomienia aplikacji wymagany jest \f{Python} w wersji \f{2.7}. Aby pobrać źródła aplikacji można skorzystać z polecenia \f{\$ git clone TODO:adres}.
 
+Uruchomienie aplikacji odbywa się przez wywołanie pliku \f{main.py}, znajdującego się w głównym katalogu. Rysunek \ref{fig_main_help} przedstawia dostępne opcje konfiguracyjne.
+
+\begin{figure}[h]
+% TODO : incldue graphics
+\caption{Dostępne opcje konfiguracyjne głównej aplikacji.}
+\label{fig_main_help}
+\end{figure}
+
+Wywołanie symulatora możliwe jest przez uruchomienie programu \f{simulator\_main.py}. Symulator przyjmuje podobne opcje co główna aplikacja. Dodatkowo do pracy symulatora potrzebne są dane wejściowe, które powinny znajdować się w katalogu \f{simulator/data/}. Przykładowe dane zostały załączone w repozytorium.
+
+Dodatkowo w celu uruchomienia wielu symulacji utworzone zostały pomocniczy skrypt \f{run\_nomem\_simulations.sh}, który pozwala na uruchomienie symulacji dla różnych algorytmów \keszowania\s i wielkości \keszy.
+
+
+\section{Podsumowanie}
+
+TODO: Podsumowanie tego co zostało zrobione, interpretacja wyników i ogólnie troche wody.
 
 \bibliographystyle{plain}
 
