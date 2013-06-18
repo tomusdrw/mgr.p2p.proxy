@@ -1,4 +1,4 @@
-personal_ws-1.1 pl 113 
+personal_ws-1.1 pl 124 
 zmapowany
 XOR
 showstringspaces
@@ -12,6 +12,7 @@ Content
 simulations
 Kaashoeka
 Squirrela
+Tuxedo
 SHA
 concept
 bl
@@ -21,6 +22,7 @@ Mazieres
 tiny
 haszuj±cych
 based
+LFU
 if
 DHT
 Client
@@ -38,6 +40,7 @@ Drwiega
 redirection
 js
 Balakrishnana
+Kache
 blocking
 successor
 Entangled
@@ -46,14 +49,15 @@ STORE
 swamped
 caching
 Chankhunthod
-hash
 https
+hash
 true
 main
 fingers
 scriptsize
 redirect
 cowImg
+Slashdot
 VALUE
 plain
 onBeforeRequest
@@ -61,6 +65,7 @@ sh
 stab
 py
 Harvest
+LRU
 fix
 routing
 Drwiêga
@@ -68,8 +73,11 @@ Tapestry
 console
 Freenet
 Kargera
+level
 cacheing
 false
+Kelips
+churn
 cachowania
 Consistent
 use
@@ -86,6 +94,7 @@ Saroiu
 Squirrel
 types
 Distributed
+Used
 stepnumber
 Kademlia
 breaklines
@@ -102,8 +111,10 @@ flooded
 gnutelli
 spots
 NaCL
+Recently
 urls
 buckets
+Frequently
 loldogs
 numbers
 redirectUrl

@@ -1,13 +1,13 @@
 #!/bin/bash
 
-NET=(kademlia kademlia kademlia kademlia)
+NET=(kademlia kademlia kademlia kademlia kademlia)
 #NET=(kademlia)
 ALGOS=(lfu lru fifo)
 SIZES=(256 512 1024 2048 4096)
 
 # Increase UDP buffer size
-sudo sysctl -w net.core.rmem_max=26214400
-sudo sysctl -w net.core.rmem_default=26214400
+#sudo sysctl -w net.core.rmem_max=26214400
+#sudo sysctl -w net.core.rmem_default=26214400
 
 # This is (probably) not needed if no errors is reported in netstat -s
 #sudo sysctl -w net.core.wmem_max=5242880

@@ -17,3 +17,36 @@ colors <- function(type = seq(1, 7)) {
     )
   }
 }
+
+
+compareLogs <- function(logs) {
+  result <- lapply(logs, function(log){
+    cacheL1 <- length(which(log[, 'level'] == 1))
+    cacheL2 <- length(which(log[, 'level'] == 2))
+    total <- length(log[, 1])
+    
+    l <- c(cacheL1 / total, cacheL2 / total, mean(log[, 'latency'], na.rm=TRUE))
+    return(l)
+  })
+  df <- t(data.frame(result))
+  colnames(df) <- c('L1 Cache hits [%]', 'L2 Cache hits [%]', 'Mean latency')
+  return(df)
+  #return(data.frame(matrix(unlist(result), nrow=length(logs), byrow=T)))
+}
+
+readLogs <- function (path, fileName) {
+  logs <- read.csv(file=paste(path, fileName, sep=''), header=FALSE, sep='\t')
+  names(logs) <- c('client', 'address', 'latency', 'level')
+  #logs[,'address'] <- as.character(logs[, 'address'])
+  logs[,'level'] <- as.factor(logs[,'level'])
+  
+  summary(logs)
+  
+  #x11()
+  #par(mfcol=c(2, 1))
+  #plot(logs['level'])
+  #title(fileName)
+  #hist(logs[, 'latency'])
+  
+  return(logs)
+}

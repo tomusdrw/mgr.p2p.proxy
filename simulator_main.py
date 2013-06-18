@@ -63,7 +63,9 @@ class FileResultsLogger(ResultsLogger):
     
     def __init__(self, args):
         self.queue = Queue()
-        if args.no_mem:
+        if args.no_p2p:
+            fileName = '_'.join([args.mem_algo, str(args.mem_size), 'no_p2p'])
+        elif args.no_mem:
             fileName = '_'.join([args.p2p_net, 'no_mem', args.p2p_algo, str(args.p2p_size)])
         else:
             fileName = '_'.join([args.p2p_net, args.mem_algo, str(args.mem_size), args.p2p_algo, str(args.p2p_size)])

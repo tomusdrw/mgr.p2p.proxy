@@ -24,8 +24,8 @@
 }
 
 \newcommand{\f}{\texttt}
-\newcommand{\mytitlea}{Peer-to-peer web objects}
-\newcommand{\mytitleb}{caching proxy}
+\newcommand{\mytitlea}{Cache'owanie stron WWW}
+\newcommand{\mytitleb}{bazujące na sieciach Peer-to-Peer}
 \newcommand{\me}{Tomasz Drwięga}
 \newcommand{\s}{ }
 
@@ -40,7 +40,9 @@
 \newcommand{\keszujacy}{cache'ujący}
 \newcommand{\keszujacym}{cache'ującym}
 \newcommand{\keszujacych}{cache'ujących}
+\newcommand{\keszowac}{cache'ować}
 \newcommand{\keszowania}{cache'owania}
+\newcommand{\keszowane}{cache'owane}
 \newcommand{\keszowanie}{cache'owanie}
 \newcommand{\Keszowanie}{Cache'owanie}
 \newcommand{\keszowaniem}{cache'owaniem}
@@ -96,9 +98,9 @@
 	\put( 0,520){\makebox(0,0)[l]{\large \bf \textsc{Wydział Podstawowych
 	Problemów Techniki}}}
 	\put( 0,500){\makebox(0,0)[l]{\large \bf \textsc{Politechniki Wrocławskiej}}}
-	\put(15,280){\makebox(0,0)[l]{\Huge  \bf \textsc{\mytitlea}}}
-	\put(80,250){\makebox(0,0)[l]{\Huge  \bf \textsc{\mytitleb}}}
-	\put(95,220){\makebox(0,0)[l]{\Large     \textsc{\me}}}
+	\put(13,300){\makebox(0,0)[l]{\huge  \bf \textsc{\mytitlea}}}
+	\put(-20,270){\makebox(0,0)[l]{\huge  \bf \textsc{\mytitleb}}}
+	\put(95,240){\makebox(0,0)[l]{\Large     \textsc{\me}}}
 	
 	\put(190, 80){\makebox(0,0)[l]{\large  {Praca magisterska napisana}}}
 	\put(190, 60){\makebox(0,0)[l]{\large  {pod kierunkiem}}}
@@ -284,28 +286,61 @@ TODO: Krótkie podsumowanie kademli; Może nie robić z tego osobnego akapitu?
 Obecne zastosowania DHT skupiają się głównie na systemach wymiany plików takich jak Kad czy BitTorrent. W systemach tych DHT są używane w celu odnalezienia komputerów, które przechowują dany plik. W tej pracy proponujemy użycie DHT w celu \keszowania\s zasobów internetowych. Jak opisane zostało w rozdziale \ref{sect_consistent_hashing} \keszowanie\s zasobów leżało u podstaw powstania mechanizmu \textit{Consistent Hashing}, który z kolei zapoczątkował rozwój DHT.
 
 \subsection{Motywacja}
-Pod koniec lat dziewięćdziesiątych, kiedy opracowane zostało \textit{Constistent Hashing} z internetu korzystało 7\% światowej populacji (31\% w krajach rozwiniętych). Problemy, które stały wówczas przed twórcami mechanizmu rozpatrywane były głównie z punktu widzenia serwerów, których zalanie nadmierną liczbą zapytań powodowało czasowe problemy z dostępem do zasobów. Rozwiązania miały na celu stworzenie infrastruktury, która pozwalałaby na odciążenie serwerów i w efekcie zwiększenie dostępności danych.
+Pod koniec lat dziewięćdziesiątych, kiedy opracowane zostało \textit{Constistent Hashing} z internetu korzystało 7\% światowej populacji (31\% w krajach rozwiniętych)\cite{wiki:GlobalStats}. Problemy, które stały wówczas przed twórcami mechanizmu rozpatrywane były głównie z punktu widzenia serwerów, których zalanie nadmierną liczbą zapytań powodowało czasowe problemy z dostępem do zasobów. Rozwiązania miały na celu stworzenie infrastruktury, która pozwalałaby na odciążenie serwerów i w efekcie zwiększenie dostępności danych.
 
-Obecnie, około 13 lat później, Internet i jego użycie zmieniło się diametralnie. Liczba użytkowników Internetu podwoiła się w krajach rozwiniętych (do poziomu 77\%) oraz wzrosła ponad pięciokrotnie (do 39\%) biorąc pod uwagę całą populację. Wraz z rozwojem sieci rozwijała się też technologia. Obecne serwery mogą sprostać o wiele większemu obciążeniu. Pojawiły się również dodatkowe rozwiązania pozwalające na łatwiejsze skalowanie dużych stron internetowych takie jak CDN (\textit{Content Delivery Network}) oraz \textit{Cloud-based hosting}.
+Obecnie, około 13 lat później, Internet i jego użycie zmieniło się diametralnie. Liczba użytkowników Internetu podwoiła się w krajach rozwiniętych (do poziomu 77\%) oraz wzrosła ponad pięciokrotnie (do 39\%) biorąc pod uwagę całą populację\cite{wiki:GlobalStats}. Wraz z rozwojem sieci rozwijała się też technologia. Obecne serwery mogą sprostać o wiele większemu obciążeniu. Pojawiły się również dodatkowe rozwiązania pozwalające na łatwiejsze skalowanie dużych stron internetowych takie jak CDN (\textit{Content Delivery Network}) oraz \textit{Cloud-based hosting}.
 
-Jakkolwiek oryginalna motywacja \keszowania\s straciła obecnie na znaczeniu, to jednak współczesny Internet stawia szereg nowych problemów, którym musimy sprostać. Wraz ze wzrostem popularności serwisów, które zajmują się agregowaniem treści (jak \textit{reddit\footnote{\url{http://reddit.com}}} oraz \textit{Wykop\footnote{\url{http://wykop.pl}}}) coraz większym problemem staje się tzw. \textit{slash-dot effect}. Efekt obserwowany jest kiedy strona ciesząca się pierwotnie niewielkim lub umiarkowanym zainteresowaniem trafia do agregatora, dzięki któremu w krótkim czasie zyskuje olbrzymi wzrost liczby wizyt. W rezultacie serwer, który nigdy nie był przygotowany do obsługi tak wielu zapytań zostaje zalany i staje się niedostępny. Na wykresie \ref{fig_slashdot} przedstawiona została liczba wizyt spowodowana efektem slash-dot.
+Jakkolwiek oryginalna motywacja \keszowania\s straciła obecnie na znaczeniu, to jednak współczesny Internet stawia szereg nowych problemów, którym musimy sprostać. Wraz ze wzrostem popularności serwisów, które zajmują się agregowaniem treści (jak \textit{reddit\footnote{\url{http://reddit.com}}} oraz \textit{Wykop\footnote{\url{http://wykop.pl}}}) coraz większym problemem staje się tzw. \textit{Slashdot Effect}. Efekt obserwowany jest kiedy strona ciesząca się pierwotnie niewielkim lub umiarkowanym zainteresowaniem trafia do agregatora, dzięki któremu w krótkim czasie zyskuje olbrzymi wzrost liczby wizyt. W rezultacie serwer, który nigdy nie był przygotowany do obsługi tak wielu zapytań zostaje zalany i staje się niedostępny. Na wykresie \ref{fig_slashdot} przedstawiony został wzrost ilości transferowanych danych spowodowany przez \textit{Slashdot Effect}.
 
-\begin{figure}
-\caption{TODO: jakiś wykres związany z slashdot}
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.9\linewidth]{img/SlashdotEffectGraph.pdf}
+\caption{Wykres ilości danych transferowanych przez serwer. Około godziny 20:00 można zaobserwować olbrzymie zwiększenie ruchu spowodowane efektem \textit{Slashdot}}
 \label{fig_slashdot}
 \end{figure}
 
+W dzisiejszych czasach problemem jest nie tylko chwilowa zwiększona ilość ruchu, spowodowana efektem \textit{Slashdot}, ale przede wszystkim objętość transferowanych danych. Porównując dane z roku 2000 oraz 2007 możemy zaobserwować ponad trzykrotny wzrost rozmiaru danych przesyłanych z internetu\cite{sadre2008changes}. Na rysunku \ref{fig_mean_webpage}, przedstawiającym wykres średniego rozmiaru strony\footnote{Strony rozumianej jako dokument HTML, obrazki, skrypty itd.}, ponownie widoczna jest zdecydowana tendencja wzrostowa. Na podstawie wykresu możemy wyciągnąć wniosek, że średni rozmiar strony podwaja się co około trzy lata. Dodatkowo, obecna sieć pełna jest obiektów o dużym rozmiarze (filmy, multimedia), które rzadko są \keszowane\s z powodu ograniczonych zasobów na scentralizowanych serwerach \keszujacych\cite{sadre2008changes}.
 
-TODO: Akapit o średnim rozmiarze strony oraz prędkościach internetu. Jakiś wykres mówiący o średnim rozmiarze strony (może zestawione ze średnią prędkością łącza?)
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.7\linewidth]{img/mean_webpage_size.eps}
+\captionsetup{font={scriptsize, it}}
+\caption*{Opracowane na podstawie: \url{http://httparchive.org} oraz \url{http://www.pantos.org/atw/35654.html}.}
+\captionsetup{font={normalsize}}
+\caption{Wykres średniego rozmiaru strony w poszczególnych latach. W ciągu ostatnich 3 lat średni rozmiar strony podwoił się.}
+\label{fig_mean_webpage}
+\end{figure}
 
-Rozproszony \kesz\s oparty o DHT wykorzystuje moc obliczeniową współczesnych maszyn klienckich w celu odciążenia serwerów i zmniejszenia opóźnień użytkowników.
+System \keszujacy\s oparty o sieć peer-to-peer, proponowany w tej pracy stara się adresować przedstawione problemy. W celu zwiększenia pojemności i umożliwienia \keszowania\s multimediów system wykorzystuje rozproszone zasoby uczestników sieci w celu odciążenia serwerów i zmniejszenia opóźnień użytkowników. Szczegóły dotyczące architektury proponowanego rozwiązania opisane zostały w rozdziale \ref{sect_architecture}.
 
 \subsection{Poprzednie prace}
-TODO: Squirrel p2p web cache \cite{iyer2002squirrel}
+Problem \keszowania\s zasobów opisywany był w literaturze wielokrotnie. Jako przykłady warto ponownie przytoczyć prace \cite{malpani1995making, chankhunthod1995hierarchical, povey1997distributed} omawiane już w rozdziale \ref{sect_dist_cache}. Niezwykle ważne w historii \keszowania\s są prace Kargera i innych \cite{karger1997consistent, karger1999web} wprowadzające mechanizm \textit{Consistent Hashing}.
+
+Idea użycia potencjalnie nieograniczonych zasobów sieci peer-to-peer w celu \keszowania\s zasobów internetowych pojawia się w pracy \cite{iyer2002squirrel, clevenot2004simple}, przedstawiającej system \textit{Squirrel}. \textit{Squirrel} oparty jest o sieć Pastry\cite{rowstron2001pastry}. 
+Na podobnym pomyśle bazuje \textit{Tuxedo}\cite{shi2003tuxedo}, który dodatkowo stara się \keszowac\s również zasoby, które są spersonalizowane, jednak wymaga scentralizowanej konfiguracji i nie jest przystosowany do użycia przez użytkowników końcowych. 
+Kolejną siecią opartą na unikalnej implementacji DHT jest \textit{Kache}\cite{linga2004kache}, używający opracowanej na własne potrzeby sieci \textit{Kelips}.
+Ciekawy pomysł zastosowania sieci peer-to-peer w celu przyspieszania strumieniowania multimediów został opisany w \cite{guo2006design}.
+
+Pomimo podobnej tematyki przytoczonych prac żadna z nich nie wykorzystuje sieci Kademlia, oferującej pewne zalety istotne w zastosowaniach praktycznych, w szczególności równoległe zapytania w trakcie routingu.
 
 \subsection{Architektura}
-TODO: Opis architektury programu może ten sam wykres co w implementacji?
-TODO: Jakiś diagram decyzyjny co się dzieje w systemie
+\label{sect_architecture}
+Opracowana aplikacja składa się z dwóch głównych części: serwera proxy oraz klienta sieci peer-to-peer. Oba komponenty połączone są ze sobą przez zarządcę \keszu.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.9\linewidth]{img/architecture.pdf}
+\caption{Przekrój architektury systemu. Komponent \textit{Two-level cache} odpowiada za zarządzanie \keszem. W pierwszej kolejności odpytywany jest lokalny \kesz\s w pamięci, w przypadku gdy poszukiwana wartość nie została znaleziona zapytanie wysyłane jest do sieci P2P. Jeżeli zasób nie zostanie znaleziony w żadnym z dostępnych \keszy\s serwer proxy wyśle żądanie do serwera oryginalnego, a następnie umieści odpowiedź serwera w obu typach \keszu.}
+\label{fig_architecture}
+\end{figure}
+
+Serwer proxy odpowiada za obsługę żądań przychodzących od przeglądarki. Następnie odpytywany jest zarządca \keszu. W zależności od wybranego typu \keszowania\s sprawdzany jest \kesz\s w pamięci lub zapytanie wysyłane jest do \keszu\s rozproszonego w sieci peer-to-peer. Po otrzymaniu odpowiedzi z sieci P2P jeżeli zasób został znaleziony to jego wartość zwracana jest do klienta, a w przeciwnym przypadku serwer proxy wysyła zapytanie do serwera oryginalnego. Po otrzymaniu odpowiedzi zostanie ona umieszczona w \keszu.
+
+Dzięki modularnej budowie aplikacji każdy z komponentów może zostać łatwo podmieniony. Dostępne są trzy implementacje polityk usuwania elementów z \keszu\s w przypadku przepełnienia: \textit{First In First Out(FIFO)}, \textit{Least Recently Used (LRU)} oraz \textit{Least Frequently Used (LFU)}. Pierwszy z algorytmów, jeżeli brakuje miejsca na nowy element, usuwa z \keszu\s element, który dodany został do niego jako pierwszy. \textit{LRU} z kolei usuwa ten, który był używany najdawniej. \textit{LFU} usuwa element, który używany był najrzadziej (w przypadku takiej samej częstotliwości użycia usuwany jest element zgodnie z polityką \textit{FIFO}). Opisane polityki mogą zostać użyte jako algorytm zarządzania \keszem\s w pamięci. 
+
+Aplikacja pozwala na wybranie jako implementację DHT jednej z dwóch z sieci: Chord lub Kademlia. Obie sieci w celu składowania zasobów mogą użyć dowolnego z opisanych algorytmów \keszowania.
+
+W przeciwieństwie do większości tego typu systemów opisywanych w literaturze, w przypadku dołączania i odchodzenia węzłów do sieci nie są podejmowane żadne akcje mające na celu albo wypełnienie lokalnego \keszu\s nowo dołączonego klienta, albo przesłanie swoich zasobów pozostałym węzłom w przypadku odchodzenia. Pomimo, że takie podejście może zwiększać liczbę zapytań, które będą musiały zostać obsłużone z serwerów oryginalnych, to pozwala na uniknięcie efektu zwanego \textit{churn}. \textit{Churn} to nadmierna komunikacja wewnątrz sieci, która spowodowana jest częstym i szybkim dochodzeniem i odchodzeniem węzłów.  
 
 \section{Testy}
 \label{sect_tests}
@@ -316,11 +351,20 @@ TODO: Opis danych testowych uc.sanitized i wziąć jeszcze jakieś z iirc.
 \subsection{\Keszowanie\s w pamięci}
 TODO: Opis wyników tylko i wyłącznie keszy trzymanych w pamięci danego klienta, porównanie lfu, lru i fifo i wpływu rozmiaru na procent zkeszowanych zasobów
 
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.7\linewidth]{img/nop2p_mean_1.eps}
+\includegraphics[width=0.7\linewidth]{img/nop2p_mean_2.eps}
+\caption{Wyniki testów --no-p2p. TODO: Przydałyby sięteż wyniki dla $2^{13}$}
+\end{figure}
+
+
+
 \subsection{\Keszowanie\s w sieci P2P}
 
 \begin{figure}[h!]
 \includegraphics[width=0.95\linewidth]{img/cache.eps}
-\caption{Wyniki testów --no-mem. TODO: WYniki testów dla > 1024 muszą być powtórzone, bo zmieniałem wartości buffora UDP w kernelu i zamiast poprawić liczbę niezdropowanych pakietów to się pogorszyło, dlatego rozrzut wyników jest o wiele większy}
+\caption{Wyniki testów --no-mem. TODO: WYniki testów dla > 1024 muszą być powtórzone, bo zmieniałem wartości bufora UDP w kernelu i zamiast poprawić liczbę niezdropowanych pakietów to się pogorszyło, dlatego rozrzut wyników jest o wiele większy}
 \end{figure}
 
 TODO: Opis specyfiki testów, dlaczego są przyspieszone i dlaczego tylko 25\% requestów nie ma timeoutów
@@ -392,7 +436,7 @@ Niestety stworzenie tego pluginu pokazało poważną wadę tego podejścia. Żeb
 
 \subsubsection{Plugin \textit{Native Client}}
 \label{sect_plugin_2}
-Kolejnym podejściem było stworzenie pluginu dla przeglądarki Chrome w technologii \textit{Native Client(NaCL)}. \textit{NaCL} pozwala na kompilację programów, które uruchamiane są w piaskownicy (ang. \textit{sandboxed environment}) w celu zapewnienia bezpieczeństwa użytkownika. Główną zaletą technologii jest wydajność, która jest bliska wydajności natywnych aplikacji.
+Kolejnym podejściem było stworzenie pluginu dla przeglądarki Chrome w technologii \textit{Native Client (NaCL)}. \textit{NaCL} pozwala na kompilację programów, które uruchamiane są w piaskownicy (ang. \textit{sandboxed environment}) w celu zapewnienia bezpieczeństwa użytkownika. Główną zaletą technologii jest wydajność, która jest bliska wydajności natywnych aplikacji.
 
 Pomimo ogłoszenia przez Google gotowości \textit{Native Client} do produkcyjnego użycia, plugin nie został stworzony z powodu słabej dokumentacji oraz braku wersji odpowiednich bibliotek na platformie \textit{NaCL}.
 
@@ -405,7 +449,7 @@ Program został wykonany w języku \f{Python} z użyciem bibliotek \f{Twisted}\f
   \item[Proxy]{ - serwer proxy, który odpowiada za przekazywanie zapytań oraz odpytywanie \keszu\s o zasoby,}
   \item[P2P]{ - klient sieci Peer-to-Peer, pozwalający na odszukiwanie zasobów, które w tej sieci się znajdują.}
 \end{description}
-Na rysunku \ref{fig_architecture} przedstawione zostało przykładowe zapytanie i jego droga przez poszczególne komponenty aplikacji. 
+Na rysunku \ref{fig_architecture} w rozdziale \ref{sect_architecture} przedstawione zostało przykładowe zapytanie i jego droga przez poszczególne komponenty aplikacji. 
 
 TODO: Cos o Twisted i jego zaletach, jakiś fragment o tym, że Entangled też jest w Twisted?
 TODO: Możliwość łatwego podmieniania komponentów (np. jak budowany jest cache)
@@ -430,12 +474,13 @@ Skrypt \f{read.logs.r} pozwala na wczytanie danych wyjściowych z symulatora i o
 
 \subsection{Instalacja i uruchomienie}
 \label{sect_impl_install}
-Aplikacja, jej źródła oraz niniejsza praca dostępne są na publicznym repozytorium\footnote{\url{TODO: adres url do repo}}. W celu uruchomienia aplikacji wymagany jest \f{Python} w wersji \f{2.7}. Aby pobrać źródła aplikacji można skorzystać z polecenia \f{\$ git clone TODO:adres}.
+Aplikacja, jej źródła oraz niniejsza praca dostępne są na publicznym repozytorium\footnote{\url{https://bitbucket.org/tomusdrw/mgr.p2p.proxy}}. W celu uruchomienia aplikacji wymagany jest \f{Python} w wersji \f{2.7}. Aby pobrać źródła aplikacji można skorzystać z polecenia \f{\$ git clone git@bitbucket.org:tomusdrw/mgr.p2p.proxy.git}.
 
 Uruchomienie aplikacji odbywa się przez wywołanie pliku \f{main.py}, znajdującego się w głównym katalogu. Rysunek \ref{fig_main_help} przedstawia dostępne opcje konfiguracyjne.
 
 \begin{figure}[h]
-% TODO : incldue graphics
+\centering
+\includegraphics[width=0.8\linewidth]{img/options.png}
 \caption{Dostępne opcje konfiguracyjne głównej aplikacji.}
 \label{fig_main_help}
 \end{figure}
