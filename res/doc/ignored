@@ -1,4 +1,4 @@
-personal_ws-1.1 pl 124 
+personal_ws-1.1 pl 130 
 zmapowany
 XOR
 showstringspaces
@@ -64,15 +64,19 @@ onBeforeRequest
 sh
 stab
 py
+sj
 Harvest
+uc
 LRU
 fix
 routing
 Drwiêga
+GET
 Tapestry
 console
 Freenet
 Kargera
+sv
 level
 cacheing
 false
@@ -102,6 +106,7 @@ function
 Kademli
 gnutella
 Maymounkov
+sanitized
 Kad
 png
 Delivery
@@ -119,6 +124,7 @@ loldogs
 numbers
 redirectUrl
 Stoicê
+IRCache
 reddit
 numberstyle
 normalsize

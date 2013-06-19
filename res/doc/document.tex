@@ -314,6 +314,7 @@ W dzisiejszych czasach problemem jest nie tylko chwilowa zwiększona ilość ruc
 System \keszujacy\s oparty o sieć peer-to-peer, proponowany w tej pracy stara się adresować przedstawione problemy. W celu zwiększenia pojemności i umożliwienia \keszowania\s multimediów system wykorzystuje rozproszone zasoby uczestników sieci w celu odciążenia serwerów i zmniejszenia opóźnień użytkowników. Szczegóły dotyczące architektury proponowanego rozwiązania opisane zostały w rozdziale \ref{sect_architecture}.
 
 \subsection{Poprzednie prace}
+\label{sect_previous_work}
 Problem \keszowania\s zasobów opisywany był w literaturze wielokrotnie. Jako przykłady warto ponownie przytoczyć prace \cite{malpani1995making, chankhunthod1995hierarchical, povey1997distributed} omawiane już w rozdziale \ref{sect_dist_cache}. Niezwykle ważne w historii \keszowania\s są prace Kargera i innych \cite{karger1997consistent, karger1999web} wprowadzające mechanizm \textit{Consistent Hashing}.
 
 Idea użycia potencjalnie nieograniczonych zasobów sieci peer-to-peer w celu \keszowania\s zasobów internetowych pojawia się w pracy \cite{iyer2002squirrel, clevenot2004simple}, przedstawiającej system \textit{Squirrel}. \textit{Squirrel} oparty jest o sieć Pastry\cite{rowstron2001pastry}. 
@@ -344,19 +345,56 @@ W przeciwieństwie do większości tego typu systemów opisywanych w literaturze
 
 \section{Testy}
 \label{sect_tests}
+Do analizy prezentowanej aplikacji stworzony został symulator pozwalający na przetestowanie działania różnych możliwych konfiguracji. Symulator pozwala na wczytanie danych dotyczących węzłów w sieci i zapytań, które wysyłają w określonym czasie. 
+
+W celu jak najlepszego oddania realnych warunków pracy systemu w trakcie symulacji dla każdego klienta uruchamiany jest osobny proces systemowy z działającym programem. Następnie do tego procesu wysyłane są adresy i czasy, w których klient ma wysłać zapytania na dany adres. Dzięki takiemu podejściu kompleksowo testowana jest niemal cała architektura przedstawiona na rysunku \ref{fig_architecture}. Jedynym komponentem, który nie bierze udział w symulacji jest serwer proxy, ponieważ zapytania są tworzone bezpośrednio przez procesy klientów.
+
+Do uruchomienia symulacji wymagany jest plik zawierający listę wszystkich klientów, oraz osobny plik dla każdego klienta zawierający zapytania, które ma wykonać w trakcie symulacji. Symulator tworzy procesy dla wszystkich klientów podczas startu, każdy z nich dołącza też do sieci P2P na samym początku. Jednak po wysłaniu wszystkich swoich zapytań klient opuszcza sieć bez informowania żadnego z węzłów.
 
 \subsection{Dane testowe}
-TODO: Opis danych testowych uc.sanitized i wziąć jeszcze jakieś z iirc.
+Jako dane wejściowe do symulatora użyte zostały realne dane pochodzące z działających centralnych serwerów \keszujacych. Niestety znalezienie aktualnych danych do testów jest obecnie niezwykle trudne ze względu na kwestie bezpieczeństwa i anonimowości użytkowników takich serwerów. Niedostępne są też dane, które używane są w podobnych pracach (wspomnianych w rozdziale \ref{sect_previous_work}) co powoduje, że porównanie systemu z innymi staje się trudne. 
+
+Dane, na których przeprowadzane były testy pochodzą z 2007 roku i są danymi zebranymi przez serwer \keszujacy\s IRCache\footnote{\url{ftp://ftp.ircache.net/Traces/DITL-2007-01-09/}}. Do testów użyte zostały trzy zbiory danych \f{sv.sanitized20070110}, \f{sj.sanitized20070110} oraz \f{uc.sanitized20070109}.
+Wszystkie użyte pliki zawierają zapytania wykonywane przez klientów w trakcie jednej doby. Liczba wysyłanych zapytań oraz liczba klientów dla poszczególnych plików przedstawiona została w tabeli \ref{tab_testdata}.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{r c c c}
+Plik z danymi & Liczba klientów & Łączna liczba zapytań & Liczba zapytań \f{GET}\\
+\hline
+\f{sv.sanitized} & 91 & $447~696$ & $447~621$\\
+\f{sj.sanitized} & 114 & $348~189$ & $346~405$\\
+\f{uc.sanitized} & 160 & $544~370$ & $527~355$\\
+\end{tabular}
+\caption{Szczegóły dotyczące użytych danych testowych.}
+\label{tab_testdata}
+\end{table}
+
+Na potrzeby testów z danych zostały wycięte wyłącznie zapytania typu \f{GET}, a czas został przeskalowany o \nicefrac{1}{18}, tak aby pojedyncza symulacja trwała około $1.5$ godziny.
 
 \subsection{\Keszowanie\s w pamięci}
+Pierwszym testowanym podczas symulacji komponentem jest lokalny \kesz. \Keszowanie takie utrzymywane jest w pamięci w celu szybkiego dostarczenia danych, które były już pobierane wcześniej.
+
+Przeprowadzone testy uwzględniały różne wielkości \keszu\s oraz różne algorytmy decydujące o tym, który element należy wyrzucić kiedy \kesz jest już pełny, a powinien do niego trafić nowy wpis.
+
+W trakcie testów \keszowania\s w pamięci całkowicie wyłączony został komponent odpowiedzialny za \keszowanie w sieci P2P, zatem dla każdego z węzłów dane \keszowane były niezależnie.
+
+Przetestowane zostały trzy algorytmy opisane w rozdziale \ref{sect_architecture} o wielkościach: 512, 1024, 2048, 4096, 8192 oraz 16564. Uśrednione wyniki dla wszystkich zbiorów danych testowych przedstawione zostały na rysunku \ref{fig_tests_mem_1}
+
+\begin{figure}[h!]
+\centering
+\begin{minipage}{0.48\linewidth}
+\includegraphics[width=0.95\linewidth]{img/nop2p_mean_1.eps}
+\end{minipage}
+\begin{minipage}{0.48\linewidth}
+\includegraphics[width=0.95\linewidth]{img/nop2p_mean_2.eps}
+\end{minipage}
+\caption{Wyniki testów --no-p2p. TODO: Przydałyby się też wyniki dla $2^{13}$}
+\label{fig_tests_mem_1}
+\end{figure}
+
 TODO: Opis wyników tylko i wyłącznie keszy trzymanych w pamięci danego klienta, porównanie lfu, lru i fifo i wpływu rozmiaru na procent zkeszowanych zasobów
 
-\begin{figure}[h]
-\centering
-\includegraphics[width=0.7\linewidth]{img/nop2p_mean_1.eps}
-\includegraphics[width=0.7\linewidth]{img/nop2p_mean_2.eps}
-\caption{Wyniki testów --no-p2p. TODO: Przydałyby sięteż wyniki dla $2^{13}$}
-\end{figure}
 
 
 
@@ -364,7 +402,7 @@ TODO: Opis wyników tylko i wyłącznie keszy trzymanych w pamięci danego klien
 
 \begin{figure}[h!]
 \includegraphics[width=0.95\linewidth]{img/cache.eps}
-\caption{Wyniki testów --no-mem. TODO: WYniki testów dla > 1024 muszą być powtórzone, bo zmieniałem wartości bufora UDP w kernelu i zamiast poprawić liczbę niezdropowanych pakietów to się pogorszyło, dlatego rozrzut wyników jest o wiele większy}
+\caption{Wyniki testów --no-mem. TODO: Wyniki testów dla > 1024 muszą być powtórzone, bo zmieniałem wartości bufora UDP w kernelu i zamiast poprawić liczbę niezdropowanych pakietów to się pogorszyło, dlatego rozrzut wyników jest o wiele większy}
 \end{figure}
 
 TODO: Opis specyfiki testów, dlaczego są przyspieszone i dlaczego tylko 25\% requestów nie ma timeoutów
@@ -474,7 +512,7 @@ Skrypt \f{read.logs.r} pozwala na wczytanie danych wyjściowych z symulatora i o
 
 \subsection{Instalacja i uruchomienie}
 \label{sect_impl_install}
-Aplikacja, jej źródła oraz niniejsza praca dostępne są na publicznym repozytorium\footnote{\url{https://bitbucket.org/tomusdrw/mgr.p2p.proxy}}. W celu uruchomienia aplikacji wymagany jest \f{Python} w wersji \f{2.7}. Aby pobrać źródła aplikacji można skorzystać z polecenia \f{\$ git clone git@bitbucket.org:tomusdrw/mgr.p2p.proxy.git}.
+Aplikacja, jej źródła oraz niniejsza praca dostępne są na publicznym repozytorium\footnote{\url{https://bitbucket.org/tomusdrw/mgr.p2p.proxy}}. W celu uruchomienia aplikacji wymagany jest \f{Python} w wersji \f{2.7} oraz pakiety \f{python2.7-twisted} i \f{python2.7-simplejson}. Aby pobrać źródła aplikacji można skorzystać z polecenia \f{\$ git clone git@bitbucket.org:tomusdrw/mgr.p2p.proxy.git}.
 
 Uruchomienie aplikacji odbywa się przez wywołanie pliku \f{main.py}, znajdującego się w głównym katalogu. Rysunek \ref{fig_main_help} przedstawia dostępne opcje konfiguracyjne.
 

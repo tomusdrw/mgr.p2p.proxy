@@ -1,4 +1,4 @@
-data <- read.table('data/uc.sanitized-access.20070109')
+data <- read.table('data/sv.sanitized-access.20070110')
 # REmove some superflous columns
 data <- data[, -8] #
 data <- data[, -2]
@@ -14,10 +14,10 @@ getData <- data[data['verb'] == 'GET', c('time', 'client', 'address')]
 getData <- getData[getData['address'] != 'http://us.dl1.yimg.com/download.yahoo.com/pgdownload8/msgup_us.yim', ]
 
 # Data is taken from 24 hours, but we don't want to wait so long for tests
-getData['time'] <- getData['time'] / 24
+getData['time'] <- getData['time'] / 18
 
 # Take only half of the data
-getData <- getData[1:200000, ]
+getData <- getData[1:250000, ]
 
 # Get unique clients
 clients <- unique(getData[, 'client'])
