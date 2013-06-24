@@ -1,23 +1,23 @@
 #!/bin/bash
 
-NET=(kademlia kademlia kademlia kademlia kademlia)
-#NET=(kademlia)
+#NET=(kademlia kademlia kademlia kademlia kademlia)
+DATA=(sj)
 ALGOS=(lfu lru fifo)
-SIZES=(256 512 1024 2048 4096)
+SIZES=(1024 2048 4096 8192 16384)
 
 
-I=0
-for network in ${NET[*]}
+for data in ${DATA[*]}
 do
+  rm simulator/data
+  ln -s data-$data simulator/data
   for memAlgo in ${ALGOS[*]}
   do
     for size in ${SIZES[*]}
     do
       echo "Running simulation for MEM ${memAlgo}(${size})"
-      time ./simulator_main.py --no-p2p --mem-algo $memAlgo --mem-size $size  --p2p-network $network > logs/run_${memAlgo}_${size}_nop2p.log
+      time ./simulator_main.py --no-p2p --mem-algo $memAlgo --mem-size $size > logs/run_${memAlgo}_${size}_nop2p.log
     done
   done
-  mv logs logs_$I
+  mv logs logs_nop2p_$data
   mkdir logs
-  I=$I+1
 done

@@ -1,4 +1,4 @@
-data <- read.table('data/sv.sanitized-access.20070110')
+data <- read.table('data/uc.sanitized-access.20070109')
 # REmove some superflous columns
 data <- data[, -8] #
 data <- data[, -2]
