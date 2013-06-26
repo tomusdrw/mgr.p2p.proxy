@@ -2,15 +2,15 @@ source('commons.R')
 
 library(data.table)
 
-paths = c(
-  'No-p2p (1-200k) (:24)',
-  'No-p2p (1-200k) (:24) 2',
-  'No-p2p (1-200k) (:24) 3',
-  'No-p2p (1-200k) (:24) 4',
-  'No-p2p (1-200k) (:24) 5'
+paths <- c(
+  'No P2P (1-250k) (:18) - SJ',
+  'No P2P (1-250k) (:18) - SV',
+  'No P2P (1-250k) (:18) - UC'
+  #'No-p2p (1-200k) (:24) 4',
+  #'No-p2p (1-200k) (:24) 5'
 )
 
-values = c(256, 512, 1024, 2048, 4096)
+values <- c(1024, 2048, 4096, 8192, 16384)
 
 
 lapply(paths, function(path) {
@@ -40,7 +40,7 @@ mean.results2 <- data.frame(combined.results.table[,mean(L1.Cache.hits....), by=
 mean.results <- data.frame(row.names = mean.results2[, 'type'], mean.results2[, 'V1'])
 groupped.results <- rbind(result[seq(1, 15, 5), 1], result[seq(2, 15, 5), 1], result[seq(3, 15, 5), 1], result[seq(4, 15, 5), 1], result[seq(5, 15, 5), 1])
 colnames(groupped.results) <- c("lfu", "lru", "fifo")
-rownames(groupped.results) <- c(256, 512, 1024, 2048, 4096)
+rownames(groupped.results) <- values
 
 par(family="Delicious")
 
@@ -58,9 +58,11 @@ legend("right", legend=c('lfu', 'lru', 'fifo'), bty='0', pch=19, col=colors(seq(
 text(x=midpoints, y=2, labels=floor(t(groupped.results)*1000)/10, family="Delicious Heavy", cex=0.7)
 dev.off()
 
-
+combined.results[, 1] <- combined.results[, 1] * 100
 setEPS()
 postscript('nop2p_all.eps')
-plot(formula = L1.Cache.hits.... ~ type, data=combined.results, col=colors(seq(1, 3)))
+plot(formula = L1.Cache.hits.... ~ type, data=combined.results, col=colors(seq(1, 3)), xlab="", ylab="")
 legend("bottomright", legend=c('lfu', 'lru', 'fifo'), bty='0', pch=19, col=colors(seq(1, 3)))
+title("Mean Cache Hits [%]")
+mtext("Local (in-memory) cache")
 dev.off()

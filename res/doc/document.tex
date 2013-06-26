@@ -248,36 +248,34 @@ Podczas dołączania do sieci węzeł $n$ musi znać adres co najmniej jednego w
 
 Pozostałe węzły mają możliwość uwzględnienia nowych podczas cyklicznego wykonywania procedury stabilizacyjnej, odpowiadającej za uaktualnienie (poprawienie) informacji o~poprzedniku i~następniku dla każdego węzła. Dodatkowo również cyklicznie wywoływana jest procedura, która odpowiada za uaktualnianie tabel kontaktów.
 
-\subsection{Podsumowanie}
-TODO: Krótkie podsumowanie Chorda?
+\textit{Chord} stanowi implementację mechanizmu \textit{Constistent Hashing} w sieci peer-to-peer. Dzięki dobrym właściowościom (logarytmiczny routing) oraz prostocie działania sieć ta jest bardzo często wykorzystywana do opisu bardziej zaawansowanych algorytmów, takich jak równoważenie obciążenia \cite{rao2003load}, usprawnienia routingu \cite{manku2004know} i tym podobnym. Jednakże w praktycznych zastosowaniach, kiedy część z węzłów może nie odpowiadać (lub może odpowiadać wolno), algorytm routing w \textit{Chordzie} podczas jednego kroku kontaktuje się tylko z jednym węzłem i musi czekać na jego odpowiedź, co może powodować znaczne opóźnienia. 
 
 
 \subsection{Kademlia}
 W 2002 roku Maymounkov i~Mazieres opracowali nową sieć P2P, która wykorzystywała zalety pierwszych sieci oraz uwzględniała nie tylko aspekty teoretyczne, ale również wykorzystanie sieci w~praktyce.
 
-Kademlia \cite{maymounkov2002kademlia}, podobnie jak pierwsze powstałe sieci peer-to-peer, pozwala na odnalezienie zasobu w~czasie logarytmicznym względem liczby węzłów w~sieci. Zaletą Kademli jest fakt, że każdy pakiet wymieniany pomiędzy węzłami niesie ze sobą dodatkowe, użyteczne informacje o~pozostałych węzłach, dzięki czemu nie jest konieczne wysyłanie dodatkowych komunikatów, niezbędnych do działania systemu. Wykorzystanie tej własności umożliwia użycie metryki odległości opartej na funkcji XOR, co więcej sieć pozwala na równoległe odpytywanie wielu węzłów w~celu zmniejszenia opóźnień użytkownika. Szczegóły działania routingu Kademli zostały opisane w~rozdziale~\ref{kad_routing}.
+\textit{Kademlia} \cite{maymounkov2002kademlia}, podobnie jak pierwsze powstałe sieci peer-to-peer, pozwala na odnalezienie zasobu w~czasie logarytmicznym względem liczby węzłów w~sieci. Zaletą \textit{Kademli} jest fakt, że każdy pakiet wymieniany pomiędzy węzłami niesie ze sobą dodatkowe, użyteczne informacje o~pozostałych węzłach, dzięki czemu nie jest konieczne wysyłanie dodatkowych komunikatów, niezbędnych do działania systemu. Wykorzystanie tej własności umożliwia użycie metryki odległości opartej na funkcji XOR, co więcej sieć pozwala na równoległe odpytywanie wielu węzłów w~celu zmniejszenia opóźnień użytkownika. Szczegóły działania routingu \textit{Kademli} zostały opisane w~rozdziale~\ref{kad_routing}.
 
-W celu identyfikacji zasobów i~węzłów w~sieci Kademlia używane są 160-bitowe klucze (np. hash SHA-1 identyfikatora). Zasoby są składowane w~węzłach, których klucz jest blisko identyfikatora zasobu. W~celu określenia "bliskości" elementów wykorzystywana jest metryka XOR, tzn. im więcej początkowych bitów dwóch kluczy jest zgodnych tym bliżej siebie się znajdują. Dzięki temu, że funkcja XOR jest symetryczna każde zapytanie, które dociera do danego węzła, może nieść ze sobą informacje o~nowym kontakcie, którym jest nadawca komunikatu.
+W celu identyfikacji zasobów i~węzłów w~sieci \textit{Kademlia} używane są 160-bitowe klucze (np. hash SHA-1 identyfikatora). Zasoby są składowane w~węzłach, których klucz jest blisko identyfikatora zasobu. W~celu określenia "bliskości" elementów wykorzystywana jest metryka XOR, tzn. im więcej początkowych bitów dwóch kluczy jest zgodnych tym bliżej siebie się znajdują. Dzięki temu, że funkcja XOR jest symetryczna każde zapytanie, które dociera do danego węzła, może nieść ze sobą informacje o~nowym kontakcie, którym jest nadawca komunikatu.
 
-Każdy węzeł utrzymuje swoją tablicę kontaktów wykorzystywaną podczas wyszukiwania zasobów. Tablica dla węzła o~identyfikatorze $X$ składa się z~$k$-pojemników (ang. \textit{$k$-buckets}), które dla każdego $i \in [0, 160)$ przechowują adresy (maksymalnie) $k$ węzłów, które znajdują się w~odległości od $2^i$ do $2^{i+1}$ od danego węzła. Zatem klucze w~$i$-tym pojemniku mają z~$X$ wspólny prefiks długości $160-(i+1)$, ale różnią się na bicie $160-i$. Parametr $k$ jest stały i~ustalony dla danej sieci (autorzy Kademli proponują wartość $k=20$). Na rysunku~\ref{fig_kademlia} przedstawiona została przykładowa sieć dla kluczy długości $3$ oraz kontakty węzła o~kluczu $000$. 
+Każdy węzeł utrzymuje swoją tablicę kontaktów wykorzystywaną podczas wyszukiwania zasobów. Tablica dla węzła o~identyfikatorze $X$ składa się z~$k$-pojemników (ang. \textit{$k$-buckets}), które dla każdego $i \in [0, 160)$ przechowują adresy (maksymalnie) $k$ węzłów, które znajdują się w~odległości od $2^i$ do $2^{i+1}$ od danego węzła. Zatem klucze w~$i$-tym pojemniku mają z~$X$ wspólny prefiks długości $160-(i+1)$, ale różnią się na bicie $160-i$. Parametr $k$ jest stały i~ustalony dla danej sieci (autorzy \textit{Kademli} proponują wartość $k=20$). Na rysunku~\ref{fig_kademlia} przedstawiona została przykładowa sieć dla kluczy długości $3$ oraz kontakty węzła o~kluczu $000$. 
 
-Bazując na zapisach logów zebranych przez Saroiu i~innych \cite{saroiu2001measurement} z~działającej sieci Gnutella, zaobserwowano, że prawdopodobieństwo, że węzeł który znajduje się w~sieci od $x$ minut będzie się w~niej znajdował również w~czasie $x+60$ rośnie wraz ze wzrostem $x$. Własność ta została wykorzystana w~Kademli w~celu ustalenia kolejności w~$k$-pojemnikach. Węzły są uszeregowane według malejącego czasu ostatniej widoczności\footnote{Czas ten jest uaktualniany w~momencie otrzymywania zapytań lub odpowiedzi na zapytania od danego węzła.}. W~momencie kiedy do danej listy ma trafić kolejny węzeł do ostatniego węzła na liście wysyłany jest komunikat w~celu sprawdzenia czy jest wciąż aktywny. W~przypadku braku odpowiedzi węzeł jest usuwany z~listy, a~nowy węzeł wstawiany jest na początek. W~przeciwnym razie węzeł jest przesuwany na początek listy, a~nowy kontakt jest ignorowany. Dzięki takiemu podejściu sieć dodatkowo staje się częściowo odporna na ataki, w~których adwersarz wprowadza wiele nowych węzłów, które mają na celu "wypchnięcie" prawdziwych węzłów z~tabel kontaktów.
+Bazując na zapisach logów zebranych przez Saroiu i~innych \cite{saroiu2001measurement} z~działającej sieci \textit{Gnutella}, zaobserwowano, że prawdopodobieństwo, że węzeł który znajduje się w~sieci od $x$ minut będzie się w~niej znajdował również w~czasie $x+60$ rośnie wraz ze wzrostem $x$. Własność ta została wykorzystana w~\textit{Kademli} w~celu ustalenia kolejności w~$k$-pojemnikach. Węzły są uszeregowane według malejącego czasu ostatniej widoczności\footnote{Czas ten jest uaktualniany w~momencie otrzymywania zapytań lub odpowiedzi na zapytania od danego węzła.}. W~momencie kiedy do danej listy ma trafić kolejny węzeł do ostatniego węzła na liście wysyłany jest komunikat w~celu sprawdzenia czy jest wciąż aktywny. W~przypadku braku odpowiedzi węzeł jest usuwany z~listy, a~nowy węzeł wstawiany jest na początek. W~przeciwnym razie węzeł jest przesuwany na początek listy, a~nowy kontakt jest ignorowany. Dzięki takiemu podejściu sieć dodatkowo staje się częściowo odporna na ataki, w~których adwersarz wprowadza wiele nowych węzłów, które mają na celu "wypchnięcie" prawdziwych węzłów z~tabel kontaktów.
 
 \begin{figure}[h]
 \centering
 \includegraphics[width=0.9\linewidth]{img/kademlia.pdf}
-\caption{Tablica kontaktów węzła $000$ w~przykładowej sieci Kademli. Szare elipsy oznaczają kolejne $k$-pojemniki. Rysunek ten bardzo przypomina rysunek~\ref{fig_chord_fingers_2}. W~przypadku Chorda węzeł znał co najwyżej jeden węzeł z~każdego poddrzewa. Dzięki zastosowaniu metryki XOR w~Kademli węzły bez dodatkowych komunikatów mogą dowiedzieć się o~pozostałych węzłach, które należą do danego przedziału. Informacja ta wykorzystywana jest w~celu przyspieszenia routingu w~praktycznych zastosowaniach.}
+\caption{Tablica kontaktów węzła $000$ w~przykładowej sieci \textit{Kademli}. Szare elipsy oznaczają kolejne $k$-pojemniki. Rysunek ten bardzo przypomina rysunek~\ref{fig_chord_fingers_2}. W~przypadku \textit{Chorda} węzeł znał co najwyżej jeden węzeł z~każdego poddrzewa. Dzięki zastosowaniu metryki XOR w~\textit{Kademli} węzły bez dodatkowych komunikatów mogą dowiedzieć się o~pozostałych węzłach, które należą do danego przedziału. Informacja ta wykorzystywana jest w~celu przyspieszenia routingu w~praktycznych zastosowaniach.}
 \label{fig_kademlia}
 \end{figure}
 
 \subsubsection{Routing}
 \label{kad_routing}
-Protokół Kademli oparty jest o~cztery procedury: \f{STORE}, \f{PING}, \f{FIND\_NODE} oraz \f{FIND\_VALUE}. Pierwsza procedura wysyła prośbę o~zapamiętanie pary (klucz, wartość). \f{PING} używany jest do ustalenia czy dany węzeł powinien zostać usunięty z~pewnego $k$-pojemnika lub czy dalej jest aktywny. Dwie kolejne procedury stanowią najważniejszą część sieci. Obie używają tego samego algorytmu routingu w~celu odnalezienia węzła lub wartości, która reprezentowana jest przez zadany klucz.
+Protokół \textit{Kademli} oparty jest o~cztery procedury: \f{STORE}, \f{PING}, \f{FIND\_NODE} oraz \f{FIND\_VALUE}. Pierwsza procedura wysyła prośbę o~zapamiętanie pary (klucz, wartość). \f{PING} używany jest do ustalenia czy dany węzeł powinien zostać usunięty z~pewnego $k$-pojemnika lub czy dalej jest aktywny. Dwie kolejne procedury stanowią najważniejszą część sieci. Obie używają tego samego algorytmu routingu w~celu odnalezienia węzła lub wartości, która reprezentowana jest przez zadany klucz.
 
 W celu odnalezienia węzła o~kluczu $X$ przez węzeł $S$ na podstawie tablicy kontaktów określanych jest $k$ najbliższych do klucza $X$ węzłów sieci. W~kolejnym kroku $S$ przesyła zapytanie o~$k$ najbliższych węzłów do węzłów wybranych w~poprzednim kroku. Dzięki zastosowanej metryce XOR i~jej własnościom możliwe jest wysyłanie równoczesnych zapytań do kilku węzłów. Liczbę równoległych żądań określa parametr $\alpha$, dla którego Maymounkov i~Mazieres proponują wartość 3. Dzięki odpytywaniu wielu węzłów w~tym samym czasie możemy uzyskać krótszy czas dostępu do zasobów, w~przypadku gdy część węzłów nie odpowiada na komunikaty węzła $S$. Procedura \f{FIND\_VALUE} obsługiwana jest dokładnie w~ten sam sposób, dopóki jeden z~węzłów nie posiada wartości odpowiadającej danemu kluczowi. Wtedy węzeł zamiast zwracać $k$ najbliższych węzłów zwraca po prostu wartość, znajdującą się pod podanym kluczem.
 
-\subsection{Podsumowanie}
-TODO: Krótkie podsumowanie kademli; Może nie robić z~tego osobnego akapitu?
+\textit{Kademlia}, dzięki zastosowaniu metryki XOR pozwala na znaczące uproszczenie zarówno analizy poprawności i złożoności routingu, jak i implementacji. Dodatkowo możliwość zastosowania równoległych, asynchronicznych zapytań do wielu węzłów naraz niesie ze sobą duże zalety praktyczne. Podejście to pozwala na zmniejszenie opóźnień spowodowanych nieodpowiadającymi serwerami. Ponieważ, w przeciwieństwie do \textit{Chorda}, dwa różne zapytania o te same klucze od pewnego miejsca będą zbiegały wzdłuż tej samej ścieżki możliwe jest powielanie popularnego zasobu na węzłach leżących na tej ścieżce. Dzięki temu klienci, którzy obsługują często wyszukiwane zasoby nie zostaną zablokowani z powodu nadmiernej ilości zapytań, ponieważ część odpowiedzi będzie udzielanych już na wcześniejszym etapi routingu.
 
 \section{Rozproszony \kesz\s z~użyciem DHT}
 Obecne zastosowania DHT skupiają się głównie na systemach wymiany plików takich jak Kad czy BitTorrent. W~systemach tych DHT są używane w~celu odnalezienia komputerów, które przechowują dany plik. W~tej pracy proponujemy użycie DHT w~celu \keszowania\s zasobów internetowych. Jak opisane zostało w~rozdziale~\ref{sect_consistent_hashing} \keszowanie\s zasobów leżało u~podstaw powstania mechanizmu \textit{Consistent Hashing}, który z~kolei zapoczątkował rozwój DHT.
@@ -320,7 +318,7 @@ Na podobnym pomyśle bazuje \textit{Tuxedo}\cite{shi2003tuxedo}, który dodatkow
 Kolejną siecią opartą na unikalnej implementacji DHT jest \textit{Kache}\cite{linga2004kache}, używający opracowanej na własne potrzeby sieci \textit{Kelips}.
 Ciekawy pomysł zastosowania sieci peer-to-peer w~celu przyspieszania strumieniowania multimediów został opisany w~\cite{guo2006design}.
 
-Pomimo podobnej tematyki przytoczonych prac żadna z~nich nie wykorzystuje sieci Kademlia, oferującej pewne zalety istotne w~zastosowaniach praktycznych, w~szczególności równoległe zapytania w~trakcie routingu.
+Pomimo podobnej tematyki przytoczonych prac żadna z~nich nie wykorzystuje sieci \textit{Kademlia}, oferującej pewne zalety istotne w~zastosowaniach praktycznych, w~szczególności równoległe zapytania w~trakcie routingu.
 
 \subsection{Architektura}
 \label{sect_architecture}
@@ -352,20 +350,34 @@ Do uruchomienia symulacji wymagany jest plik zawierający listę wszystkich klie
 \subsection{Dane testowe}
 Jako dane wejściowe do symulatora użyte zostały realne dane pochodzące z~działających centralnych serwerów \keszujacych. Niestety znalezienie aktualnych danych do testów jest obecnie niezwykle trudne ze względu na kwestie bezpieczeństwa i~anonimowości użytkowników takich serwerów. Niedostępne są też dane, które używane są w~podobnych pracach (wspomnianych w~rozdziale~\ref{sect_previous_work}) co powoduje, że porównanie systemu z~innymi staje się trudne. 
 
-Dane, na których przeprowadzane były testy pochodzą z~2007 roku i~są danymi zebranymi przez serwer \keszujacy\s IRCache\footnote{\url{ftp://ftp.ircache.net/Traces/DITL-2007-01-09/}}. Do testów użyte zostały trzy zbiory danych \f{sv.sanitized20070110}, \f{sj.sanitized20070110} oraz \f{uc.sanitized20070109}.
-Wszystkie użyte pliki zawierają zapytania wykonywane przez klientów w~ciągu jednej doby. Liczba wysyłanych zapytań oraz liczba klientów dla poszczególnych plików przedstawiona została w~tabeli~\ref{tab_testdata}.
+Dane, na których przeprowadzane były testy pochodzą z~2007 roku i~są danymi zebranymi przez serwer \keszujacy\s IRCache\footnote{\url{ftp://ftp.ircache.net/Traces/DITL-2007-01-09/}}. Do testów użyte zostały trzy zbiory danych \f{sj.sanitized20070110}, \f{sv.sanitized20070110} oraz \f{uc.sanitized20070109}.
+Wszystkie użyte pliki zawierają zapytania wykonywane przez klientów w~ciągu jednej doby. Liczba wysyłanych zapytań oraz liczba klientów dla poszczególnych plików przedstawiona została w~tabeli~\ref{tab_testdata}. W~tabeli~\ref{tab_testdata2} przedstawiona zostały statystyki dotyczące liczby wysyłanych zapytań przez pojedynczego klienta w~przedstawionych zbiorach danych. Wartości w kolejnych kolumnach oznaczają odpowiednio minimalną liczbę zapytań wykonaną przez pewnego klienta, medianę i średnią z liczby zapytań wszystkich klientów oraz maksymalną liczbę zapytań przypadającą na klienta w tym zbiorze danych.
 
 \begin{table}[h!]
 \centering
 \begin{tabular}{r c c c}
 Plik z~danymi & Liczba klientów & Łączna liczba zapytań & Liczba zapytań \f{GET}\\
 \hline
-\f{sv.sanitized} & 91 & $447~696$ & $447~621$\\
 \f{sj.sanitized} & 114 & $348~189$ & $346~405$\\
+\f{sv.sanitized} & 91 & $447~696$ & $447~621$\\
 \f{uc.sanitized} & 160 & $544~370$ & $527~355$\\
 \end{tabular}
 \caption{Szczegóły dotyczące użytych danych testowych.}
 \label{tab_testdata}
+\end{table}
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{r c c c c}
+ & \multicolumn{4}{c}{Liczba zapytań na klienta} \\
+Plik z~danymi & Min & Mediana & Średnia & Max \\
+\hline
+\f{sj.sanitized} & 1 & 150 & 2 273 & 45 910  \\
+\f{sv.sanitized} & 1 & 120 & 2 976 & 167 000 \\
+\f{uc.sanitized} & 1 & 199 & 3 252 & 87 390  \\
+\end{tabular}
+\caption{Szczegóły dotyczące liczby zapytań przypadających na pojedynczego klienta.}
+\label{tab_testdata2}
 \end{table}
 
 Na potrzeby testów z~danych zostały wycięte wyłącznie zapytania typu \f{GET}, a~czas został przeskalowany o~czynnik \nicefrac{1}{18}, tak aby pojedyncza symulacja trwała około $1.5$ godziny.
@@ -378,21 +390,82 @@ Przeprowadzone testy uwzględniały różne wielkości \keszu\s oraz różne alg
 
 W trakcie testów \keszowania\s w~pamięci całkowicie wyłączony został komponent odpowiedzialny za \keszowanie\s w~sieci P2P, zatem dla każdego z~węzłów dane \keszowane\s były niezależnie.
 
-Przetestowane zostały trzy algorytmy opisane w~rozdziale~\ref{sect_architecture} o~wielkościach: 1024, 2048, 4096, 8192 oraz 16384. Uśrednione wyniki dla wszystkich zbiorów danych testowych przedstawione zostały na rysunku~\ref{fig_tests_mem_1}
+Przetestowane zostały trzy algorytmy opisane w~rozdziale~\ref{sect_architecture} o~wielkościach: 1024, 2048, 4096, 8192 oraz 16384. 
+Wyniki testów dla poszczególnych zbiorów danych znajdują się na rysunku \ref{fig_tests_mem_all}. Uśrednione wyniki dla wszystkich zbiorów danych testowych przedstawione zostały na rysunku~\ref{fig_tests_mem_1}.
 
 \begin{figure}[h!]
 \centering
 \begin{minipage}{0.48\linewidth}
-\includegraphics[width=0.95\linewidth]{img/nop2p_mean_1.eps}
+\centering
+\includegraphics[width=0.9\linewidth]{img/tests/nop2p_sj_1.eps}
 \end{minipage}
 \begin{minipage}{0.48\linewidth}
-\includegraphics[width=0.95\linewidth]{img/nop2p_mean_2.eps}
+\centering
+\includegraphics[width=0.9\linewidth]{img/tests/nop2p_sj_2.eps}
 \end{minipage}
-\caption{Wyniki testów --no-p2p. TODO: Przydałyby się też wyniki dla $2^{13}$}
+\begin{minipage}{0.48\linewidth}
+\centering
+\includegraphics[width=0.9\linewidth]{img/tests/nop2p_sv_1.eps}
+\end{minipage}
+\begin{minipage}{0.48\linewidth}
+\centering
+\includegraphics[width=0.9\linewidth]{img/tests/nop2p_sv_2.eps}
+\end{minipage}
+\begin{minipage}{0.48\linewidth}
+\centering
+\includegraphics[width=0.9\linewidth]{img/tests/nop2p_uc_1.eps}
+\end{minipage}
+\begin{minipage}{0.48\linewidth}
+\centering
+\includegraphics[width=0.9\linewidth]{img/tests/nop2p_uc_2.eps}
+\end{minipage}
+\caption{Wyniki testów \keszu\s lokalnego (w pamięci) dla przetestowanych zbiorów danych.}
+\label{fig_tests_mem_all}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\begin{minipage}{0.48\linewidth}
+\centering
+\includegraphics[width=0.9\linewidth]{img/tests/p2p_mean_sj_1.eps}
+\end{minipage}
+\begin{minipage}{0.48\linewidth}
+\centering
+\includegraphics[width=0.9\linewidth]{img/tests/p2p_mean_sj_2.eps}
+\end{minipage}
+\begin{minipage}{0.48\linewidth}
+\centering
+\includegraphics[width=0.9\linewidth]{img/tests/p2p_mean_sv_1.eps}
+\end{minipage}
+\begin{minipage}{0.48\linewidth}
+\centering
+\includegraphics[width=0.9\linewidth]{img/tests/p2p_mean_sv_2.eps}
+\end{minipage}
+\begin{minipage}{0.48\linewidth}
+\centering
+\includegraphics[width=0.9\linewidth]{img/tests/p2p_mean_uc_1.eps}
+\end{minipage}
+\begin{minipage}{0.48\linewidth}
+\centering
+\includegraphics[width=0.9\linewidth]{img/tests/p2p_mean_uc_2.eps}
+\end{minipage}
+\caption{Uśrednione wyniki testów \keszu\s w sieci peer-to-peer dla przetestowanych zbiorów danych.}
+\label{fig_tests_p2p_mean}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.6\linewidth]{img/tests/nop2p_all.eps}
+\caption{Zbiorczy wykres wyników testów \keszu\s w pamięci dla wszystkich zbiorów danych.}
 \label{fig_tests_mem_1}
 \end{figure}
 
-TODO: Przedstawienie wyników inmemory dla różnych zbiorów danych (średnich albo pojedyncznych) oraz uśrednionych.
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.6\linewidth]{img/tests/p2p_combined_all.eps}
+\caption{Zbiorczy wykres wyników testów \keszu\s w sieci peer-to-peer dla wszystkich zbiorów danych.}
+\label{fig_tests_p2p_all}
+\end{figure}
 
 
 \subsection{\Keszowanie\s w~sieci P2P}
@@ -400,19 +473,12 @@ Drugim przedmiotem testów było działanie \keszu, który wykorzystuje sieć pe
 
 Ponownie testy zostały przeprowadzadzone z~uwzględnieniem róznej wielkości \keszu\s oraz różnych algorytmów wymiany danych w~przypadku pełnego \keszu. Podczas testów wyłączony został zupełnie \kesz\s w~pamięci, aby zapytania o~wszystkie zasoby były wyszukiwane w~sieci peer-to-peer.
 
-Ponieważ symulator, w~celu odwzorowania realnego środowiska pracy, tworzy procesy, które komunikują się ze sobą przez sieć, znacząco obciąża to komputer, na którym testy są uruchomione. Dodatkowo Kademlia używa do komunikacji między węzłami protokołu \f{UDP}, który jest protokołem stratnym. z~powyższych powodów nie wszystkie wysłane zapytania są poprawnie obsłużone - część z~wysyłanych pakietów nie dociera do celu, co skutkuje przekroczeniem limitów czasów zdefiniowanych w~protokole Kademli i~pomimo, że zasób może znajdować się w~sieci istnieje szansa, że w~czasie testów wyszukiwanie zasobu zakończy się niepowodzeniem.
-
-TODO: Dla aktualnych danych przeliczyć ile procent doszło.
+Ponieważ symulator, w~celu odwzorowania realnego środowiska pracy, tworzy procesy, które komunikują się ze sobą przez sieć, znacząco obciąża to komputer, na którym testy są uruchomione. Dodatkowo \textit{Kademlia} używa do komunikacji między węzłami protokołu \f{UDP}, który jest protokołem stratnym. z~powyższych powodów nie wszystkie wysłane zapytania są poprawnie obsłużone - część z~wysyłanych pakietów nie dociera do celu, co skutkuje przekroczeniem limitów czasów zdefiniowanych w~protokole \textit{Kademli} i~pomimo, że zasób może znajdować się w~sieci istnieje szansa, że w~czasie testów wyszukiwanie zasobu zakończy się niepowodzeniem.
+Dla przedstawionych wyników testów średnio $91\%$ zapytań została obsłużona poprawnie. Pozostałe zakończyły się niepowodzeniem z powodu utraty pakietu \f{UDP} lub z powodu upłynięcia limitu czasu przewidzianego na odpowiedź ustalonego na 5 sekund.
 
 Podobnie jak w~przypadku testów w~pamięci (rozdział~\ref{sect_tests_mem}) przetestowane zostały trzy algorytmy \keszowania\s, ale o~wielkościach 512, 1024, 2048, 4096 i~8192.
 
-TODO: Przedstawić wyniki dla różnych zbiorów danych oraz uśrednionych (boxploty).
-
-\begin{figure}[h!]
-\includegraphics[width=0.95\linewidth]{img/cache.eps}
-\caption{Wyniki testów --no-mem. TODO: Wyniki testów dla > 1024 muszą być powtórzone, bo zmieniałem wartości bufora UDP w~kernelu i~zamiast poprawić liczbę niezdropowanych pakietów to się pogorszyło, dlatego rozrzut wyników jest o~wiele większy}
-\end{figure}
-
+Na rysunku \ref{fig_tests_p2p_mean} przedstawione zostały średnie wartości procentu zasobów, które były \keszowane dla poszczególnych zbiorów danych. Wyniki pochodzą z kilku niezależnych uruchomień symulatora na różnych maszynach. Rysunek \ref{fig_tests_p2p_all} przedstawia zebrane wyniki dla wszystkich zbiorów danych.
 
 \subsection{\Keszowanie\s dwupoziomowe}
 Ostatnie z~przeprowadzonych testów dotyczą połączenia lokalnego \keszowania\s w~pamięci z~\keszowaniem\s w~sieci peer-to-peer. W~tym celu wykorzystywane jest \keszowanie\s dwupoziomowe - w~pierwszej kolejności sprawdzany jest \kesz\s lokalny, a~dopiero w~przypadku, gdy zasób nie zostaniem znaleziony w~pamięci, zapytanie wysyłane jest do sieci peer-to-peer.
@@ -506,7 +572,7 @@ Aby ułatwić przetwarzania plików z~logami zostały wykonane pomocnicze skrypt
 
 Pierwszy ze skryptów (\f{read.data.r}) odpowiedzialny jest za wczytanie danych testowych i~przetworzenie ich na format, które oczekuje symulator. Skrypt wczytuje więc plik z~logami z~serwera, który zawiera wpisy dla wszystkich żądań i~dzieli go na pliki z~zapytaniami dla poszczególnych klientów. Dodatkowo czas zapytań zamieniany jest z~bezwzględnego na relatywny, czyli pierwsze zapytanie ma czas $0$, a~czas pozostałych to opóźnienie w~stosunku do pierwszego żądania.
 
-Skrypt \f{read.logs.r} pozwala na wczytanie danych wyjściowych z~symulatora i~opracowanie na ich podstawie wykresów odpowiedzi z~poszczególnych \keszy. Skrypt zapisuje też uproszczone wyniki symulacji, które używane są przez ostatni ze skryptów (\f{combine.logs.r}). Ponieważ wyniki symulacji są w~pewnym stopniu losowe (co wynika z~użycia protokołu UDP dla sieci Kademlia oraz różnego obciążenia maszyny, na której uruchomione były symulacje) ostatni skrypt zbiera wyniki z~wielu uruchomień symulatora i~prezentuje wykresy z~uśrednionymi wynikami.
+Skrypt \f{read.logs.r} pozwala na wczytanie danych wyjściowych z~symulatora i~opracowanie na ich podstawie wykresów odpowiedzi z~poszczególnych \keszy. Skrypt zapisuje też uproszczone wyniki symulacji, które używane są przez ostatni ze skryptów (\f{combine.logs.r}). Ponieważ wyniki symulacji są w~pewnym stopniu losowe (co wynika z~użycia protokołu UDP dla sieci \textit{Kademlia} oraz różnego obciążenia maszyny, na której uruchomione były symulacje) ostatni skrypt zbiera wyniki z~wielu uruchomień symulatora i~prezentuje wykresy z~uśrednionymi wynikami.
 
 \subsection{Instalacja i~uruchomienie}
 \label{sect_impl_install}

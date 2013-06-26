@@ -1,9 +1,11 @@
 #!/bin/bash
 
 #NET=(kademlia kademlia kademlia kademlia kademlia)
-DATA=(sj)
-ALGOS=(lfu lru fifo)
-SIZES=(1024 2048 4096 8192 16384)
+DATA=(sv)
+#ALGOS=(lfu lru fifo)
+ALGOS=(lfu lru)
+SIZES=(8192 16384)
+#SIZES=(1024 2048 4096 8192 16384)
 
 
 for data in ${DATA[*]}

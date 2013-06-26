@@ -326,10 +326,7 @@ Serwer proxy napisany w jęzku Python z użyciem frameworku Twisted i biblioteki
 \frametitle{Wyzwania}
 
 \begin{block}{Logika cache'owania}
-\begin{itemize}
-  \item Kiedy zasób powinien być cache'owany? Czy warto go cache'ować?
-  \item Kiedy i które elementy usuwać z cache?
-\end{itemize}
+W jaki sposób zarządzać zasobami w cache'u o ograniczonym rozmiarze.
 \end{block}
 
 \begin{block}{Równoważenie obciążenia}
@@ -346,12 +343,12 @@ mogą istotnie różnić się w zastosowaniu praktycznym.
 
 \subsection{Algorytmy cache'owania}
 \begin{frame}
-\frametitle{Logika cache'owania (\cite{motwani1995randomized})}
+\frametitle{Logika cache'owania}
 \begin{columns}[c]
 
 \column{0.4\textwidth}
 \begin{center}
-\includegraphics[width=0.65\linewidth]{img/multi-level.pdf}
+\includegraphics[width=\linewidth]{img/architecture.pdf}
 \end{center}
 
 \column{0.6\textwidth}
@@ -365,28 +362,28 @@ Porównanie różnych algorytmów:
 \begin{itemize}
   \item LRU
   \item LFU
-  \item Multi Queue (wzięcie pod uwagę rozmiaru, nagłówków cachowania, itp.)
+  \item FIFO
 \end{itemize}
 \end{block}
 
 \end{columns}
 \end{frame}
 
-\subsection{Równoważenie obciążenia}
-\begin{frame}
-\frametitle{Równoważenie obciążenia}
-
-\begin{block}{}
-Wiele zasobów z jednej witryny, które pobierane są razem może zostać spakowane
-i umieszczone pod wspólnym kluczem w sieci P2P.
-\end{block}
-
-\begin{block}{}
-Prosząc o pojedynczy zasób z sieci, otrzymujemy paczkę zawierającą zasoby, które
-prawdopodobnie będą nam potrzebne w najbliższej przyszłości.
-\end{block}
-
-\end{frame}
+% \subsection{Równoważenie obciążenia}
+% \begin{frame}
+% \frametitle{Równoważenie obciążenia}
+% 
+% \begin{block}{}
+% Wiele zasobów z jednej witryny, które pobierane są razem może zostać spakowane
+% i umieszczone pod wspólnym kluczem w sieci P2P.
+% \end{block}
+% 
+% \begin{block}{}
+% Prosząc o pojedynczy zasób z sieci, otrzymujemy paczkę zawierającą zasoby, które
+% prawdopodobnie będą nam potrzebne w najbliższej przyszłości.
+% \end{block}
+% 
+% \end{frame}
 
 \section{Przeprowadzone testy}
 \begin{frame}
@@ -408,15 +405,15 @@ prawdopodobnie będą nam potrzebne w najbliższej przyszłości.
 \end{frame}
 
 \begin{frame}
-\frametitle{Wyniki eksperymentów - plan}
+\frametitle{Wyniki eksperymentów}
 \begin{block}{}
 Użycie danych z serwera proxy z 2007 roku.
 \end{block}
 
 \begin{block}{Algorytmy}
-Porównanie algorytmów cachowania: LRU, LFU i Multi Queue.
+Porównanie algorytmów cachowania: LRU, LFU i FIFO.
 \end{block}
-
+TOOD: !!!!
 \begin{block}{Równoważenie obciążenia}
 Grupowanie (bazowane na czasie) zasobów pochodzących z jednej strony (np. obrazki) pod wspólnym kluczem w sieci P2P.
 \end{block}
@@ -424,6 +421,30 @@ Grupowanie (bazowane na czasie) zasobów pochodzących z jednej strony (np. obra
 \begin{block}{}
 Porównanie opóźnień w Kademlii, Chordzie i Pastry.
 \end{block}
+TOOD: /!!!!
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Wyniki eksperymentów - Local Cache}
+\begin{figure}
+\centering
+\includegraphics[width=0.7\linewidth]{img/tests/nop2p_all.eps}
+\end{figure}
+\end{frame}
+
+\begin{frame}
+\frametitle{Wyniki eksperymentów - P2P Cache}
+\begin{figure}
+\centering
+\includegraphics[width=0.7\linewidth]{img/tests/p2p_combined_all.eps}
+\end{figure}
+\end{frame}
+
+\begin{frame}
+\frametitle{Wyniki eksperymentów - Wnioski}
+
+TOOD: !!!!
 \end{frame}
 
 

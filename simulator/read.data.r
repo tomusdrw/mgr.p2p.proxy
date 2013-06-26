@@ -1,4 +1,4 @@
-data <- read.table('data/uc.sanitized-access.20070109')
+data <- read.table('data/sj.sanitized-access.20070110')
 # REmove some superflous columns
 data <- data[, -8] #
 data <- data[, -2]
@@ -21,10 +21,15 @@ getData <- getData[1:250000, ]
 
 # Get unique clients
 clients <- unique(getData[, 'client'])
+counts <- c('client', 0)
 for (client in clients) {
   clientData <- getData[getData['client'] == client, c('time', 'address')]
-  write.csv(clientData, file = paste('data/clients/', client, sep=''), col.names=FALSE, row.names=FALSE, quote=FALSE, sep=',')
+  counts <- rbind(counts, c(client, length(clientData[, 1])))
+  #write.csv(clientData, file = paste('data/clients/', client, sep=''), col.names=FALSE, row.names=FALSE, quote=FALSE, sep=',')
 }
+counts2 <- as.data.frame(counts[-1, c(1, 2)])
+summary(as.numeric(as.character(counts2[, 2])))
 
+write.table(counts2, file='data/counts.txt', row.names=FALSE, col.names=FALSE, quote=FALSE, sep=' ')
 write.table(clients, file='data/clients.txt', row.names=FALSE, col.names=FALSE, quote=FALSE, sep=' ')
  

@@ -1,6 +1,6 @@
 source('commons.R')
 
-path = './logs/No P2P (1-250k) (:18) - SV/'
+path = './logs/No P2P (1-250k) (:18) - UC/'
 
 lfu.1024 = readLogs(path, 'lfu_1024_no_p2p.logs')
 lfu.2048 = readLogs(path, 'lfu_2048_no_p2p.logs')
@@ -50,14 +50,21 @@ groupped.results
 
 par(family="Delicious")
 
+
+setEPS()
+postscript('nop2p_uc_1.eps')
 midpoints <- barplot(groupped.results*100, beside=TRUE, col=colors(seq(1, 5)))
 legend("right", legend=rownames(groupped.results), bty='0', pch=19, col=colors(seq(1, 5)), bg="#ffffff")
 text(x=midpoints, y=2, labels=floor(groupped.results*1000)/10, family="Delicious Heavy", cex=0.8)
+title("Percentage of Cache Hits [%]")
+mtext("Local cache for UC data")
+dev.off()
 
 midpoints <- barplot(t(groupped.results*100), beside=TRUE, col=colors(seq(1, 3)))
 legend("right", legend=colnames(groupped.results), bty='0', pch=19, col=colors(seq(1, 3)), bg="#ffffff")
 text(x=midpoints, y=2, labels=floor(t(groupped.results)*1000)/10, family="Delicious Heavy", cex=0.8)
-
+title("Percentage of Cache Hits [%]")
+mtext("Local cache for UC data")
 
 #Saving results
 write.table(groupped.results, file=paste(path, 'nop2p_groupped', sep=''))
