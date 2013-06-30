@@ -1,12 +1,13 @@
 source('commons.R')
 
+data <- 'UC'
 paths = c(
-  'No mem (1-250k) (:18) - dell - SJ',
-  'No mem (1-250k) (:18) - dell - SV',
-  'No mem (1-250k) (:18) - dell - UC',
-  'No mem (1-250k) (:18) - morse2 - SJ',
-  'No mem (1-250k) (:18) - morse2 - SV',
-  'No mem (1-250k) (:18) - morse2 - UC'
+ #'No mem (1-250k) (:18) - dell - SJ',
+ #'No mem (1-250k) (:18) - dell - SV',
+ 'No mem (1-250k) (:18) - dell - UC',
+ #'No mem (1-250k) (:18) - morse2 - SJ',
+ #'No mem (1-250k) (:18) - morse2 - SV',
+ 'No mem (1-250k) (:18) - morse2 - UC'
 )
 
 values = c(512, 1024, 2048, 4096, 8192)
@@ -16,6 +17,8 @@ lapply(paths, function(path) {
   #Read results
   path.data <- read.table(file=paste('logs/', path, '/kad_results', sep=''))
   path.data <- floor(path.data*1000)/10
+  path.data <- path.data[, seq(1, 3)]
+  colnames(path.data)<- c('L1.Cache', 'L2.Cache', 'Mean')
   path.data[, 'type'] <- rownames(path.data)
   
   path.data
@@ -50,19 +53,24 @@ colnames(mean.results) <- values
 mean.results
 
 setEPS()
-postscript('p2p_mean_uc_2.eps')
-midpoints <- barplot(t(mean.results*100), beside=TRUE, col=colors(seq(1, 5)))
-legend("right", legend=colnames(mean.results), bty='0', pch=19, col=colors(seq(1, 5)), bg="#ffffff")
-text(x=midpoints, y=2, labels=t(mean.results), family="Delicious Heavy", cex=0.8)
+postscript(paste('p2p_mean_', tolower(data), '_1.eps', sep=''))
+midpoints <- barplot(t(mean.results), beside=TRUE, col=colors(seq(1, 5)), ylim=c(0, 45))
+grid(nx=NA, ny=NULL)
+legend("topleft", legend=colnames(mean.results), bty='0', pch=19, col=colors(seq(1, 5)), bg="#ffffff")
+text(x=midpoints, y=t(mean.results) + 1, labels=t(mean.results), family="Delicious Heavy", cex=0.8)
 title("Mean Cache Hits [%]")
-mtext("Kademlia cache for UC data")
+mtext(paste("Kademlia cache for ", data, " data", sep=''))
 dev.off()
 
-midpoints <- barplot(mean.results*100, beside=TRUE, col=colors(seq(1, 3)))
-legend("right", legend=rownames(mean.results), bty='0', pch=19, col=colors(seq(1, 3)), bg="#ffffff")
-text(x=midpoints, y=2, labels=mean.results, family="Delicious Heavy", cex=0.8)
+setEPS()
+postscript(paste('p2p_mean_', tolower(data), '_2.eps', sep=''))
+midpoints <- barplot(mean.results, beside=TRUE, col=colors(seq(1, 3)), ylim=c(0, 45))
+grid(nx=NA, ny=NULL)
+legend("topleft", legend=rownames(mean.results), bty='0', pch=19, col=colors(seq(1, 3)), bg="#ffffff")
+text(x=midpoints, y=mean.results+1, labels=mean.results, family="Delicious Heavy", cex=0.8)
 title("Mean Cache Hits [%]")
-mtext("Kademlia cache for UC data")
+mtext(paste("Kademlia cache for ", data, " data", sep=''))
+dev.off()
 
 
 
@@ -74,7 +82,8 @@ levels(combined.results[, 4]) <- unlist(do.call(c, lapply(values, function(val){
 
 setEPS()
 postscript('p2p_combined_all.eps')
-plot(formula = L2.Cache.hits.... ~ type, data=combined.results, col=colors(seq(1, 3)), xlab="", ylab="")
+plot(formula = L2.Cache ~ type, data=combined.results, col=colors(seq(1, 3)), xlab="", ylab="", ylim=c(0, 45))
+grid(nx=NA, ny=NULL)
 legend("bottomright", legend=c('lfu', 'lru', 'fifo'), bty='0', pch=19, col=colors(seq(1, 3)))
 title("Cache Hits [%]")
 mtext("Kademlia P2P cache")

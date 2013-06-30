@@ -10,6 +10,8 @@
 \usepackage{graphicx, graphics, epsfig, geometry, pslatex}
 \usepackage{amsmath, amssymb}
 \usepackage{url}
+\usepackage[toc,page]{appendix}
+\usepackage{pdflscape}
 
 \usepackage{array}
 \usepackage{times}
@@ -30,6 +32,7 @@
 \newcommand{\s}{ }
 
 \newcommand{\kesz}{cache}
+\newcommand{\Kesz}{Cache}
 \newcommand{\keszy}{cache'y}
 \newcommand{\kesza}{cache'a}
 \newcommand{\keszowi}{cache'owi}
@@ -119,23 +122,23 @@
 \pagestyle{headings}
 
 \section*{Wstęp}
-Problem \keszowania\s pomimo wielu prac na jego temat, wciąż pozostaje tematem niewyczerpanym. Wraz ze zwiększającym się udziałów multimediów wysokiej jakości oraz coraz większych rozmiarów stron internetowych \keszowanie\s zasobów na różnych etapach realizacji zapytania staje się niezwykle istotne.
+Problem \keszowania\s pomimo wielu prac na jego temat, wciąż pozostaje tematem niewyczerpanym. Wraz ze zwiększającym się udziałem multimediów wysokiej jakości oraz coraz większych rozmiarów stron internetowych, \keszowanie\s zasobów na różnych etapach realizacji zapytania staje się niezwykle istotne.
 
 Intensywne badania na temat \keszowania\s doprowadziły do powstania wielu ciekawych rozwiązań, takich jak \kesz\s hierarchiczny czy mechanizm \textit{Consistent Hashing}. Ten ostatni z kolei zapoczątkował zupełnie odrębną gałąź badań: sieci peer-to-peer. 
-W niniejszej pracy proponujemy wykorzystanie sieci peer-to-peer w celu \keszowania\s zasobów internetowych. System taki pozwala wykorzystać potencjalnie nieograniczone zasoby sieci w celu składowania obiektów, które zostały pobrane z Internetu. W pracy porównujemy wpływ algorytmów zastępowania elementów w pełnym \keszu\s oraz rozmiar \keszu\s na liczbę trafień (ang. \textit{Cache hits}). Rozważane są również różne połączenia \keszowania\s zasobów lokalnie oraz w sieci peer-to-peer. W celu realizacji sieci peer-to-peer używany jest protokół Kademlia, który dzięki równoległym zapytaniom w trakcie routingu oraz prostej implementacji świetnie nadaje się do zastosowań praktycznych.
+W niniejszej pracy proponujemy wykorzystanie sieci peer-to-peer w celu \keszowania\s zasobów internetowych. System taki pozwala wykorzystać potencjalnie nieograniczone zasoby sieci w celu składowania obiektów, które zostały pobrane z Internetu. W pracy porównujemy wpływ  rozmiaru \keszu\s oraz algorytmów zastępowania elementów w pełnym \keszu\s na liczbę trafień (ang. \textit{Cache hits}). Rozważane są również różne połączenia \keszowania\s zasobów lokalnie oraz w sieci peer-to-peer. W celu realizacji sieci peer-to-peer używany jest protokół Kademlia, który dzięki równoległym zapytaniom w trakcie routingu oraz prostej implementacji świetnie nadaje się do zastosowań praktycznych.
 
 TODO: Coś bardziej rozwinąć wstęp?
 
-W pierwszym rozdziale opisany został problem \keszowania\s krótka historia doprowadzająca do powstania \textit{Constistent Hashing}. Rozdział \ref{sect_dht} opowiada o rozproszonych tablicach haszujących (ang. \textit{DHT}). W rozdziale \ref{sect_cache_dht} opisujemy wykorzystanie DHT w celu \keszowania\s zasobów internetowych. Rozdział \ref{sect_tests} opisuje wykonane testy oraz przedstawia ich wyniki, a w rozdziale \ref{sect_impl} opisane zostały próby implementacji rozwiązania w formie pluginu do przeglądarki oraz wersja wykonana ostatecznie czy proxy \keszujace.
+W pierwszym rozdziale opisany został problem \keszowania\s oraz krótka historia rozwoju \keszowania\s, doprowadzająca do powstania \textit{Constistent Hashing}. Rozdział \ref{sect_dht} opowiada o rozproszonych tablicach haszujących (ang. \textit{DHT}). W rozdziale \ref{sect_cache_dht} opisujemy wykorzystanie DHT w celu \keszowania\s zasobów internetowych. Rozdział \ref{sect_tests} opisuje wykonane testy oraz przedstawia ich wyniki, a w rozdziale \ref{sect_impl} opisane zostały próby implementacji rozwiązania w formie pluginu do przeglądarki oraz wersja wykonana ostatecznie, czyli proxy \keszujace.
 
 \section{Historia \keszowania}
 Wraz z~rosnącą liczbą użytkowników Internetu w~latach dziewięćdziesiątych zaczęły pojawiać się problemy z~dostępem do pewnych zasobów.
 Duża liczba odwołań do popularnych stron w~krótkim czasie powodowała znaczące obciążenie serwerów, które dany zasób posiadały.
-Czasami z~powodu nadmiernego zalania\footnote{ang. \textit{flooded}, \textit{swamped}} żądaniami serwer nie był w~stanie obsłużyć wszystkich, przez co strona stawała się niedostępna.
+Czasami, z~powodu nadmiernego zalania\footnote{ang. \textit{flooded}, \textit{swamped}} żądaniami, serwer nie był w~stanie obsłużyć ich wszystkich, przez co strona stawała się niedostępna. Serwery, posiadające takie zasoby noszą nazwę ,,gorących punktów'' (ang. \textit{hot spots}).
 
 \subsection{Serwery \keszujace}\label{sect_cache}
-Jako rozwiązanie problemu ,,gorących punktów'' (ang. \textit{hot spots}) pojawiły się serwery \keszujace. Rysunek~\ref{fig_cache_server} przedstawia wprowadzenie transparentnego, lokalnego \kesza\s i~jego relację z~serwerem docelowym. 
-Żądania zasobów wychodzące od użytkowników końcowych są w~pierwszej kolejności obsługiwane przez serwer \keszujacy, który odpowiada zapamiętanym zasobem lub kontaktuje się z~serwerem docelowym i~zapamiętuje odpowiedź.
+Jako rozwiązanie problemu ,,gorących punktów'' pojawiły się serwery \keszujace. Rysunek~\ref{fig_cache_server} przedstawia schemat sieci, w której wprowadzony został transparentny, lokalny \kesz\s oraz jego relację z~serwerem docelowym. 
+Żądania zasobów wychodzące od użytkowników końcowych są w~pierwszej kolejności obsługiwane przez serwer \keszujacy, który odpowiada zapamiętanym zasobem lub kontaktuje się z~serwerem docelowym i~zapamiętuje jego odpowiedź.
 
 \begin{figure}[ht]
 \centering
@@ -153,10 +156,10 @@ mniej żądań skutkuje mniejszym obciążeniem serwera, a~,,lokalność'' serwe
 Wprowadzenie \keszowania\s niesie ze sobą szereg zalet nie tylko dla administratorów serwerów zawierających zasoby. Serwery znajdujące się na granicy sieci lokalnej z~Internetem (jak na rysunku~\ref{fig_cache_server}) oferują użytkownikom tej sieci lepszy transfer i~mniejsze opóźnienia w~dostępie do popularnych zasobów.
 Ponieważ łącze wychodzące z~sieci ma ograniczoną przepustowość, \kesz\s pozwala również na jego oszczędniejsze wykorzystanie, a~tym samym poprawę jakości dostępu do Internetu.
 
-\subsection{Rozproszony i~hierarchiczny \kesz}\label{sect_dist_cache}
+\subsection{\Kesz rozproszony i~hierarchiczny}\label{sect_dist_cache}
 Rozwiązanie przedstawione w~rozdziale~\ref{sect_cache} pozwala na odciążenie serwera docelowego. Zastanówmy się jednak co będzie się działo w~przypadku zwiększania liczby użytkowników korzystających z~serwera \keszujacego. Duża liczba żądań może spowodować dokładnie taką samą sytuację jak w~przypadku serwera docelowego - \kesz\s zostanie zalany i~nie będzie w~stanie obsłużyć wszystkich zapytań.
 
-W 1995 roku Malpani i~inni \cite{malpani1995making} zaproponowali metodę, w~której wiele serwerów \keszujacych\s współpracuje ze sobą w~celu zrównoważenia obciążenia. W~ich propozycji klient wysyła żądanie do losowego serwera należącego do systemu. W~przypadku, gdy serwer posiada określony zasób odsyła go w~odpowiedzi, w~przeciwnym razie rozsyła to żądanie do wszystkich innych serwerów. Jeżeli żaden z~\keszy\s nie zawiera zasobu, to żądanie jest przesyłane do serwera oryginalnego. Niestety wraz ze wzrostem liczby serwerów, należących do systemu liczba przesyłanych między nimi wiadomości bardzo szybko rośnie i~cały system staje się zawodny.
+W 1995 roku Malpani i~inni \cite{malpani1995making} zaproponowali metodę, w~której wiele serwerów \keszujacych\s współpracuje ze sobą w~celu zrównoważenia obciążenia. W~ich propozycji klient wysyła żądanie do losowego serwera należącego do systemu. W~przypadku, gdy serwer posiada określony zasób odsyła go w~odpowiedzi, w~przeciwnym razie rozsyła to żądanie do wszystkich innych serwerów. Jeżeli żaden z~\keszy\s nie zawiera zasobu, to żądanie jest przesyłane do serwera oryginalnego. Niestety, wraz ze wzrostem liczby serwerów należących do systemu, liczba przesyłanych między nimi wiadomości bardzo szybko rośnie i~cały system staje się zawodny.
 
 W ramach projektu Harvest \cite{bowman1994harvest} A. Chankhunthod i~inni \cite{chankhunthod1995hierarchical} stworzyli \kesz\s hierarchiczny. Rozwiązanie to pozwala łączyć kilka serwerów w~system, który można skalować w~zależności od liczby użytkowników, których ma obsługiwać. Grupy użytkowników łączą się z~serwerami, będącymi liśćmi w konstruowanej strukturze drzewa. Przychodzące żądania są obsługiwane najpierw przez serwery na najniższym poziomie, w~przypadku gdy te serwery nie mają danego zasobu w~\keszu\s decydują czy pobrać go z~serwera docelowego, czy odpytać serwery z~tego samego i~wyższego poziomu. Decyzja podejmowana jest na podstawie opóźnień do obu serwerów.
 
@@ -167,16 +170,16 @@ W ramach projektu Harvest \cite{bowman1994harvest} A. Chankhunthod i~inni \cite{
 \caption{Połączenie kilu serwerów \keszujacych\s w~system hierarchiczny. Każdy z~serwerów znajdujących się w~liściach obsługuje określoną liczbę użytkowników. Zapytania o~zasoby, które nie znajdują się w~\keszu\s wysyłane są do rodzica.}
 \end{figure}
 
-W praktyce, w~takim systemie serwery na wyższych poziomach muszą obsługiwać dużą liczbę żądań od dzieci przez co stają się wrażliwe na zalanie oraz składują duże ilości danych \cite{povey1997distributed}.
+W praktyce, w~takim systemie serwery na wyższych poziomach muszą obsługiwać dużą liczbę żądań od dzieci, co oznacza że stają się wrażliwe na zalanie oraz składują duże ilości danych \cite{povey1997distributed}.
 
 Kolejnym zaproponowanym udoskonaleniem jest \kesz\s rozproszony. Rozwiązanie zachowuje hierarchiczną strukturę w~formie drzewa, ale tym razem jedynie serwery w~liściach zajmują się \keszowaniem\s zasobów, a~pozostałe serwery stanowią indeks, w~którym zapamiętywana jest informacja czy zasób znajduje się w~systemie oraz jaki serwer go przechowuje.
 
-Jak pokazały eksperymenty \cite{povey1997distributed} rozproszony \kesz\s oferuje zbliżoną wydajność do \keszu\s hierarchicznego rozwiązując dodatkowo problemy związane z~obsługą dużej liczby żądań przez serwery na wyższych poziomach.
+Jak pokazały eksperymenty przeprowadzone przez \cite{povey1997distributed}, rozproszony \kesz\s oferuje zbliżoną wydajność do \keszu\s hierarchicznego rozwiązując dodatkowo problemy związane z~obsługą dużej liczby żądań przez serwery na wyższych poziomach.
 
 \subsection{Dynamiczna restrukturyzacja}
 Przedstawione w~rozdziałach~\ref{sect_cache} i~\ref{sect_dist_cache} metody \keszowania\s nie są przystosowane do działania w~warunkach, w~których obciążenie czy liczba użytkowników obsługiwanych przez system się zmienia. Wraz z~rosnącą liczbą żądań nie jest możliwe łatwe poprawienie wydajności przez dołożenie dodatkowych serwerów \keszujacych. Wprowadzenie zmian w~systemie wymaga zmian w~konfiguracji poszczególnych serwerów. Dodatkowo awarie pojedynczych węzłów mogą spowodować nieprawidłową pracę \keszu.
 
-W celu ułatwienia dodawania i~usuwania serwerów do systemu możemy spróbować innego podejścia do problemu. Podstawowym zadaniem węzłów wewnętrznych w~systemie \keszu\s rozproszonego jest utrzymywanie indeksu przechowywanych zasobów i~lokalizacja serwera, który dany zasób obsługuje. Zatem jeżeli klient mógłby określić, który serwer \keszujacy\s jest odpowiedzialny za obsługę obiektu, wtedy cała infrastruktura związana z~indeksowaniem byłaby niepotrzebna.
+W celu ułatwienia dodawania i~usuwania serwerów do systemu można spróbować innego podejścia do problemu. Podstawowym zadaniem węzłów wewnętrznych w~systemie \keszu\s rozproszonego jest utrzymywanie indeksu przechowywanych zasobów i~lokalizacja serwera, który dany zasób obsługuje. Zatem jeżeli klient mógłby określić, który serwer \keszujacy\s jest odpowiedzialny za obsługę obiektu, wtedy cała infrastruktura związana z~indeksowaniem byłaby niepotrzebna.
 
 Naiwnym rozwiązaniem stosującym takie podejście jest przypisanie zasobów do konkretnych serwerów. Przyjmijmy za identyfikator zasobu jego adres. Możemy teraz przypisać wszystkie zasoby w~obrębie jednej domeny do pewnego serwera. Na przykład dysponując 24 serwerami możemy przypisać wszystkie domeny zaczynające się na ,,a'' do serwera pierwszego, na ,,b'' do drugiego itd. Oczywiście pozwoli to na łatwe określenie, który serwer należy odpytać o~dany zasób, ale rozwiązanie to ma dwie poważne wady. Po pierwsze rozwiązanie nie jest skalowalne - niezdefiniowane jest jakie zasoby miałby obsługiwać dodatkowy serwer, a~po drugie obciążenie na serwerach jest nierównomierne.
 
@@ -186,7 +189,7 @@ S \equiv hash(R) \bmod n,
 \end{equation*}
  gdzie $S$ oznacza indeks serwera odpowiedzialnego za zasób $R$, a~$hash$ jest funkcją haszującą. Dzięki właściwościom funkcji haszujących gwarantujemy, że zasoby każdy z~serwerów jest odpowiedzialny za równą część składowanych zasobów. Niestety dalej nie jest rozwiązany problem skalowalności. Dodanie ($n+1$)-go serwera powoduje, że wszystkie zasoby zostaną przypisane w~inne miejsca.
  
-\subsubsection{\textit{Consistent Hashing}}
+\subsection{\textit{Consistent Hashing}}
 \label{sect_consistent_hashing}
 Podczas dodawania nowego serwera do systemu oczekujemy, że przejmie on od pozostałych równą część zasobów, aktualnie znajdujących się w~\keszu. Dodatkowo nie chcemy, aby wartości w~\keszu\s były przesuwane pomiędzy ,,starymi'' serwerami. Taką własność gwarantuje mechanizm \textit{Consistent Hashing}, opracowany przez Kargera i~Lehmana \cite{karger1997consistent}.
 
@@ -212,7 +215,7 @@ Pomimo, że pierwotną motywacją powstania \textit{Consistent Hashing} był pro
 
 \section{Rozproszone tablice haszujące (DHT)}
 \label{sect_dht}
-Rozproszone tablice haszujące (ang. \textit{Distributed Hash Tables}, DHT) to systemy pozwalające na przechowywanie par \textit{(klucz, wartość)}, podobnie jak zwykłe tablice haszujące, w~dynamicznej sieci zbudowanej z~uczestniczących węzłów (\textit{peer-to-peer}). Odpowiedzialność za przetrzymywanie mapowania kluczy do wartości jest podzielona pomiędzy węzły, w~taki sposób aby zmiany w~liczbie uczestników nie powodowały reorganizacji całości systemu, ale tylko jego drobnej części. Dodatkowo rozproszone tablice haszujące oferują efektywne wyszukiwanie kluczy w~systemie.
+Rozproszone tablice haszujące (ang. \textit{Distributed Hash Tables}, DHT) to systemy pozwalające na przechowywanie par \textit{(klucz, wartość)}, podobnie jak zwykłe tablice haszujące, w~dynamicznej sieci zbudowanej z~uczestniczących węzłów (\textit{peer-to-peer}). Odpowiedzialność za przetrzymywanie mapowania kluczy do wartości jest podzielona pomiędzy węzły w~taki sposób, aby zmiany w~liczbie uczestników nie powodowały reorganizacji całości systemu, ale tylko jego drobnej części. Dodatkowo rozproszone tablice haszujące oferują efektywne wyszukiwanie kluczy w~systemie.
 
 Początkowe badania nad DHT były motywowane istniejącymi systemami peer-to-peer, oferującymi głównie możliwość dzielenia się plikami, np. \textit{Napster}, \textit{Gnutella} i~\textit{Freenet}. Sieci te na różne sposoby realizowały wyszukiwanie zasobów, ale każdy z~nich miał swoje wady. \textit{Napster} korzystał z~centralnego katalogu, do którego każdy serwer wysyłał swoją listę plików i~który zarządzał wyszukiwaniem plików. W~\textit{Gnutelli} w~celu odnalezienia zasobu, zapytanie wysyłane było do każdego węzła w~sieci w~określonym promieniu, co skutkowało mniejszą szybkością i~mnóstwem przesyłanych wiadomości oraz podobnie jak w~przypadku sieci \textit{Freenet}, w~której znajdowanie klucza odbywało się za pomocą heurystycznej metody, brak gwarancji odnalezienia klucza.
 
@@ -252,7 +255,7 @@ Podczas dołączania do sieci węzeł $n$ musi znać adres co najmniej jednego w
 
 Pozostałe węzły mają możliwość uwzględnienia nowych podczas cyklicznego wykonywania procedury stabilizacyjnej, odpowiadającej za uaktualnienie (poprawienie) informacji o~poprzedniku i~następniku dla każdego węzła. Dodatkowo również cyklicznie wywoływana jest procedura, która odpowiada za uaktualnianie tabel kontaktów.
 
-\textit{Chord} stanowi implementację mechanizmu \textit{Constistent Hashing} w sieci peer-to-peer. Dzięki dobrym właściowościom (logarytmiczny routing) oraz prostocie działania sieć ta jest bardzo często wykorzystywana do opisu bardziej zaawansowanych algorytmów, takich jak równoważenie obciążenia \cite{rao2003load}, usprawnienia routingu \cite{manku2004know} i tym podobnym. Jednakże w praktycznych zastosowaniach, kiedy część z węzłów może nie odpowiadać (lub może odpowiadać wolno), algorytm routing w \textit{Chordzie} podczas jednego kroku kontaktuje się tylko z jednym węzłem i musi czekać na jego odpowiedź, co może powodować znaczne opóźnienia. 
+\textit{Chord} stanowi implementację mechanizmu \textit{Constistent Hashing} w sieci peer-to-peer. Dzięki dobrym właściwościom (logarytmiczny routing) oraz prostocie działania sieć ta jest bardzo często wykorzystywana do opisu bardziej zaawansowanych algorytmów, takich jak równoważenie obciążenia \cite{rao2003load}, usprawnienia routingu \cite{manku2004know} i tym podobnym. Jednakże w praktycznych zastosowaniach, kiedy część z węzłów może nie odpowiadać (lub może odpowiadać wolno), algorytm routing w \textit{Chordzie} podczas jednego kroku kontaktuje się tylko z jednym węzłem i musi czekać na jego odpowiedź, co może powodować znaczne opóźnienia. 
 
 
 \subsection{Kademlia}
@@ -273,13 +276,13 @@ Bazując na zapisach logów zebranych przez Saroiu i~innych \cite{saroiu2001meas
 \label{fig_kademlia}
 \end{figure}
 
-\subsubsection{Routing}
+%\subsubsection{Routing}
 \label{kad_routing}
 Protokół \textit{Kademli} oparty jest o~cztery procedury: \f{STORE}, \f{PING}, \f{FIND\_NODE} oraz \f{FIND\_VALUE}. Pierwsza procedura wysyła prośbę o~zapamiętanie pary (klucz, wartość). \f{PING} używany jest do ustalenia czy dany węzeł powinien zostać usunięty z~pewnego $k$-pojemnika lub czy dalej jest aktywny. Dwie kolejne procedury stanowią najważniejszą część sieci. Obie używają tego samego algorytmu routingu w~celu odnalezienia węzła lub wartości, która reprezentowana jest przez zadany klucz.
 
-W celu odnalezienia węzła o~kluczu $X$ przez węzeł $S$ na podstawie tablicy kontaktów określanych jest $k$ najbliższych do klucza $X$ węzłów sieci. W~kolejnym kroku $S$ przesyła zapytanie o~$k$ najbliższych węzłów do węzłów wybranych w~poprzednim kroku. Dzięki zastosowanej metryce XOR i~jej własnościom możliwe jest wysyłanie równoczesnych zapytań do kilku węzłów. Liczbę równoległych żądań określa parametr $\alpha$, dla którego Maymounkov i~Mazieres proponują wartość 3. Dzięki odpytywaniu wielu węzłów w~tym samym czasie możemy uzyskać krótszy czas dostępu do zasobów, w~przypadku gdy część węzłów nie odpowiada na komunikaty węzła $S$. Procedura \f{FIND\_VALUE} obsługiwana jest dokładnie w~ten sam sposób, dopóki jeden z~węzłów nie posiada wartości odpowiadającej danemu kluczowi. Wtedy węzeł zamiast zwracać $k$ najbliższych węzłów zwraca po prostu wartość, znajdującą się pod podanym kluczem.
+W celu odnalezienia węzła o~kluczu $X$ przez węzeł $S$, na podstawie tablicy kontaktów określanych jest $k$ najbliższych do klucza $X$ węzłów sieci. W~kolejnym kroku $S$ przesyła zapytanie o~$k$ najbliższych węzłów do węzłów wybranych w~poprzednim kroku. Dzięki zastosowanej metryce XOR i~jej własnościom możliwe jest wysyłanie równoczesnych zapytań do kilku węzłów. Liczbę równoległych żądań określa parametr $\alpha$, dla którego Maymounkov i~Mazieres proponują wartość 3. Dzięki odpytywaniu wielu węzłów w~tym samym czasie możemy uzyskać krótszy czas dostępu do zasobów, w~przypadku gdy część węzłów nie odpowiada na komunikaty węzła $S$. Procedura \f{FIND\_VALUE} obsługiwana jest dokładnie w~ten sam sposób, dopóki jeden z~węzłów nie posiada wartości odpowiadającej danemu kluczowi. Wtedy węzeł zamiast zwracać $k$ najbliższych węzłów zwraca po prostu wartość, znajdującą się pod podanym kluczem.
 
-\textit{Kademlia}, dzięki zastosowaniu metryki XOR pozwala na znaczące uproszczenie zarówno analizy poprawności i złożoności routingu, jak i implementacji. Dodatkowo możliwość zastosowania równoległych, asynchronicznych zapytań do wielu węzłów naraz niesie ze sobą duże zalety praktyczne. Podejście to pozwala na zmniejszenie opóźnień spowodowanych nieodpowiadającymi serwerami. Ponieważ, w przeciwieństwie do \textit{Chorda}, dwa różne zapytania o te same klucze od pewnego miejsca będą zbiegały wzdłuż tej samej ścieżki możliwe jest powielanie popularnego zasobu na węzłach leżących na tej ścieżce. Dzięki temu klienci, którzy obsługują często wyszukiwane zasoby nie zostaną zablokowani z powodu nadmiernej ilości zapytań, ponieważ część odpowiedzi będzie udzielanych już na wcześniejszym etapi routingu.
+\textit{Kademlia}, dzięki zastosowaniu metryki XOR pozwala na znaczące uproszczenie zarówno analizy poprawności i złożoności routingu, jak i implementacji. Dodatkowo możliwość zastosowania równoległych, asynchronicznych zapytań do wielu węzłów naraz niesie ze sobą duże zalety praktyczne. Podejście to pozwala na zmniejszenie opóźnień spowodowanych nieodpowiadającymi serwerami. Ponieważ, w przeciwieństwie do \textit{Chorda}, dwa różne zapytania o te same klucze od pewnego miejsca będą zbiegały wzdłuż tej samej ścieżki możliwe jest powielanie popularnego zasobu na węzłach leżących na tej ścieżce. Dzięki temu klienci, którzy obsługują często wyszukiwane zasoby nie zostaną zablokowani z powodu nadmiernej ilości zapytań, ponieważ część odpowiedzi będzie udzielanych już na wcześniejszym etapie routingu.
 
 \section{Rozproszony \kesz\s z~użyciem DHT}
 \label{sect_cache_dht}
@@ -385,7 +388,7 @@ Plik z~danymi & 1. kwartyl & Mediana & Średnia & 3. kwartyl & Max \\
 \label{tab_testdata2}
 \end{table}
 
-Na potrzeby testów z~danych zostały wycięte wyłącznie zapytania typu \f{GET}, a~czas został przeskalowany o~czynnik \nicefrac{1}{18}, tak aby pojedyncza symulacja trwała około $1.5$ godziny.
+Na potrzeby testów z~danych zostały usunięte zostały zapytania inne niż \f{GET}, a~czas został przeskalowany o~czynnik \nicefrac{1}{18}, tak aby pojedyncza symulacja trwała około $1.5$ godziny.
 
 \subsection{\Keszowanie\s w~pamięci}
 \label{sect_tests_mem}
@@ -472,51 +475,77 @@ Wyniki testów dla poszczególnych zbiorów danych znajdują się na rysunku \re
 \label{fig_tests_p2p_all}
 \end{figure}
 
+%%%% LANDSCAPE?
+% \begin{landscape}
+% \begin{minipage}{0.45\linewidth}
+% \centering
+% \includegraphics[width=\linewidth]{img/tests/nop2p_all.eps}
+% \captionof{figure}{Zbiorczy wykres wyników testów \keszu\s w pamięci dla wszystkich zbiorów danych.}
+% \label{fig_tests_mem_1}
+% \end{minipage}
+% \hfill
+% \begin{minipage}{0.45\linewidth}
+% \centering
+% \includegraphics[width=\linewidth]{img/tests/p2p_combined_all.eps}
+% \captionof{figure}{Zbiorczy wykres wyników testów \keszu\s w sieci peer-to-peer dla wszystkich zbiorów danych.}
+% \label{fig_tests_p2p_all}
+% \end{minipage}
+% \end{landscape}
+
+
 
 \subsection{\Keszowanie\s w~sieci P2P}
 Drugim przedmiotem testów było działanie \keszu, który wykorzystuje sieć peer-to-peer. Celem testów jest określenie w~jakim procencie dane, które pobierane są przez jednego użytkownika mogą zostać wykorzystane przez pozostałych.
 
-Ponownie testy zostały przeprowadzadzone z~uwzględnieniem róznej wielkości \keszu\s oraz różnych algorytmów wymiany danych w~przypadku pełnego \keszu. Podczas testów wyłączony został zupełnie \kesz\s w~pamięci, aby zapytania o~wszystkie zasoby były wyszukiwane w~sieci peer-to-peer.
+Ponownie testy zostały przeprowadzone z~uwzględnieniem różnej wielkości \keszu\s oraz różnych algorytmów wymiany danych w~przypadku pełnego \keszu. Podczas testów wyłączony został zupełnie \kesz\s w~pamięci, aby zapytania o~wszystkie zasoby były wyszukiwane w~sieci peer-to-peer.
 
-Ponieważ symulator, w~celu odwzorowania realnego środowiska pracy, tworzy procesy, które komunikują się ze sobą przez sieć, znacząco obciąża to komputer, na którym testy są uruchomione. Dodatkowo \textit{Kademlia} używa do komunikacji między węzłami protokołu \f{UDP}, który jest protokołem stratnym. z~powyższych powodów nie wszystkie wysłane zapytania są poprawnie obsłużone - część z~wysyłanych pakietów nie dociera do celu, co skutkuje przekroczeniem limitów czasów zdefiniowanych w~protokole \textit{Kademli} i~pomimo, że zasób może znajdować się w~sieci istnieje szansa, że w~czasie testów wyszukiwanie zasobu zakończy się niepowodzeniem.
+Ponieważ symulator, w~celu odwzorowania realnego środowiska pracy, tworzy procesy, które komunikują się ze sobą przez sieć, znacząco obciąża to komputer, na którym testy są uruchomione. Dodatkowo \textit{Kademlia} używa do komunikacji między węzłami protokołu \f{UDP}, który jest protokołem stratnym. Z~powyższych powodów nie wszystkie wysłane zapytania są poprawnie obsłużone - część z~wysyłanych pakietów nie dociera do celu, co skutkuje przekroczeniem limitów czasów zdefiniowanych w~protokole \textit{Kademli} i~pomimo, że zasób może znajdować się w~sieci istnieje szansa, że w~czasie testów wyszukiwanie zasobu zakończy się niepowodzeniem.
 Dla przedstawionych wyników testów średnio $91\%$ zapytań została obsłużona poprawnie. Pozostałe zakończyły się niepowodzeniem z powodu utraty pakietu \f{UDP} lub z powodu upłynięcia limitu czasu przewidzianego na odpowiedź ustalonego na 5 sekund.
 
 Podobnie jak w~przypadku testów w~pamięci (rozdział~\ref{sect_tests_mem}) przetestowane zostały trzy algorytmy \keszowania\s, ale o~wielkościach 512, 1024, 2048, 4096 i~8192.
 
-Na rysunku \ref{fig_tests_p2p_mean} przedstawione zostały średnie wartości procentu zasobów, które były \keszowane dla poszczególnych zbiorów danych. Wyniki pochodzą z kilku niezależnych uruchomień symulatora na różnych maszynach. Rysunek \ref{fig_tests_p2p_all} przedstawia zebrane wyniki dla wszystkich zbiorów danych.
+Na rysunku \ref{fig_tests_p2p_mean} przedstawione zostały średnie wartości procentu zasobów, które były \keszowane\s dla poszczególnych zbiorów danych. Wyniki pochodzą z kilku niezależnych uruchomień symulatora na różnych maszynach. Rysunek \ref{fig_tests_p2p_all} przedstawia zebrane wyniki dla wszystkich zbiorów danych.
 
 \subsection{\Keszowanie\s dwupoziomowe}
-Ostatnie z~przeprowadzonych testów dotyczą połączenia lokalnego \keszowania\s w~pamięci z~\keszowaniem\s w~sieci peer-to-peer. W~tym celu wykorzystywane jest \keszowanie\s dwupoziomowe - w~pierwszej kolejności sprawdzany jest \kesz\s lokalny, a~dopiero w~przypadku, gdy zasób nie zostaniem znaleziony w~pamięci, zapytanie wysyłane jest do sieci peer-to-peer.
+Ostatnie z~przeprowadzonych testów dotyczą połączenia lokalnego \keszowania\s w~pamięci z~\keszowaniem\s w~sieci peer-to-peer. W~tym celu wykorzystywane jest \keszowanie\s dwupoziomowe - w~pierwszej kolejności sprawdzany jest \kesz\s lokalny (\kesz\s pierwszego poziomu), a~dopiero w~przypadku, gdy zasób nie zostaniem znaleziony w~pamięci, zapytanie wysyłane jest do sieci peer-to-peer (\kesz\s drugiego poziomu).
 
-Do testów użyte zostały następujące parametry
+W celu uruchomienia testów i zebrania danych odpowiednich do przedstawienia wyniku opóźnień (rysunek \ref{fig_latency}) w tym przypadku testy zostały wykonane na danych, w których czas zapytań został przeskalowany o czynnik \nicefrac{1}{6}. Dzięki temu wyniki są bardziej miarodajne, ponieważ obciążenie komputera, na którym są uruchomione testy jest mniejsze. 
 
-TODO: odpalenie symulacji nieprzyspieszonej (albo przyspieszonej mniej)
-TODO: Dobranie odpowiednich algorytmów i~wielkości kolejek
-TODO: porównanie opóźnień na chordzie i kademli.
+Testy zostały przetestowane dla kilku różnych kombinacji parametrów. We wszystkich przypadkach jako polityka \keszowania\s używany był algorytm LRU. Na wykresie została użyta następująca notacja:
+
+\begin{equation*}
+network.mem\_size.p2p\_size,
+\end{equation*}
+gdzie $network$ oznacza implementację DHT (\f{kad} - Kademlia, \f{chord} - Chord), $mem\_size$ wielkość \keszu\s lokalnego (w pamięci), a $p2p\_size$ oznacza wielkość \keszu\s w sieci peer-to-peer. Na przykład: \f{kad.1024.2048} oznacza symulację, dla której wielkość \keszu\s w pamięci to 1024, w sieci peer-to-peer 2048, a jako implementacja DHT użyta została Kademlia. Wyniki testów przedstawione zostały na rysunku \ref{fig_long_all}.
 
 \begin{figure}[h!]
+\centering
+\includegraphics[width=0.7\linewidth]{img/tests/long_kad_1.eps}
+\caption{Porównanie liczby trafień w przypadku użycia \keszu\s dwupoziomowego.}
+\label{fig_long_all}
+\end{figure}
 
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.7\linewidth]{img/tests/long_latency_1.eps}
 \caption{Porównanie średniego opóźnienia pomiędzy Kademlią i Chordem.}
 \label{fig_latency}
 \end{figure}
 
 \subsection{Wnioski}
-TODO: Wnioski wynikające z~testów
 
 Wyniki testów dla \keszu\s lokalnego znacząco różnią się w zależności od zbioru danych. Oczywiście w przypadku wszystkich algorytmów \keszowania\s zwiększanie rozmiaru \keszu\s powoduje wzrost liczby trafień (ang. \textit{Cache hit}). Dla wszystkich danych można zaobserwować ciekawą zależność: dla wielkości powyżej 2048 liczby trafień dla wszystkich polityk \keszowania\s się wyrównują. Związane jest to z tym, że dla większości klientów liczba zapytań jest większa od $2^{11}$ i mniejsza od $2^{12}$.
 
-Dla danych \f{UC} najlepsze wyniki daje \kesz\s LFU. Podobnie jest dla zbioru \f{SJ}, chociaż tam wyniki poszczególnych algorytmów są bardziej wyrównane. W przypadku \f{SV} do wspomnianej już wartości granicznej 2048 najlepiej radzi sobie poityka LRU, a dla pozostałych wartości lepsze wyniki daje zastosowanie FIFO. Wyniki są o tyle ciekawe, że LRU i FIFO działają bardzo podobnie, LRU pozwala jedynie na uaktualnienie pozycji w przypadku odwołania do elementu, który znajduje się już w \keszu. Jednak w specyficznym przypadku danych \f{SV} własność ta obniża liczbę trafień.
+Dla danych \f{UC} najlepsze wyniki daje \kesz\s LFU. Podobnie jest dla zbioru \f{SJ}, chociaż tam wyniki poszczególnych algorytmów są bardziej wyrównane. W przypadku \f{SV} do wspomnianej już wartości granicznej 2048 najlepiej radzi sobie polityka LRU, a dla pozostałych wartości lepsze wyniki daje zastosowanie FIFO. Wyniki są o tyle ciekawe, że LRU i FIFO działają bardzo podobnie, LRU pozwala jedynie na uaktualnienie pozycji w przypadku odwołania do elementu, który znajduje się już w \keszu. Jednak w specyficznym przypadku danych \f{SV} własność ta obniża liczbę trafień.
 Wartości liczby trafień są podobne dla zbiorów \f{SJ} i \f{SV}, LRU pozwala na uzyskanie od $33\%$ dla \keszu\s wielkości 1024 do $41\%$ trafień dla \keszu\s wielkości 16384. Dla zbioru \f{UC} wyniki wynoszą odpowiednio $23\%$ i $32\%$.
 
 Uśrednione wyniki dla wszystkich zbiorów danych przedstawione na rysunku \ref{fig_tests_mem_1} pokazują, że w średnim przypadku najlepiej zachowuje się polityka LRU. Wynik ten potwierdza poprzednio uzyskane wyniki \cite{breslau1999web} i uzasadnia popularność tego algorytmu w systemach \keszowania. 
 
-W przypadku \keszowania\s w sieci peer-to-peer ponownie zwiększenie rozmiaru \keszu\s bezpośrednio wpływa na liczbę trafień. Również tutaj najlepsze wyniki oferowane są przez politykę LRU. Główną różnicą w wynikach dla sieci peer-to-peer są wartośći dla liczby trafień. Wyniki dla LRU dla zbiorów \f{SV} i \f{SJ} wynoszą około $20\%$ w przypadku \keszu\s o wielkości 512 do $30\%$ dla wielkości $8192$. Dla zbioru \f{UC} wyniki podobnie jak w przypadku \keszowania\s w pamięci są nieco gorsze od pozostałych zbiorów i kształtują się na poziomie od $14\%$ do $23\%$.
+W przypadku \keszowania\s w sieci peer-to-peer ponownie zwiększenie rozmiaru \keszu\s bezpośrednio wpływa na liczbę trafień. Również tutaj najlepsze wyniki oferowane są przez politykę LRU. Główną różnicą w wynikach dla sieci peer-to-peer są wartości dla liczby trafień. Wyniki dla LRU dla zbiorów \f{SV} i \f{SJ} wynoszą od około $20\%$ w przypadku \keszu\s o wielkości 512 do $30\%$ dla wielkości $8192$. Dla zbioru \f{UC} wyniki, podobnie jak w przypadku \keszowania\s w pamięci, są nieco gorsze od pozostałych zbiorów i kształtują się na poziomie od $14\%$ do $23\%$.
 
+Wyniki przedstawione na wykresie \ref{fig_long_all} pokazują, że użycie \keszu\s dwupoziomowego pozwala na poprawienie wyników uzyskanych w przypadku \keszu\s w pamięci o około \nicefrac{1}{4} (np. w przypadku testów \f{kad.2048.4096} z $25\%$ procent do $31\%$). Bardzo wyraźnie widać też wzrost liczby trafień w \kesz\s drugiego poziomu w przypadku obniżenia rozmiaru \keszu\s w pamięci.  
 
-TODO: coś o testach kompleksowych
-
-Na wykresie \ref{fig_latency} możemy zaobserwować ogromną dyspropocję pomiędzy średnim opóźnieniem na obsługę zapytania w przypadku Kademlii i Chorda. Jedną z przyczyn takiej różnicy jest brak równoległych zapytań w przypadku Chorda - jeżeli węzeł, którego chcemy odpytać nie jest już dostępny to protokół musi poczekać na ustalony limit czasowy i dopiero wtedy rozpocząć odpytywanie innego węzła. Drugi powodem jest słaba jakość biblioteki użytej do obsługi Chorda\footnote{\f{http://code.google.com/p/pyrope/}}, wszystkie procedury są tam zaimplementowane w sposób blokujący, więc w przypadku gdy wiele węzłów opuści sieć zapytania blokowane są przez oczekiwanie na odpowiedź z poprzednio wysłanych żądań.
-
+Na wykresie \ref{fig_latency} można zaobserwować ogromną dysproporcję pomiędzy średnim opóźnieniem na obsługę zapytania w przypadku Kademli i Chorda. Jedną z przyczyn takiej różnicy jest brak równoległych zapytań w przypadku Chorda - jeżeli węzeł, którego chcemy odpytać nie jest już dostępny to protokół musi poczekać na upłynięcie ustalonego limitu czasowego i dopiero wtedy rozpocząć odpytywanie innego węzła. Drugi powodem jest słaba jakość biblioteki użytej do obsługi Chorda\footnote{\f{http://code.google.com/p/pyrope/}}, wszystkie procedury są tam zaimplementowane w sposób blokujący, więc w przypadku, gdy wiele węzłów opuści sieć zapytania blokowane są przez oczekiwanie na odpowiedź z poprzednio wysłanych żądań.
 
 \section{Implementacja}
 \label{sect_impl}
@@ -526,50 +555,17 @@ Rozdział~\ref{sect_impl_install} prezentuje informacje o~instalacji i~uruchomie
 
 \subsection{Wybór technologii}
 \label{sect_impl_technology}
-Wybór technologii był silnie zależny od celu, który chcieliśmy osiągnąć. Początkowo istotnym aspektem, był aspekt praktyczny tworzonego rozwiązania, priorytetem było maksymalne uproszczenie i~ułatwienie procesu instalacji \keszu, tak aby jak najwięcej osób było chętnych przetestować system. Celem było zebranie danych do testów oraz analiza działania i~uzyskiwanych opóźnień podczas normalnej pracy programu. z~tego powodu przed implementacją ostatecznego rozwiązania opisanego w~rozdziale~\ref{sect_impl_proxy} podjęte zostały próby utworzenia pluginu do przeglądarki, opisane w~rozdziałach~\ref{sect_plugin_1} i~\ref{sect_plugin_2}.
+Wybór technologii był silnie zależny od celu, który chcieliśmy osiągnąć. Początkowo istotnym aspektem był aspekt praktyczny tworzonego rozwiązania. Priorytetem było maksymalne uproszczenie i~ułatwienie procesu instalacji \keszu, aby jak najwięcej osób było chętnych przetestować system. Celem było zebranie danych do testów oraz analiza działania i~uzyskiwanych opóźnień podczas normalnej pracy programu. z~tego powodu przed implementacją ostatecznego rozwiązania opisanego w~rozdziale~\ref{sect_impl_proxy} podjęte zostały próby utworzenia pluginu do przeglądarki, opisane w~rozdziałach~\ref{sect_plugin_1} i~\ref{sect_plugin_2}.
 
 \subsubsection{Plugin do przeglądarki}
 \label{sect_plugin_1}
 Pierwszą podjętą próbą implementacji było stworzenie rozszerzenia do przeglądarki Chrome\footnote{\url{http://chrome.google.com}}, które korzystałoby z~nowego API dla połączeń Peer-to-peer, zaproponowanego w~HTML5\footnote{\url{http://www.w3.org/TR/2008/WD-html5-20080122/#peer-to-peer}, \url{http://www.w3.org/TR/webrtc}}.
 
-Jako \textit{proof-of-concept} stworzony został plugin, którego kod znajduje się na listingu~\ref{lst_plugin_1}.
-
-\begin{lstlisting}[language={JavaScript}, label={lst_plugin_1}, 
-  caption={Kod rozszerzenia dla przeglądarki Chrome, realizujący \textit{proof-of-concept}.}]
-(function() { 'use strict';
-var cowImg;
-chrome.webRequest.onBeforeRequest.addListener(function(details){
-  // Don't redirect multiple times
-	if (loldogs.indexOf(details.url) !== -1) {
-		return;
-	}
-	
-  // Redirect to cow
-	var url = cowImg;
-  // or to loldogs
-	if (Math.random() < .5) {
-		url = loldogs[Math.round(Math.random() * loldogs.length)];
-	}
-	
-	console.log("Redirecting", details.url, " to ", 
-    (url === cowImg ? "COW" : url));
-    
-  // Return redirection url
-	return {
-		redirectUrl: url
-	};
-}, {
-	urls: ['<all\_urls>'],
-	types: ['image']
-}, ["blocking"]);
-
-cowImg = "data:image/png;base64,iVBORw0KG...";
-}());
-\end{lstlisting}
+Jako \textit{proof-of-concept} stworzony został plugin, którego kod znajduje się na listingu~\ref{lst_plugin_1} w załączniku \ref{appendix_impl}.
 
 Rozwiązanie korzysta z~API \f{chrome.webRequest.onBeforeRequest}\footnote{\url{http://developer.chrome.com/extensions/webRequest.html}}, które pozwala nasłuchiwać oraz modyfikować wszystkie żądania, wychodzące z~przeglądarki. Nasłuchiwane są tylko żądania o~obrazki, z~dowolnymi adresami URL. Następnie każde żądanie z~prawdopodobieństwem $\nicefrac{1}{2}$ zostaje zastąpione obrazkiem \f{cowImg}, który znajduje się w~pliku źródłowym w~zakodowanej postaci (\f{base64}) oraz z~prawdopodobieństwem $\nicefrac{1}{2}$ jednym z~obrazków z~tablicy \f{loldogs}. Dzięki przekierowaniu na zasób w~postaci \f{base64} nie jest konieczne wykonywanie dodatkowego żądania przez przeglądarkę i~obrazek jest wyświetlany od razu. 
 
-Niestety stworzenie tego pluginu pokazało poważną wadę tego podejścia. Żeby przechwytywać żądania w~trybie \f{onBeforeRequest}, czyli przed wykonaniem zapytania przez przeglądarkę musimy korzystać z~opcji \f{blocking}, która powoduje, że żądania muszą być przetwarzane synchronicznie. Zatem próby pobrania zasobu z~sieci P2P podczas przechwytywania zapytania będą skutkowały zwiększonymi opóźnieniami w~dostępie do zasobów, co podważa podstawową ideę rozwiązania.
+Niestety stworzenie tego pluginu pokazało poważną wadę tego podejścia. Żeby przechwytywać żądania w~trybie \f{onBeforeRequest}, czyli przed wykonaniem zapytania przez przeglądarkę, należy korzystać z~opcji \f{blocking}, której włączenie powoduje, że żądania muszą być przetwarzane synchronicznie. Zatem próby pobrania zasobu z~sieci P2P podczas przechwytywania zapytania będą skutkowały zwiększonymi opóźnieniami w~dostępie do zasobów, co podważa podstawową ideę rozwiązania.
 
 \subsubsection{Plugin \textit{Native Client}}
 \label{sect_plugin_2}
@@ -595,7 +591,7 @@ W celu wykonania testów, których wyniki przedstawione zostały w~rozdziale~\re
 Symulator pozwala na wczytanie danych o~klientach i~żądaniach, które mają wykonać. Każdy z~klientów jest osobnym procesem, który uruchamiany jest przez proces główny symulatora (skrypt \f{simulator\_main.py}). Wyniki symulacji zapisywane są do pliku z~logami i~zawierają identyfikator \keszu, z~którego otrzymano zasób (lub $-1$ w~przypadku, gdy zasób nie został znaleziony w~żadnych \keszu) oraz opóźnienie, czyli czas, który upłynął od wysłania zapytania do otrzymania odpowiedzi.
 
 \subsection{Skrypty pomocnicze}
-Aby ułatwić przetwarzania plików z~logami zostały wykonane pomocnicze skrypty dla środowiska \f{R}\footnote{\url{http://www.r-project.org}}. 
+Aby ułatwić przetwarzania plików z~logami stworzono zestaw pomocniczych skryptów dla środowiska \f{R}\footnote{\url{http://www.r-project.org}}. 
 
 Pierwszy ze skryptów (\f{read.data.r}) odpowiedzialny jest za wczytanie danych testowych i~przetworzenie ich na format, które oczekuje symulator. Skrypt wczytuje więc plik z~logami z~serwera, który zawiera wpisy dla wszystkich żądań i~dzieli go na pliki z~zapytaniami dla poszczególnych klientów. Dodatkowo czas zapytań zamieniany jest z~bezwzględnego na relatywny, czyli pierwsze zapytanie ma czas $0$, a~czas pozostałych to opóźnienie w~stosunku do pierwszego żądania.
 
@@ -605,14 +601,7 @@ Skrypt \f{read.logs.r} pozwala na wczytanie danych wyjściowych z~symulatora i~o
 \label{sect_impl_install}
 Aplikacja, jej źródła oraz niniejsza praca dostępne są na dołączonej płycie CD oraz publicznym repozytorium\footnote{\url{https://bitbucket.org/tomusdrw/mgr.p2p.proxy}}. W~celu uruchomienia aplikacji wymagany jest \f{Python} w~wersji \f{2.7} oraz pakiety \f{python2.7-twisted} i~\f{python2.7-simplejson}. Aby pobrać źródła aplikacji można skorzystać z~polecenia \f{\$ git clone git@bitbucket.org:tomusdrw/mgr.p2p.proxy.git}.
 
-Uruchomienie aplikacji odbywa się przez wywołanie pliku \f{main.py}, znajdującego się w~głównym katalogu. Rysunek~\ref{fig_main_help} przedstawia dostępne opcje konfiguracyjne.
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=0.8\linewidth]{img/options.png}
-\caption{Dostępne opcje konfiguracyjne głównej aplikacji.}
-\label{fig_main_help}
-\end{figure}
+Uruchomienie aplikacji odbywa się przez wywołanie pliku \f{main.py}, znajdującego się w~głównym katalogu. Listing~\ref{lst_main_help} w załączniku \ref{appendix_options} przedstawia dostępne opcje konfiguracyjne.
 
 Wywołanie symulatora możliwe jest przez uruchomienie programu \f{simulator\_main.py}. Symulator przyjmuje podobne opcje co główna aplikacja. Dodatkowo do pracy symulatora potrzebne są dane wejściowe, które powinny znajdować się w~katalogu \f{simulator/data/}. Przykładowe dane zostały załączone w~repozytorium.
 
@@ -621,8 +610,89 @@ Dodatkowo w~celu uruchomienia wielu symulacji utworzone zostały pomocnicze skry
 
 \section{Podsumowanie}
 
-Przygotowany w ramach pracy system oferuje
-TODO: Podsumowanie tego co zostało zrobione, interpretacja wyników i~ogólnie trochę wody.
+Jak pokazały wyniki testów opracowany w pracy system, dzięki połączeniu \keszowania\s w pamięci z \keszowaniem\s w sieci peer-to-peer, pozwala na zwiększenie liczby trafień o około $25\%$. Dodatkowo zastosowanie sieci Kademlia pozwala na uzyskanie niewielkich opóźnień w stosunku do Chorda. 
+
+Zarówno na podstawie wyników testów \keszu\s lokalnego, jak i testów \keszu\s w sieci peer-to-peer możemy uznać, że w średnim przypadku najlepsze wyniki pod względem liczby trafień daje algorytm LRU.
+
+W momencie pisania tej pracy nie udało się zaimplementować uproszczonego rozwiązania, które chętnie byłoby instalowane przez użytkowników. Dostępne API i dokumentacja nie są jeszcze wystarczająco dojrzałe do stworzenia takiego systemu. Trwają jednak prace nad kolejnymi wersjami specyfikacji nowych możliwości przeglądarek, które dają nadzieję na stworzenie podobnej aplikacji w przyszłości.
+
+Kolejnymi krokami, które możemy podjąć w celu dalszej analizy przedstawionego rozwiązania jest na przykład opracowanie algorytmu decydującego kiedy dany zasób powinien być składowany w \keszu\s lokalnym, a kiedy warto wysłać go do sieci peer-to-peer (obecnie zasób zawsze składowany jest na obu poziomach). Kolejnym z możliwych usprawnień jest składowanie zasobów w postaci ``paczek'', na podstawie bliskości wysyłanych zapytań w czasie - pobierając stronę internetową użytkownik w krótkim czasie powinien też pobrać obrazki i skrypty znajdujące się na tej stronie. Umieszczenie paczki, która potencjalnie zawiera całą stronę internetową, w sieci peer-to-peer pozwoli na zmniejszenie opóźnień i liczby zapytań wewnątrz sieci. Oczywiście warte odnotowania byłoby porównanie innych implementacji DHT, takich jak Pastry, Tapestry CAN czy Skipnet \cite{harvey2003skipnet}. 
+
+\appendix
+\section{Załączniki}
+\subsection{Kod pluginu do \textit{Chrome}}
+\label{appendix_impl}
+\begin{lstlisting}[language={JavaScript}, label=lst_plugin_1,
+  caption={Kod rozszerzenia dla przeglądarki Chrome, realizujący \textit{proof-of-concept}.}]
+(function() { 'use strict';
+var cowImg;
+chrome.webRequest.onBeforeRequest.addListener(function(details){
+  // Don't redirect multiple times
+  if (loldogs.indexOf(details.url) !== -1) {
+    return;
+  }
+  
+  // Redirect to cow
+  var url = cowImg;
+  // or to loldogs
+  if (Math.random() < .5) {
+    url = loldogs[Math.round(Math.random() * loldogs.length)];
+  }
+  
+  console.log("Redirecting", details.url, " to ", 
+    (url === cowImg ? "COW" : url));
+    
+  // Return redirection url
+  return {
+    redirectUrl: url
+  };
+}, {
+  urls: ['<all\_urls>'],
+  types: ['image']
+}, ["blocking"]);
+
+cowImg = "data:image/png;base64,iVBORw0KG...";
+}());
+\end{lstlisting}
+
+\subsection{Opcje konfiguracyjne aplikacji}
+\label{appendix_options}
+
+\begin{lstlisting}[label=lst_main_help, caption={Dostępne opcje konfiguracyjne głównej aplikacji.}]
+usage: main.py [-h] [--version] [-P port] [--no-proxy] [--spawn N]
+               [--bootstrap HOST:PORT] [--known-nodes filename]
+               [--log {info,debug,warn}] [--no-p2p]
+               [--p2p-network {kademlia,chord}] [--p2p-port P2P PORT]
+               [--mem-algo {lru,lfu,fifo}] [--mem-size MEM_SIZE] [--no-mem]
+               [--p2p-algo {lru,lfu,fifo}] [--p2p-size P2P_SIZE]
+
+Run and test distributed caching proxy.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --version             show program's version number and exit
+  -P port               Proxy port
+  --no-proxy            Create only p2p node without proxy.
+  --spawn N             Spawn some nodes that will be in P2P network
+  --bootstrap HOST:PORT
+                        Provide known bootstrap node for P2P network.
+  --known-nodes filename
+                        Provide filename with known nodes in P2P network.
+  --log {info,debug,warn}
+                        Change logging mode
+  --no-p2p              Disable connecting to p2p network and p2p caching
+  --p2p-network {kademlia,chord}
+                        Change p2p network implementation
+  --p2p-port P2P PORT   Port for P2P network node. In case of spawn it would
+                        be start port.
+  --mem-algo {lru,lfu,fifo}
+                        Change memory cache algorithm
+  --mem-size MEM_SIZE   Change memory cache queue size
+  --no-mem              Disable memory cache (use only P2P)
+  --p2p-algo {lru,lfu,fifo}
+                        Change p2p cache algorithm
+  --p2p-size P2P_SIZE   Change p2p cache queue size
+\end{lstlisting}
 
 \bibliographystyle{plain}
 

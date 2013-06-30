@@ -13,7 +13,8 @@ colors <- function(type = seq(1, 7)) {
 {"#faf057"},
 {"#FF8A17"},
 {"#B03CD4"},
-{"#f56991"}
+{"#f56991"},
+{"#eeeeee"}
     )
   }
 }
@@ -24,12 +25,14 @@ compareLogs <- function(logs) {
     cacheL1 <- length(which(log[, 'level'] == 1))
     cacheL2 <- length(which(log[, 'level'] == 2))
     total <- length(log[, 1])
-    
-    l <- c(cacheL1 / total, cacheL2 / total, mean(log[, 'latency'], na.rm=TRUE))
+   
+    latencyTake <- log[, 'level'] == 2
+    l <- c(cacheL1 / total, cacheL2 / total, mean(log[latencyTake, 'latency'], na.rm=TRUE))
+    l <- c(l, as.vector(summary(na.omit(log[latencyTake, 'latency']))))
     return(l)
   })
   df <- t(data.frame(result))
-  colnames(df) <- c('L1 Cache hits [%]', 'L2 Cache hits [%]', 'Mean latency')
+  colnames(df) <- c('L1 Cache hits [%]', 'L2 Cache hits [%]', 'Mean', 'Min latency', '1st Q.', 'Median', 'Mean', '3rd Q', 'Max latency')
   return(df)
   #return(data.frame(matrix(unlist(result), nrow=length(logs), byrow=T)))
 }
